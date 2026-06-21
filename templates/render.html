@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>Lower Third — Polymorphic Renderer</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <style id="themeCSS">
+    /* Theme CSS injected dynamically */
+    body { background: transparent; }
+  </style>
+</head>
+<body>
+  <div id="themeBody">
+    <!-- Theme body HTML injected dynamically -->
+  </div>
+
+  <script src="../js/themes.js"></script>
+  <script src="../js/controller.js"></script>
+  <script>
+    /**
+     * ThemeRouter — Reads ?style=<key> from URL and applies the matching theme.
+     * Also listens for BroadcastChannel 'change-style' commands for hot-swapping.
+     */
+    class ThemeRouter {
+      constructor() {
+        this.currentTheme = null;
+        this.params = new URLSearchParams(window.location.search);
+        this.styleKey = this.params.get('style') || 'emerald';
+      }
+
+      init() {
+        this.applyTheme(this.styleKey);
+
+        // Listen for hot-swap commands via BroadcastChannel
+        try {
+          const channel = new BroadcastChannel('lt-control');
+          channel.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'change-style' && e.data.style) {
+              this.applyTheme(e.data.style);
+            }
+          });
+        } catch (err) {
+          console.warn('ThemeRouter: BroadcastChannel not available', err);
+        }
+
+        // Also listen via postMessage (for iframe communication from control panel)
+        window.addEventListener('message', (e) => {
+          if (e.data && e.data.type === 'change-style' && e.data.style) {
+            this.applyTheme(e.data.style);
+          }
+        });
+      }
+
+      applyTheme(key) {
+        const theme = window.THEME_REGISTRY?.[key];
+        if (!theme) {
+          console.warn(`ThemeRouter: Unknown theme "${key}", falling back to "emerald".`);
+          this.applyTheme('emerald');
+          return;
+        }
+
+        if (this.currentTheme === key) return;
+        this.currentTheme = key;
+
+        // 1. Inject theme CSS
+        const styleEl = document.getElementById('themeCSS');
+        if (styleEl) {
+          styleEl.textContent = 'body { background: transparent; }\n' + theme.css;
+        }
+
+        // 2. Inject theme body HTML
+        const bodyContainer = document.getElementById('themeBody');
+        if (bodyContainer) {
+          bodyContainer.innerHTML = theme.bodyHTML;
+        }
+
+        // 3. Execute inline script if any
+        if (theme.inlineScript) {
+          try {
+            const scriptFn = new Function(theme.inlineScript);
+            scriptFn();
+          } catch (err) {
+            console.warn('ThemeRouter: inline script error for theme', key, err);
+          }
+        }
+
+        // 4. Re-initialize the controller with the new DOM
+        if (window.LT) {
+          window.LT.init();
+        }
+      }
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      window.themeRouter = new ThemeRouter();
+      window.themeRouter.init();
+    });
+  </script>
+</body>
+</html>

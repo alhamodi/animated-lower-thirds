@@ -80,25 +80,25 @@ function initParticles() {
 
 class ControlPanel {
   constructor() {
-    // Style definitions
+    // Style definitions — Polymorphic render.html architecture
     this.STYLES = [
       null,
-      { file: 'templates/style1-emerald.html',  name: 'الذهب والزمرد',    gradient: 'linear-gradient(135deg,#0d5c3a,#c9a84c)' },
-      { file: 'templates/style2-royal.html',    name: 'الليل الملكي',      gradient: 'linear-gradient(135deg,#0a1628,#00c4b8)' },
-      { file: 'templates/style3-modern.html',   name: 'الأنيق الحديث',    gradient: 'linear-gradient(135deg,#111,#c9a84c)' },
-      { file: 'templates/style4-fajr.html',     name: 'الفجر',            gradient: 'linear-gradient(135deg,#081e32,#c08040)' },
-      { file: 'templates/style5-silver.html',   name: 'الأزرق الفضي',     gradient: 'linear-gradient(135deg,#1a2535,#a8b8cc)' },
-      { file: 'templates/style6-heritage.html', name: 'التراث والحداثة',   gradient: 'linear-gradient(135deg,#6b1a1a,#c9a84c)' },
-      { file: 'templates/style7-glass.html',    name: 'الزجاج المضيء',    gradient: 'linear-gradient(135deg,rgba(255,255,255,0.2),#c9a84c)' },
-      { file: 'templates/style8-saudi.html',    name: 'الأخضر السعودي',   gradient: 'linear-gradient(135deg,#006c35,#ffffff)' },
-      { file: 'templates/style9-kufic.html',    name: 'الكوفي الهندسي',   gradient: 'linear-gradient(135deg,#131210,#b87333)' },
-      { file: 'templates/style10-gold.html',    name: 'الذهبي الفاخر',    gradient: 'linear-gradient(135deg,#111111,#d4af37)' },
-      { file: 'templates/style11-midnight.html',name: 'الياقوت المنتصف',   gradient: 'linear-gradient(135deg,#0a0e2a,#4a90d9)' },
-      { file: 'templates/style12-marble.html',  name: 'الرخام والذهب الوردي', gradient: 'linear-gradient(135deg,#e8e0d0,#c08060)' },
-      { file: 'templates/style13-ramadan-green.html',  name: 'رمضان الأخضر والذهبي', gradient: 'linear-gradient(135deg,#05260f,#c9a84c)' },
-      { file: 'templates/style14-ramadan-plum.html', name: 'رمضان الأرجواني والذهبي', gradient: 'linear-gradient(135deg,#31064f,#c9a84c)' },
-      { file: 'templates/style15-dynamic.html',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
-      { file: 'templates/style16-minimalist.html',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
+      { file: 'templates/render.html', theme: 'emerald',        name: 'الذهب والزمرد',    gradient: 'linear-gradient(135deg,#0d5c3a,#c9a84c)' },
+      { file: 'templates/render.html', theme: 'royal',          name: 'الليل الملكي',      gradient: 'linear-gradient(135deg,#0a1628,#00c4b8)' },
+      { file: 'templates/render.html', theme: 'modern',         name: 'الأنيق الحديث',    gradient: 'linear-gradient(135deg,#111,#c9a84c)' },
+      { file: 'templates/render.html', theme: 'fajr',           name: 'الفجر',            gradient: 'linear-gradient(135deg,#081e32,#c08040)' },
+      { file: 'templates/render.html', theme: 'silver',         name: 'الأزرق الفضي',     gradient: 'linear-gradient(135deg,#1a2535,#a8b8cc)' },
+      { file: 'templates/render.html', theme: 'heritage',       name: 'التراث والحداثة',   gradient: 'linear-gradient(135deg,#6b1a1a,#c9a84c)' },
+      { file: 'templates/render.html', theme: 'glass',          name: 'الزجاج المضيء',    gradient: 'linear-gradient(135deg,rgba(255,255,255,0.2),#c9a84c)' },
+      { file: 'templates/render.html', theme: 'saudi',          name: 'الأخضر السعودي',   gradient: 'linear-gradient(135deg,#006c35,#ffffff)' },
+      { file: 'templates/render.html', theme: 'kufic',          name: 'الكوفي الهندسي',   gradient: 'linear-gradient(135deg,#131210,#b87333)' },
+      { file: 'templates/render.html', theme: 'gold',           name: 'الذهبي الفاخر',    gradient: 'linear-gradient(135deg,#111111,#d4af37)' },
+      { file: 'templates/render.html', theme: 'midnight',       name: 'الياقوت المنتصف',   gradient: 'linear-gradient(135deg,#0a0e2a,#4a90d9)' },
+      { file: 'templates/render.html', theme: 'marble',         name: 'الرخام والذهب الوردي', gradient: 'linear-gradient(135deg,#e8e0d0,#c08060)' },
+      { file: 'templates/render.html', theme: 'ramadan-green',  name: 'رمضان الأخضر والذهبي', gradient: 'linear-gradient(135deg,#05260f,#c9a84c)' },
+      { file: 'templates/render.html', theme: 'ramadan-plum',   name: 'رمضان الأرجواني والذهبي', gradient: 'linear-gradient(135deg,#31064f,#c9a84c)' },
+      { file: 'templates/render.html', theme: 'dynamic',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
+      { file: 'templates/render.html', theme: 'minimalist',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
     ];
 
     // BroadcastChannel
@@ -572,6 +572,7 @@ class ControlPanel {
     if (!style) return '';
     const s = this._getAllSettings();
     const params = new URLSearchParams({
+      style: style.theme,
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
       nameSize: s.nameSize, titleSize: s.titleSize,
@@ -618,25 +619,45 @@ class ControlPanel {
     if (badge && style) badge.textContent = style.name;
   }
 
-  // ─── Style Switching ─────────────────────
+  // ─── Style Switching (Hot-Swap via postMessage) ─────────────────────
 
   _switchStyle(num, card) {
     const wasVisible = this.isVisible;
+    const prevStyle = this.currentStyle;
     this.currentStyle = num;
     document.querySelectorAll('[data-style]').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
     
-    this._getFrame().src = this._buildUrl(num);
+    const style = this.STYLES[num];
+    const frame = this._getFrame();
+    
+    // Hot-swap: send change-style message to iframe without reload
+    // Only reload iframe if it hasn't been initialized yet (first load)
+    if (frame && frame.contentWindow && prevStyle > 0) {
+      try {
+        frame.contentWindow.postMessage({ type: 'change-style', style: style.theme }, '*');
+      } catch (e) {
+        // Fallback: reload iframe if postMessage fails (cross-origin)
+        frame.src = this._buildUrl(num);
+      }
+    } else {
+      frame.src = this._buildUrl(num);
+    }
+    
+    // Also broadcast for OBS browser sources
+    this._broadcastCommand({ type: 'change-style', style: style.theme });
+    
     this._updateUrlDisplay();
     this._updateStyleBadge();
     
     if (wasVisible) {
-      this.showLT();
+      // Give the theme a moment to apply before showing
+      setTimeout(() => this.showLT(), 200);
     } else {
       this.isVisible = false;
       this._stopCountdown();
       this._setStatus(false);
-      this.updateLT();
+      setTimeout(() => this.updateLT(), 200);
     }
   }
 
@@ -983,14 +1004,66 @@ class ControlPanel {
 
     if (this.queueAutoPlay && this.queue.length > 0) {
       this.queueIndex = 0;
-      this._playQueueItem(this.queueIndex);
-      this.queueInterval = setInterval(() => {
-        this.queueIndex = (this.queueIndex + 1) % this.queue.length;
-        this._playQueueItem(this.queueIndex);
-      }, (this.currentDuration || 10) * 1000 + 2000);
+      this._sequencerPlay();
     } else {
       this._stopQueueAutoPlay();
     }
+  }
+
+  /** Animation-end-aware sequencer: exit → swap → enter → wait → repeat */
+  _sequencerPlay() {
+    if (!this.queueAutoPlay || this.queue.length === 0) return;
+    
+    const item = this.queue[this.queueIndex];
+    if (!item) return;
+    
+    // Load data into inputs
+    document.getElementById('nameInput').value = item.name;
+    document.getElementById('titleInput').value = item.title;
+    document.getElementById('locationInput').value = item.location;
+    document.getElementById('dateInput').value = item.date;
+    if (item.font) document.getElementById('fontInput').value = item.font;
+    
+    // If currently visible, exit first, then re-enter with new data
+    if (this.isVisible) {
+      this.hideLT();
+      // Wait for exit animation to complete (600ms matches controller.js exit timeout)
+      const transitionGap = parseInt(document.getElementById('seqGapInput')?.value) || 800;
+      setTimeout(() => {
+        this.showLT();
+        this._scheduleNextQueueItem();
+      }, transitionGap);
+    } else {
+      this.showLT();
+      this._scheduleNextQueueItem();
+    }
+    
+    // Update visual indicator
+    this._highlightQueueItem(this.queueIndex);
+  }
+  
+  _scheduleNextQueueItem() {
+    const displayMs = (parseInt(document.getElementById('seqDurationInput')?.value) || 10) * 1000;
+    const loopMode = document.getElementById('seqLoopToggle')?.checked !== false;
+    
+    this.queueTimeout = setTimeout(() => {
+      this.queueIndex++;
+      if (this.queueIndex >= this.queue.length) {
+        if (loopMode) {
+          this.queueIndex = 0;
+        } else {
+          this._stopQueueAutoPlay();
+          return;
+        }
+      }
+      this._sequencerPlay();
+    }, displayMs);
+  }
+  
+  _highlightQueueItem(index) {
+    document.querySelectorAll('.queue-item').forEach((el, i) => {
+      el.classList.toggle('queue-item-active', i === index);
+    });
   }
 
   _stopQueueAutoPlay() {
@@ -999,8 +1072,14 @@ class ControlPanel {
       clearInterval(this.queueInterval);
       this.queueInterval = null;
     }
+    if (this.queueTimeout) {
+      clearTimeout(this.queueTimeout);
+      this.queueTimeout = null;
+    }
     const btn = document.getElementById('btnQueueAutoPlay');
     if (btn) btn.classList.remove('active');
+    // Remove active highlight from all queue items
+    document.querySelectorAll('.queue-item').forEach(el => el.classList.remove('queue-item-active'));
   }
 
   _playQueueItem(index) {
@@ -1012,7 +1091,8 @@ class ControlPanel {
     document.getElementById('dateInput').value = item.date;
     if (item.font) document.getElementById('fontInput').value = item.font;
     this.hideLT();
-    setTimeout(() => this.showLT(), 800);
+    const transitionGap = parseInt(document.getElementById('seqGapInput')?.value) || 800;
+    setTimeout(() => this.showLT(), transitionGap);
   }
 
   _exportQueue() {

@@ -148,6 +148,18 @@ class LowerThirdController {
     let isDragging = false;
     let startX = 0, startY = 0;
     let initialBottom = 0, initialSide = 0;
+    let rafId = null;
+    let pendingDx = 0, pendingDy = 0;
+
+    // Compute scale factor between iframe viewport and 1920x1080 canvas
+    const getScaleFactor = () => {
+      const vw = window.innerWidth > 0 ? window.innerWidth : 1920;
+      const vh = window.innerHeight > 0 ? window.innerHeight : 1080;
+      return {
+        scaleX: 1920 / vw,
+        scaleY: 1080 / vh
+      };
+    };
 
     const onMouseDown = (e) => {
       if (e.target.tagName === 'BUTTON') return;
@@ -159,31 +171,52 @@ class LowerThirdController {
       e.preventDefault();
     };
 
-    const onMouseMove = (e) => {
-      if (!isDragging) return;
-      // Get exact coordinates ignoring iframe scaling (basic approximation)
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+    const applyDrag = () => {
+      rafId = null;
+      const scale = getScaleFactor();
+      const dx = pendingDx * scale.scaleX;
+      const dy = pendingDy * scale.scaleY;
 
-      this.bottomMargin = Math.max(0, initialBottom - dy);
+      // Clamp to canvas boundaries (0 to 1920/1080 minus panel size)
+      this.bottomMargin = Math.max(0, Math.min(900, initialBottom - dy));
 
       if (this.align === 'left') {
-        this.sideMargin = Math.max(0, initialSide + dx);
+        this.sideMargin = Math.max(0, Math.min(1600, initialSide + dx));
       } else if (this.align === 'right') {
-        this.sideMargin = Math.max(0, initialSide - dx);
+        this.sideMargin = Math.max(0, Math.min(1600, initialSide - dx));
       }
 
       this._applyMargins();
 
-      // Post update to parent
+      // Post precision-mapped coordinates to parent
       window.parent.postMessage({
         type: 'lt-drag-update',
-        x: this.sideMargin,
-        y: this.bottomMargin
+        x: Math.round(this.sideMargin),
+        y: Math.round(this.bottomMargin),
+        canvasX: Math.round(this.sideMargin),
+        canvasY: Math.round(this.bottomMargin),
+        viewportX: Math.round(this.sideMargin / scale.scaleX),
+        viewportY: Math.round(this.bottomMargin / scale.scaleY)
       }, '*');
     };
 
-    const onMouseUp = () => { isDragging = false; };
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+      pendingDx = e.clientX - startX;
+      pendingDy = e.clientY - startY;
+      // Throttle via requestAnimationFrame — prevents messaging congestion
+      if (!rafId) {
+        rafId = requestAnimationFrame(applyDrag);
+      }
+    };
+
+    const onMouseUp = () => {
+      isDragging = false;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
 
     this.wrapper.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
@@ -247,6 +280,50 @@ class LowerThirdController {
       this.dateEl.style.fontFamily = fontStr;
       this.dateEl.style.fontSize = this.dateSize === 100 ? '' : `${this.dateSize}%`;
     }
+    
+    // Auto-fit text to prevent overflow clipping
+    this._autoFitText();
+  }
+
+  /**
+   * Module 4: Dynamic Typography Engine — Auto Text Scaling
+   * Measures text elements against panel width and scales down if they overflow.
+   * Uses transform: scale() for GPU-accelerated, non-layout-breaking downsizing.
+   * Maximum downscale: 60% to maintain readability.
+   */
+  _autoFitText() {
+    if (!this.panelEl) return;
+    const panelWidth = this.panelEl.clientWidth;
+    if (panelWidth <= 0) return;
+    
+    const threshold = 0.92; // 92% of panel width triggers scaling
+    const minScale = 0.6;   // Never scale below 60%
+    
+    [this.nameEl, this.titleEl].forEach(el => {
+      if (!el) return;
+      // Reset any previous scaling to get true measurement
+      el.style.transform = '';
+      el.style.transformOrigin = '';
+      el.style.whiteSpace = 'nowrap';
+      
+      // Wait one frame for the layout to settle after reset
+      requestAnimationFrame(() => {
+        const scrollW = el.scrollWidth;
+        const maxW = panelWidth * threshold;
+        
+        if (scrollW > maxW && scrollW > 0) {
+          const ratio = Math.max(minScale, maxW / scrollW);
+          el.style.transform = `scale(${ratio.toFixed(3)})`;
+          el.style.transformOrigin = 'right center'; // RTL: anchor to right
+          el.style.willChange = 'transform';
+        } else {
+          el.style.transform = '';
+          el.style.willChange = '';
+        }
+        // Restore wrapping for short text
+        el.style.whiteSpace = '';
+      });
+    });
   }
 
   _applyAlign() {

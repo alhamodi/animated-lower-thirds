@@ -91,6 +91,8 @@ html, body {
   justify-content: flex-end; /* RTL: anchor to right */
   padding-right: 60px;
   pointer-events: none;
+  will-change: transform; /* GPU compositing hint for drag & drop */
+  contain: layout style; /* Isolate layout recalculations */
 }
 
 .lt-panel {
@@ -227,4 +229,24 @@ html, body {
 }
 .lt-empty-title .lt-text-content {
   min-width: 100%;
+}
+
+/* ─── Module 4: Text Auto-Scale Utilities ─── */
+.lt-text-autoscale {
+  white-space: nowrap;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.lt-name,
+.lt-title {
+  will-change: transform, opacity;
+  transform-origin: right center; /* RTL default */
+}
+
+/* ─── Module 3: Queue Active Item ─── */
+.queue-item-active {
+  border-color: var(--gold) !important;
+  background: rgba(201, 168, 76, 0.1) !important;
+  box-shadow: 0 0 12px rgba(201, 168, 76, 0.2) !important;
 }
