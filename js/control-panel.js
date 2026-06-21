@@ -86,7 +86,7 @@ class ControlPanel {
       { file: 'style1-emerald.html',  name: 'الذهب والزمرد',    gradient: 'linear-gradient(135deg,#0d5c3a,#c9a84c)' },
       { file: 'style2-royal.html',    name: 'الليل الملكي',      gradient: 'linear-gradient(135deg,#0a1628,#00c4b8)' },
       { file: 'style3-modern.html',   name: 'الأنيق الحديث',    gradient: 'linear-gradient(135deg,#111,#c9a84c)' },
-      { file: 'style4-fajr.html',     name: 'الفجر',            gradient: 'linear-gradient(135deg,#1a0533,#c08040)' },
+      { file: 'style4-fajr.html',     name: 'الفجر',            gradient: 'linear-gradient(135deg,#081e32,#c08040)' },
       { file: 'style5-silver.html',   name: 'الأزرق الفضي',     gradient: 'linear-gradient(135deg,#1a2535,#a8b8cc)' },
       { file: 'style6-heritage.html', name: 'التراث والحداثة',   gradient: 'linear-gradient(135deg,#6b1a1a,#c9a84c)' },
       { file: 'style7-glass.html',    name: 'الزجاج المضيء',    gradient: 'linear-gradient(135deg,rgba(255,255,255,0.2),#c9a84c)' },
@@ -95,6 +95,10 @@ class ControlPanel {
       { file: 'style10-gold.html',    name: 'الذهبي الفاخر',    gradient: 'linear-gradient(135deg,#111111,#d4af37)' },
       { file: 'style11-midnight.html',name: 'الياقوت المنتصف',   gradient: 'linear-gradient(135deg,#0a0e2a,#4a90d9)' },
       { file: 'style12-marble.html',  name: 'الرخام والذهب الوردي', gradient: 'linear-gradient(135deg,#e8e0d0,#c08060)' },
+      { file: 'style13-ramadan-green.html',  name: 'رمضان الأخضر والذهبي', gradient: 'linear-gradient(135deg,#05260f,#c9a84c)' },
+      { file: 'style14-ramadan-plum.html', name: 'رمضان الأرجواني والذهبي', gradient: 'linear-gradient(135deg,#31064f,#c9a84c)' },
+      { file: 'style15-dynamic.html',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
+      { file: 'style16-minimalist.html',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
     ];
 
     // BroadcastChannel
@@ -104,15 +108,22 @@ class ControlPanel {
     // State
     this.currentStyle = 1;
     this.isVisible = false;
-    this.currentAlign = 'left';
+    this.currentAlign = 'right';
     this.currentDuration = 0;
     this.currentBottom = 80;
+    this.currentSideMargin = 60;
     this.currentAnimStyle = 'slide-right';
     this.currentOrnament = 'none';
     this.currentColorBg = '';
-    this.currentColorText = '';
-    this.currentColorAccent = '';
-    this.currentLogo = '';
+    // Font Sizes
+    this.nameSize = 100;
+    this.titleSize = 100;
+    this.locationSize = 100;
+    this.dateSize = 100;
+    this.currentColorAccent = '#ffffff';
+    this.currentAnimStyle = '1';
+    this.currentAnimSpeed = 'normal';
+    this.currentLogo = null;
     this.countdownInterval = null;
     this.activeTab = 'text';
     this.shortcutsVisible = false;
@@ -134,6 +145,27 @@ class ControlPanel {
     this._bindInputs();
     this._bindKeyboard();
     this._initDate();
+
+    // Listen for drag updates from iframe
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'lt-drag-update') {
+        const { x, y } = e.data;
+        if (x !== undefined) {
+          this.currentSideMargin = x;
+          const sliderX = document.getElementById('sideMarginSlider');
+          if (sliderX) { sliderX.value = x; document.getElementById('sideMarginVal').textContent = `${x}px`; }
+        }
+        if (y !== undefined) {
+          this.currentBottom = y;
+          const sliderY = document.getElementById('marginSlider');
+          if (sliderY) { sliderY.value = y; document.getElementById('marginVal').textContent = `${y}px`; }
+        }
+        this._debouncedUpdate();
+      }
+    });
+
+    // Preview
+    this.updatePreview();
     this._renderPresets();
     this._updateUrlDisplay();
     this._scalePreview();
@@ -145,6 +177,52 @@ class ControlPanel {
 
     // Update style name badge
     this._updateStyleBadge();
+    
+    // Load system fonts async
+    this._loadSystemFonts();
+  }
+
+  async _loadSystemFonts() {
+    const datalist = document.getElementById('fontsList');
+    if (!datalist) return;
+    
+    let fontList = [];
+    
+    try {
+      if ('queryLocalFonts' in window) {
+        const fonts = await window.queryLocalFonts();
+        const fontSet = new Set();
+        fonts.forEach(f => fontSet.add(f.family));
+        fontList = Array.from(fontSet).sort();
+      }
+    } catch(e) {
+      console.warn('Local Font API denied or failed', e);
+    }
+    
+    if (fontList.length === 0) {
+      try {
+        const res = await fetch('http://localhost:8080/api/fonts');
+        if (res.ok) {
+          fontList = await res.json();
+        }
+      } catch(e) {}
+    }
+    
+    if (fontList.length === 0) {
+      fontList = [
+        'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
+      ];
+    }
+    
+    datalist.innerHTML = '';
+    fontList.forEach(font => {
+      const option = document.createElement('option');
+      option.value = font;
+      datalist.appendChild(option);
+    });
+    
+    const fontInput = document.getElementById('fontInput');
+    if (fontInput) fontInput.placeholder = 'اختر أو اكتب اسم الخط...';
   }
 
   // ─── Navigation ───────────────────────────
@@ -206,7 +284,7 @@ class ControlPanel {
     const s = this._getAllSettings();
 
     // Broadcast to OBS
-    this.channel.postMessage({ type: 'show', ...s });
+    this._broadcastCommand({ type: 'show', ...s });
 
     // Local preview
     const lt = this._getPreviewLT();
@@ -225,7 +303,7 @@ class ControlPanel {
   }
 
   hideLT() {
-    this.channel.postMessage({ type: 'hide' });
+    this._broadcastCommand({ type: 'hide' });
     this._getPreviewLT()?.exit();
     this.isVisible = false;
     this._stopCountdown();
@@ -234,12 +312,32 @@ class ControlPanel {
 
   updateLT() {
     const s = this._getAllSettings();
-    this.channel.postMessage({ type: 'update', ...s });
+    this._broadcastCommand({ type: 'update', ...s });
 
     const lt = this._getPreviewLT();
     if (lt) this._applyToPreview(lt);
 
     this._updateUrlDisplay();
+  }
+
+  _broadcastCommand(cmd) {
+    // 1. BroadcastChannel
+    if (this.channel) {
+      this.channel.postMessage(cmd);
+    }
+    // 2. localStorage
+    try {
+      localStorage.setItem('lt-cmd', JSON.stringify(cmd));
+      localStorage.setItem('lt-cmd-time', Date.now().toString());
+    } catch (e) {}
+    // 3. API Server (100% bulletproof for OBS)
+    try {
+      fetch('http://localhost:8080/api/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cmd)
+      }).catch(() => {});
+    } catch (e) {}
   }
 
   // ─── Inputs ───────────────────────────────
@@ -268,9 +366,46 @@ class ControlPanel {
     });
 
     // Bottom margin slider
-    document.getElementById('bottomSlider')?.addEventListener('input', (e) => {
+    document.getElementById('marginSlider')?.addEventListener('input', (e) => {
       this.currentBottom = parseInt(e.target.value);
-      document.getElementById('bottomVal').textContent = `${this.currentBottom}px`;
+      document.getElementById('marginVal').textContent = `${this.currentBottom}px`;
+      this._debouncedUpdate();
+    });
+
+    // Side margin slider
+    document.getElementById('sideMarginSlider')?.addEventListener('input', (e) => {
+      this.currentSideMargin = parseInt(e.target.value);
+      document.getElementById('sideMarginVal').textContent = `${this.currentSideMargin}px`;
+      this._debouncedUpdate();
+    });
+
+    // Font size controls (+/-)
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target; // e.g., nameSize
+        const action = btn.dataset.action; // increase or decrease
+        if (!target) return;
+        
+        let current = this[target] || 100;
+        if (action === 'increase') {
+          current += 10;
+          if (current > 300) current = 300;
+        } else {
+          current -= 10;
+          if (current < 30) current = 30;
+        }
+        this[target] = current;
+        
+        const display = document.getElementById(`${target}Display`);
+        if (display) display.textContent = `${current}%`;
+        
+        this._debouncedUpdate();
+      });
+    });
+
+    // Animation Speed select
+    document.getElementById('animationSpeed')?.addEventListener('change', (e) => {
+      this.currentAnimSpeed = e.target.value;
       this._debouncedUpdate();
     });
 
@@ -303,8 +438,21 @@ class ControlPanel {
     // Preview background
     document.getElementById('previewBgInput')?.addEventListener('change', (e) => this._onPreviewBgChange(e));
 
+    // Dynamic Data
+    document.getElementById('btnAutoDate')?.addEventListener('click', () => {
+      this._stopLiveClock();
+      const dateInput = document.getElementById('dateInput');
+      if (dateInput) dateInput.value = getHijriDate();
+    });
+    
+    document.getElementById('btnLiveClock')?.addEventListener('click', () => {
+      this._toggleLiveClock();
+    });
+
     // Preset buttons
     document.getElementById('btnSavePreset')?.addEventListener('click', () => this._savePreset());
+    document.getElementById('btnExportPresets')?.addEventListener('click', () => this._exportPresets());
+    document.getElementById('importPresetsInput')?.addEventListener('change', (e) => this._importPresets(e));
 
     // Queue buttons
     document.getElementById('btnQueueAdd')?.addEventListener('click', () => this._addToQueue());
@@ -386,21 +534,34 @@ class ControlPanel {
   _getLocation() { return document.getElementById('locationInput')?.value || ''; }
   _getDate()     { return document.getElementById('dateInput')?.value     || ''; }
   _getFont()     { return document.getElementById('fontInput')?.value     || ''; }
+  
+  _getNameSize()     { return this.nameSize; }
+  _getTitleSize()    { return this.titleSize; }
+  _getLocationSize() { return this.locationSize; }
+  _getDateSize()     { return this.dateSize; }
 
   _getAllSettings() {
+    const activeStyle = this.STYLES[this.currentStyle];
     return {
+      styleFile: activeStyle ? activeStyle.file : '',
       name: this._getName(),
       title: this._getTitle(),
       location: this._getLocation(),
       date: this._getDate(),
       font: this._getFont(),
+      nameSize: this._getNameSize(),
+      titleSize: this._getTitleSize(),
+      locationSize: this._getLocationSize(),
+      dateSize: this._getDateSize(),
       align: this.currentAlign,
       duration: this.currentDuration,
       bottomMargin: this.currentBottom,
+      sideMargin: this.currentSideMargin,
       colorBg: this.currentColorBg,
       colorText: this.currentColorText,
       colorAccent: this.currentColorAccent,
       animStyle: this.currentAnimStyle,
+      animSpeed: this.currentAnimSpeed,
       logo: this.currentLogo,
       ornament: this.currentOrnament,
     };
@@ -413,7 +574,9 @@ class ControlPanel {
     const params = new URLSearchParams({
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
-      duration: s.duration, bottom: s.bottomMargin,
+      nameSize: s.nameSize, titleSize: s.titleSize,
+      locationSize: s.locationSize, dateSize: s.dateSize,
+      duration: s.duration, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
       anim: s.animStyle, ornament: s.ornament, autostart: 'false'
     });
     if (s.colorBg) params.set('colorBg', s.colorBg);
@@ -429,7 +592,9 @@ class ControlPanel {
     Object.assign(lt, {
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
-      duration: 0, bottomMargin: s.bottomMargin,
+      nameSize: s.nameSize, titleSize: s.titleSize,
+      locationSize: s.locationSize, dateSize: s.dateSize,
+      duration: 0, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
       colorBg: s.colorBg, colorText: s.colorText,
       colorAccent: s.colorAccent, animStyle: s.animStyle,
       logo: s.logo, ornament: s.ornament,
@@ -456,15 +621,102 @@ class ControlPanel {
   // ─── Style Switching ─────────────────────
 
   _switchStyle(num, card) {
+    const wasVisible = this.isVisible;
     this.currentStyle = num;
     document.querySelectorAll('[data-style]').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
-    this.isVisible = false;
-    this._stopCountdown();
-    this._setStatus(false);
+    
     this._getFrame().src = this._buildUrl(num);
     this._updateUrlDisplay();
     this._updateStyleBadge();
+    
+    if (wasVisible) {
+      this.showLT();
+    } else {
+      this.isVisible = false;
+      this._stopCountdown();
+      this._setStatus(false);
+      this.updateLT();
+    }
+  }
+
+  async _loadSystemFonts() {
+    const fontOptions = document.getElementById('fontOptions');
+    const fontInput = document.getElementById('fontInput');
+    if (!fontOptions || !fontInput) return;
+    
+    let fontList = [];
+    
+    try {
+      if ('queryLocalFonts' in window) {
+        const fonts = await window.queryLocalFonts();
+        const fontSet = new Set();
+        fonts.forEach(f => fontSet.add(f.family));
+        fontList = Array.from(fontSet).sort();
+      }
+    } catch(e) {
+      console.warn('Local Font API denied or failed', e);
+    }
+    
+    if (fontList.length === 0) {
+      try {
+        const res = await fetch('http://localhost:8080/api/fonts');
+        if (res.ok) {
+          fontList = await res.json();
+        }
+      } catch(e) {}
+    }
+    
+    if (fontList.length === 0) {
+      fontList = [
+        'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
+      ];
+    }
+    
+    const renderOptions = (list) => {
+      fontOptions.innerHTML = '';
+      if (list.length === 0) {
+        fontOptions.innerHTML = '<div class="custom-option" style="color:#666;">لا يوجد نتائج</div>';
+        return;
+      }
+      list.forEach(font => {
+        const option = document.createElement('div');
+        option.className = 'custom-option';
+        option.textContent = font;
+        option.style.fontFamily = font;
+        option.addEventListener('mousedown', (e) => {
+          // Use mousedown instead of click to prevent input blur hiding it before click registers
+          e.preventDefault();
+          fontInput.value = font;
+          fontOptions.classList.add('hidden');
+          fontInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        fontOptions.appendChild(option);
+      });
+    };
+
+    renderOptions(fontList);
+    
+    fontInput.placeholder = 'ابحث أو اختر من القائمة...';
+
+    // Show/Hide logic
+    fontInput.addEventListener('focus', () => {
+      fontOptions.classList.remove('hidden');
+      renderOptions(fontList); // reset list
+    });
+
+    fontInput.addEventListener('blur', () => {
+      setTimeout(() => fontOptions.classList.add('hidden'), 150);
+    });
+
+    // Filter logic
+    fontInput.addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase();
+      fontOptions.classList.remove('hidden');
+      const filtered = fontList.filter(f => f.toLowerCase().includes(val));
+      renderOptions(filtered);
+      this._debouncedUpdate();
+    });
   }
 
   // ─── Alignment ────────────────────────────
@@ -668,6 +920,37 @@ class ControlPanel {
     });
   }
 
+  _exportPresets() {
+    const presets = this._getPresets();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(presets, null, 2));
+    const a = document.createElement('a');
+    a.href = dataStr;
+    a.download = `LT_Presets_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  _importPresets(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const presets = JSON.parse(event.target.result);
+        if (Array.isArray(presets)) {
+          localStorage.setItem('lt-presets', JSON.stringify(presets));
+          this._renderPresets();
+          alert('✅ تم استيراد البيانات بنجاح!');
+        }
+      } catch (err) {
+        alert('❌ خطأ في استيراد الملف.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset
+  }
+
   // ─── Queue System ─────────────────────────
 
   _addToQueue() {
@@ -858,6 +1141,38 @@ class ControlPanel {
   _initDate() {
     const dateInput = document.getElementById('dateInput');
     if (dateInput) dateInput.value = getHijriDate();
+  }
+
+  _toggleLiveClock() {
+    this.isLiveClock = !this.isLiveClock;
+    const btn = document.getElementById('btnLiveClock');
+    if (btn) btn.classList.toggle('active', this.isLiveClock);
+    
+    if (this.isLiveClock) {
+      const updateClock = () => {
+        const dateInput = document.getElementById('dateInput');
+        if (dateInput) {
+          const now = new Date();
+          const timeString = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          dateInput.value = timeString;
+          this.updateLT(); // Auto-update the lower third if visible
+        }
+      };
+      updateClock();
+      this.liveClockInterval = setInterval(updateClock, 1000);
+    } else {
+      this._stopLiveClock();
+    }
+  }
+
+  _stopLiveClock() {
+    this.isLiveClock = false;
+    if (this.liveClockInterval) {
+      clearInterval(this.liveClockInterval);
+      this.liveClockInterval = null;
+    }
+    const btn = document.getElementById('btnLiveClock');
+    if (btn) btn.classList.remove('active');
   }
 
   _escapeHtml(str) {

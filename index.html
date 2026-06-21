@@ -12,10 +12,7 @@
 </head>
 <body>
 
-  <!-- ════════════════════════════════════
-       PARTICLE BACKGROUND
-       ════════════════════════════════════ -->
-  <div class="particles-bg" id="particlesBg"></div>
+
 
   <!-- ════════════════════════════════════
        APP SHELL
@@ -119,14 +116,35 @@
         <div class="card">
           <div class="card-title">✏ النص والمحتوى</div>
 
-          <label for="nameInput">الاسم الكريم</label>
-          <input type="text" id="nameInput" placeholder="اكتب الاسم هنا..." value="الحبيب علي" aria-label="الاسم">
+          <div class="input-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="nameInput" style="margin: 0;">عنوان الكلمة / الدرس (الرئيسي)</label>
+            <div class="font-size-controls" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">
+              <button type="button" class="size-btn" data-target="nameSize" data-action="decrease" aria-label="تصغير" style="background: none; border: none; color: #fff; cursor: pointer;">-</button>
+              <span id="nameSizeDisplay" class="size-display" style="font-size: 0.8rem; width: 35px; text-align: center;">100%</span>
+              <button type="button" class="size-btn" data-target="nameSize" data-action="increase" aria-label="تكبير" style="background: none; border: none; color: #fff; cursor: pointer;">+</button>
+            </div>
+          </div>
+          <input type="text" id="nameInput" placeholder="اكتب العنوان هنا..." value="" aria-label="العنوان">
 
-          <label for="titleInput">المسمى أو العنوان</label>
-          <input type="text" id="titleInput" placeholder="مثل: عالم، داعية، مقدم برنامج..." value="المسمى الوظيفي" aria-label="المسمى">
+          <div class="input-header" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;">
+            <label for="titleInput" style="margin: 0;">اسم المحاضر / الشيخ (الفرعي)</label>
+            <div class="font-size-controls" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">
+              <button type="button" class="size-btn" data-target="titleSize" data-action="decrease" aria-label="تصغير" style="background: none; border: none; color: #fff; cursor: pointer;">-</button>
+              <span id="titleSizeDisplay" class="size-display" style="font-size: 0.8rem; width: 35px; text-align: center;">100%</span>
+              <button type="button" class="size-btn" data-target="titleSize" data-action="increase" aria-label="تكبير" style="background: none; border: none; color: #fff; cursor: pointer;">+</button>
+            </div>
+          </div>
+          <input type="text" id="titleInput" placeholder="مثل: الحبيب علي..." value="الحبيب علي بن محضار بن علي المشهور" aria-label="الاسم">
 
-          <label for="locationInput">المكان / الجامع</label>
-          <input type="text" id="locationInput" list="locationsList" placeholder="مثل: جامع تريس - تريس - حضرموت" value="جامع تريس - تريس - حضرموت" aria-label="المكان">
+          <div class="input-header" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;">
+            <label for="locationInput" style="margin: 0;">المكان / الجامع</label>
+            <div class="font-size-controls" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;">
+              <button type="button" class="size-btn" data-target="locationSize" data-action="decrease" aria-label="تصغير" style="background: none; border: none; color: #fff; cursor: pointer;">-</button>
+              <span id="locationSizeDisplay" class="size-display" style="font-size: 0.8rem; width: 35px; text-align: center;">100%</span>
+              <button type="button" class="size-btn" data-target="locationSize" data-action="increase" aria-label="تكبير" style="background: none; border: none; color: #fff; cursor: pointer;">+</button>
+            </div>
+          </div>
+          <input type="text" id="locationInput" list="locationsList" placeholder="مثل: جامع تريس - تريس - حضرموت" value="رباط الإمام المهاجر - الحسيسة" aria-label="المكان">
           <datalist id="locationsList">
             <option value="مسجد الأحمدين – رباط الإمام المهاجر إلى الله – الحسيسة"></option>
             <option value="تريم – حافة المحضار – بلعشر"></option>
@@ -137,27 +155,28 @@
             <option value="جامع تريس - تريس - حضرموت"></option>
           </datalist>
 
-          <label for="dateInput">التاريخ</label>
-          <input type="text" id="dateInput" placeholder="التاريخ الهجري..." value="" aria-label="التاريخ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;">
+            <label for="dateInput" style="margin: 0;">التاريخ أو الوقت</label>
+            <div style="display: flex; gap: 4px;">
+              <button type="button" id="btnAutoDate" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--gold-light); font-size: 0.7rem; padding: 2px 6px; cursor: pointer;">📅 هجري اليوم</button>
+              <button type="button" id="btnLiveClock" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; color: var(--emerald); font-size: 0.7rem; padding: 2px 6px; cursor: pointer;">🕒 ساعة حية</button>
+            </div>
+          </div>
+          <input type="text" id="dateInput" placeholder="التاريخ الهجري أو الوقت..." value="" aria-label="التاريخ">
 
           <label for="fontInput">خط النص (Font Family)</label>
-          <input type="text" id="fontInput" list="fontsList" placeholder="Cairo, Amiri, Geeza Pro..." value="" aria-label="الخط">
-          <datalist id="fontsList">
-            <option value="Cairo, sans-serif"></option>
-            <option value="Amiri, serif"></option>
-            <option value="Geeza Pro, sans-serif"></option>
-            <option value="Traditional Arabic, serif"></option>
-            <option value="Simplified Arabic, sans-serif"></option>
-            <option value="Adobe Arabic, serif"></option>
-            <option value="DecoType Naskh, serif"></option>
-            <option value="Arial, sans-serif"></option>
-          </datalist>
+          <div class="custom-select-wrapper" id="fontSelectWrapper" style="position: relative;">
+            <input type="text" id="fontInput" placeholder="ابحث أو اختر من القائمة..." value="خط ثمانية" aria-label="الخط" autocomplete="off" style="width: 100%;">
+            <div class="custom-select-options hidden" id="fontOptions">
+              <!-- Options populated via JS -->
+            </div>
+          </div>
 
           <label>موضع ظهور المستطيل (المحاذاة)</label>
           <div class="align-group">
-            <button type="button" class="align-btn active" data-align="left" aria-label="يسار">يسار (الافتراضي)</button>
+            <button type="button" class="align-btn" data-align="left" aria-label="يسار">يسار</button>
             <button type="button" class="align-btn" data-align="center" aria-label="وسط">وسط</button>
-            <button type="button" class="align-btn" data-align="right" aria-label="يمين">يمين</button>
+            <button type="button" class="align-btn active" data-align="right" aria-label="يمين">يمين (الافتراضي)</button>
           </div>
         </div>
       </div>
@@ -181,7 +200,7 @@
               الأنيق الحديث
             </div>
             <div class="style-card" data-style="4" title="الفجر" role="button" tabindex="0">
-              <span class="style-dot" style="background: linear-gradient(135deg,#1a0533,#c08040); border:none;"></span>
+              <span class="style-dot" style="background: linear-gradient(135deg,#081e32,#c08040); border:none;"></span>
               الفجر
             </div>
             <div class="style-card" data-style="5" title="الأزرق الفضي" role="button" tabindex="0">
@@ -218,6 +237,22 @@
               <span class="style-dot" style="background: linear-gradient(135deg,#e8e0d0,#c08060); border:none;"></span>
               الرخام والذهب الوردي
             </div>
+            <div class="style-card" data-style="13" title="رمضان الأخضر والذهبي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#05260f,#c9a84c); border:none;"></span>
+              رمضان الأخضر والذهبي
+            </div>
+            <div class="style-card" data-style="14" title="رمضان الأرجواني والذهبي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#31064f,#c9a84c); border:none;"></span>
+              رمضان الأرجواني والذهبي
+            </div>
+            <div class="style-card" data-style="15" title="الجرافيك العصري الديناميكي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#7a1a9e,#ffffff); border:none;"></span>
+              الجرافيك العصري الديناميكي
+            </div>
+            <div class="style-card" data-style="16" title="بسيط (Minimalist)" role="button" tabindex="0">
+              <span class="style-dot" style="background: #ffffff; border: 1px solid #ddd;"></span>
+              بسيط (Minimalist)
+            </div>
 
           </div>
         </div>
@@ -234,13 +269,33 @@
             <span class="range-val" id="durationVal">0 (مستمر)</span>
           </div>
 
-          <label>📐 الهامش من الأسفل (بكسل)</label>
-          <div class="range-row">
-            <input type="range" id="bottomSlider" min="20" max="500" value="80" step="5" aria-label="الهامش من الأسفل">
-            <span class="range-val" id="bottomVal">80px</span>
+          <label for="animationSpeed" style="margin-top: 16px;">🚀 سرعة الحركة (Animation Speed)</label>
+          <select id="animationSpeed" aria-label="سرعة الحركة">
+            <option value="slow">بطيء (Smooth & Slow)</option>
+            <option value="normal" selected>عادي (Normal)</option>
+            <option value="fast">سريع (Snappy & Fast)</option>
+          </select>
+          <div class="control-group">
+          <label>المسافة من الأسفل (Y-Offset)</label>
+          <div class="slider-container">
+            <input type="range" id="marginSlider" min="0" max="800" value="80" class="lt-slider">
+            <span class="slider-val" id="marginVal">80px</span>
           </div>
 
-          <label for="animSelect">🔄 نمط الحركة (دخول/خروج)</label>
+          <label>المسافة الجانبية (X-Offset)</label>
+          <div class="slider-container">
+            <input type="range" id="sideMarginSlider" min="0" max="1000" value="60" class="lt-slider">
+            <span class="slider-val" id="sideMarginVal">60px</span>
+          </div>
+
+          <label>موضع ظهور المستطيل (المحاذاة)</label>
+          <div class="align-group">
+            <button type="button" class="align-btn" data-align="left" aria-label="يسار">يسار</button>
+            <button type="button" class="align-btn" data-align="center" aria-label="وسط">وسط</button>
+            <button type="button" class="align-btn active" data-align="right" aria-label="يمين">يمين (الافتراضي)</button>
+          </div>
+
+          <label for="animSelect" style="margin-top: 16px;">🔄 نمط الحركة (دخول/خروج)</label>
           <select id="animSelect" aria-label="نمط الحركة">
             <option value="slide-right" selected>↘ انزلاق من اليمين (افتراضي)</option>
             <option value="slide-left">↙ انزلاق من اليسار</option>
@@ -250,6 +305,8 @@
             <option value="elastic">🎯 ارتداد مرن (Elastic)</option>
             <option value="typewriter">⌨ آلة كاتبة (Typewriter)</option>
             <option value="cinematic">🎬 سينمائي (Cinematic Wipe)</option>
+            <option value="glitch">⚡ تشويش خاطف (Glitch)</option>
+            <option value="wipe">↔ مسح جانبي (Snappy Wipe)</option>
           </select>
 
           <label for="ornamentSelect">🌙 الزخرفة الإسلامية</label>
@@ -309,7 +366,14 @@
       <div class="tab-panel" id="panel-presets">
         <div class="card">
           <div class="card-title">📋 البيانات المحفوظة (Presets)</div>
-          <button type="button" class="btn-save-preset" id="btnSavePreset">💾 حفظ البيانات الحالية</button>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button type="button" class="btn-save-preset" id="btnSavePreset" style="flex: 1;">💾 حفظ البيانات الحالية</button>
+            <button type="button" class="btn-save-preset" id="btnExportPresets" title="تصدير (Export)" style="background: var(--bg-card); border-color: var(--border);">📤</button>
+            <label for="importPresetsInput" class="btn-save-preset" title="استيراد (Import)" style="background: var(--bg-card); border-color: var(--border); cursor: pointer; text-align: center;">
+              📥
+            </label>
+            <input type="file" id="importPresetsInput" accept=".json" style="display: none;">
+          </div>
           <div class="presets-list" id="presetsList">
             <div class="empty-state">
               <div class="empty-state-icon">📋</div>

@@ -86,6 +86,14 @@
   100% { transform: translateY(-60px) scale(0.6); opacity: 0; }
 }
 
+/* Subtle Shimmer for glass/gold */
+@keyframes shimmerSweep {
+  0%   { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
+  20%  { opacity: 0.5; }
+  40%  { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+  100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+}
+
 /* ─── EXIT Animations ─── */
 
 @keyframes slideToRight {
@@ -489,4 +497,87 @@
   clip-path: inset(0 0 0 0) !important;
   filter: blur(0) !important;
   opacity: 1 !important;
+}
+
+/* ─── Snappy Wipe ─── */
+@keyframes snappyWipeIn {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes snappyWipeOut {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 100% 0 0); }
+}
+
+.lt-anim-wipe .lt-panel {
+  clip-path: inset(0 100% 0 0);
+  opacity: 1;
+}
+.lt-anim-wipe.lt-entering .lt-panel {
+  animation: snappyWipeIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+.lt-anim-wipe.lt-exiting .lt-panel {
+  animation: snappyWipeOut 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+.lt-anim-wipe.lt-visible .lt-panel {
+  clip-path: inset(0 0 0 0) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Glitch Reveal ─── */
+@keyframes glitchRevealIn {
+  0% {
+    transform: scale(0.8) skew(0deg);
+    opacity: 0;
+    filter: hue-rotate(0deg);
+  }
+  30% {
+    transform: scale(1.05) skew(8deg);
+    opacity: 1;
+    filter: hue-rotate(90deg) contrast(1.5);
+  }
+  60% {
+    transform: scale(0.95) skew(-5deg);
+    filter: hue-rotate(-45deg) saturate(1.2);
+  }
+  90% {
+    transform: scale(1.02) skew(2deg);
+    filter: hue-rotate(10deg);
+  }
+  100% {
+    transform: scale(1) skew(0deg);
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+}
+@keyframes glitchRevealOut {
+  0% {
+    transform: scale(1) skew(0deg);
+    opacity: 1;
+    filter: hue-rotate(0deg);
+  }
+  40% {
+    transform: scale(1.05) skew(-8deg);
+    filter: hue-rotate(180deg);
+  }
+  100% {
+    transform: scale(0.6) skew(0deg);
+    opacity: 0;
+  }
+}
+
+.lt-anim-glitch .lt-panel {
+  transform: scale(0.8);
+  opacity: 0;
+}
+.lt-anim-glitch.lt-entering .lt-panel {
+  animation: glitchRevealIn 0.4s linear forwards !important;
+}
+.lt-anim-glitch.lt-exiting .lt-panel {
+  animation: glitchRevealOut 0.3s ease-in forwards !important;
+}
+.lt-anim-glitch.lt-visible .lt-panel {
+  transform: scale(1) skew(0deg) !important;
+  opacity: 1 !important;
+  filter: none !important;
 }

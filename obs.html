@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>OBS Dynamic Lower Third Source</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: transparent;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="ltFrame" src=""></iframe>
+
+  <script>
+    const frame = document.getElementById('ltFrame');
+    
+    // Parse initial URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentStyle = urlParams.get('styleFile') || 'style1-emerald.html';
+    
+    const initialUrl = new URL(currentStyle, window.location.href);
+    urlParams.forEach((value, key) => {
+      if (key !== 'styleFile') {
+        initialUrl.searchParams.set(key, value);
+      }
+    });
+    if (!initialUrl.searchParams.has('autostart')) {
+      initialUrl.searchParams.set('autostart', 'false');
+    }
+    frame.src = initialUrl.toString();
+    
+    // Listen to control panel commands
+    const channel = new BroadcastChannel('lt-control');
+    
+    function handleCmd(cmd) {
+      // Check if a style change is requested
+      if (cmd.styleFile && cmd.styleFile !== currentStyle) {
+        currentStyle = cmd.styleFile;
+        
+        // Build the new URL with all current settings as parameters
+        const url = new URL(cmd.styleFile, window.location.href);
+        Object.keys(cmd).forEach(k => {
+          if (k !== 'type' && k !== 'styleFile' && cmd[k] !== undefined && cmd[k] !== '') {
+            url.searchParams.set(k, cmd[k]);
+          }
+        });
+        
+        // If the command is 'show', we want it to animate in immediately when the iframe loads
+        if (cmd.type === 'show') {
+          url.searchParams.set('autostart', 'true');
+        } else {
+          url.searchParams.set('autostart', 'false');
+        }
+        
+        url.searchParams.set('t', Date.now()); // Prevent OBS caching
+        
+        frame.src = url.toString();
+      } else {
+        // Same style, try to forward command directly or update iframe src if not ready
+        let ltReady = false;
+        try {
+          if (frame.contentWindow && frame.contentWindow.LT) {
+            frame.contentWindow.LT._handleCommand(cmd);
+            ltReady = true;
+          }
+        } catch (err) {
+          console.warn("LT access error:", err);
+        }
+        
+        if (!ltReady) {
+          const url = new URL(frame.src || window.location.href);
+          Object.keys(cmd).forEach(k => {
+            if (k !== 'type' && k !== 'styleFile' && cmd[k] !== undefined && cmd[k] !== '') {
+              url.searchParams.set(k, cmd[k]);
+            }
+          });
+          if (cmd.type === 'show') {
+            url.searchParams.set('autostart', 'true');
+          } else if (cmd.type === 'hide') {
+            url.searchParams.set('autostart', 'false');
+          }
+          url.searchParams.set('t', Date.now());
+          frame.src = url.toString();
+        }
+      }
+    }
+    
+    channel.onmessage = (e) => handleCmd(e.data);
+    
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'lt-cmd' && e.newValue) {
+        try {
+          handleCmd(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    });
+
+    // 3. API Polling (100% Bulletproof for OBS isolated sources)
+    let lastCmdString = '';
+    setInterval(() => {
+      fetch('http://localhost:8080/api/command')
+        .then(res => res.json())
+        .then(cmd => {
+          const cmdString = JSON.stringify(cmd);
+          if (cmd && cmd.type && cmdString !== lastCmdString) {
+            lastCmdString = cmdString;
+            handleCmd(cmd);
+          }
+        })
+        .catch(() => {});
+    }, 250);
+  </script>
+</body>
+</html>

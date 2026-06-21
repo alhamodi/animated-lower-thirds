@@ -93,6 +93,21 @@ html, body {
   pointer-events: none;
 }
 
+.lt-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.lt-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  z-index: 5;
+  pointer-events: none;
+  animation: shimmerSweep 4s infinite;
+}
+
 /* ─── Utility Classes ─── */
 .hidden { display: none !important; }
 .invisible { visibility: hidden !important; }
@@ -205,3 +220,11 @@ html, body {
 
 
 
+
+/* Empty Title Montage Mode */
+.lt-empty-title .lt-panel {
+  min-width: 50vw !important;
+}
+.lt-empty-title .lt-text-content {
+  min-width: 100%;
+}

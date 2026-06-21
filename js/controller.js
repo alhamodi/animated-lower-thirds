@@ -50,16 +50,23 @@ class LowerThirdController {
     this.location = this.params.get('location') || 'جامع تريس - تريس - حضرموت';
     this.date     = this.params.get('date')     || getHijriDate();
     this.font     = this.params.get('font')     || '';
-    this.align    = this.params.get('align')    || 'left';
+    this.align    = this.params.get('align')    || 'right';
     this.autostart = this.params.get('autostart') !== 'false';
     this.duration  = parseInt(this.params.get('duration') || '0');
 
+    this.nameSize     = parseInt(this.params.get('nameSize') || '100');
+    this.titleSize    = parseInt(this.params.get('titleSize') || '100');
+    this.locationSize = parseInt(this.params.get('locationSize') || '100');
+    this.dateSize     = parseInt(this.params.get('dateSize') || '100');
+
     // New feature properties
-    this.bottomMargin = parseInt(this.params.get('bottom') || '80');
+    this.bottomMargin = parseInt(this.params.get('bottomMargin') || this.params.get('bottom') || '80');
+    this.sideMargin   = parseInt(this.params.get('sideMargin') || '60');
     this.colorBg     = this.params.get('colorBg')     || '';
     this.colorText   = this.params.get('colorText')   || '';
     this.colorAccent = this.params.get('colorAccent') || '';
     this.animStyle   = this.params.get('anim')        || 'slide-right';
+    this.animSpeed   = this.params.get('animSpeed')   || 'normal';
     this.logo        = this.params.get('logo')        || '';
     this.ornament    = this.params.get('ornament')    || 'none';
 
@@ -73,8 +80,32 @@ class LowerThirdController {
     this.timer    = null;
 
     // BroadcastChannel: receive commands from control panel
-    this.channel  = new BroadcastChannel(LT_CHANNEL);
+    this.channel = new BroadcastChannel('lt-control');
     this.channel.onmessage = (e) => this._handleCommand(e.data);
+    
+    // Fallback 1: listen to localStorage events for OBS Custom Docks communication
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'lt-cmd' && e.newValue) {
+        try {
+          this._handleCommand(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    });
+
+    // Fallback 2: API Polling (100% Bulletproof for OBS isolated sources)
+    this.lastCmdString = '';
+    setInterval(() => {
+      fetch('http://localhost:8080/api/command')
+        .then(res => res.json())
+        .then(cmd => {
+          const cmdString = JSON.stringify(cmd);
+          if (cmd && cmd.type && cmdString !== this.lastCmdString) {
+            this.lastCmdString = cmdString;
+            this._handleCommand(cmd);
+          }
+        })
+        .catch(() => {});
+    }, 250);
   }
 
   init() {
@@ -86,7 +117,7 @@ class LowerThirdController {
     this.panelEl    = document.querySelector('.lt-panel');
     this._applyText();
     this._applyAlign();
-    this._applyBottomMargin();
+    this._applyMargins();
     this._applyColors();
     this._applyAnimStyle();
     this._applyLogo();
@@ -101,24 +132,120 @@ class LowerThirdController {
       if (e.key === ' ' || e.key === 'Enter') this.toggle();
       if (e.key === 'Escape') this.exit();
     });
+
+    // Auto-scaling for responsiveness
+    this._setupAutoScaling();
+
+    // Init Draggable if inside iframe
+    if (window !== window.parent) {
+      this._initDraggable();
+    }
+  }
+
+  _initDraggable() {
+    if (!this.wrapper) return;
+    this.wrapper.style.cursor = 'move';
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialBottom = 0, initialSide = 0;
+
+    const onMouseDown = (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      initialBottom = this.bottomMargin;
+      initialSide = this.sideMargin;
+      e.preventDefault();
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+      // Get exact coordinates ignoring iframe scaling (basic approximation)
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      this.bottomMargin = Math.max(0, initialBottom - dy);
+
+      if (this.align === 'left') {
+        this.sideMargin = Math.max(0, initialSide + dx);
+      } else if (this.align === 'right') {
+        this.sideMargin = Math.max(0, initialSide - dx);
+      }
+
+      this._applyMargins();
+
+      // Post update to parent
+      window.parent.postMessage({
+        type: 'lt-drag-update',
+        x: this.sideMargin,
+        y: this.bottomMargin
+      }, '*');
+    };
+
+    const onMouseUp = () => { isDragging = false; };
+
+    this.wrapper.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }
+
+  _setupAutoScaling() {
+    const scale = () => {
+      // In OBS, innerWidth can initially be 0 during load. Fallback to 1920x1080.
+      const w = window.innerWidth > 0 ? window.innerWidth : 1920;
+      const h = window.innerHeight > 0 ? window.innerHeight : 1080;
+      
+      const widthScale = w / 1920;
+      const heightScale = h / 1080;
+      // Don't scale up past 1, only scale down
+      const targetScale = Math.min(widthScale, heightScale, 1);
+      
+      if (targetScale !== 1) {
+        document.body.style.transform = `scale(${targetScale})`;
+        document.body.style.transformOrigin = 'top right'; // RTL default
+      } else {
+        document.body.style.transform = '';
+      }
+    };
+    
+    window.addEventListener('resize', scale);
+    scale();
+    // Safety check: run again after a short delay in case OBS takes a moment to set viewport
+    setTimeout(scale, 500);
   }
 
   _applyText() {
+    const fontStr = this.font ? `"${this.font}", sans-serif` : '';
+    
+    // Check if name (main title) is empty or just spaces
+    if (this.wrapper) {
+      if (!this.name || this.name.trim() === '') {
+        this.wrapper.classList.add('lt-empty-title');
+      } else {
+        this.wrapper.classList.remove('lt-empty-title');
+      }
+    }
+
     if (this.nameEl) {
       this.nameEl.textContent = this.name;
-      this.nameEl.style.fontFamily = this.font || '';
+      this.nameEl.style.fontFamily = fontStr;
+      this.nameEl.style.fontSize = this.nameSize === 100 ? '' : `${this.nameSize}%`;
     }
     if (this.titleEl) {
       this.titleEl.textContent = this.title;
-      this.titleEl.style.fontFamily = this.font || '';
+      this.titleEl.style.fontFamily = fontStr;
+      this.titleEl.style.fontSize = this.titleSize === 100 ? '' : `${this.titleSize}%`;
     }
     if (this.locationEl) {
       this.locationEl.textContent = this.location;
-      this.locationEl.style.fontFamily = this.font || '';
+      this.locationEl.style.fontFamily = fontStr;
+      this.locationEl.style.fontSize = this.locationSize === 100 ? '' : `${this.locationSize}%`;
     }
     if (this.dateEl) {
       this.dateEl.textContent = this.date;
-      this.dateEl.style.fontFamily = this.font || '';
+      this.dateEl.style.fontFamily = fontStr;
+      this.dateEl.style.fontSize = this.dateSize === 100 ? '' : `${this.dateSize}%`;
     }
   }
 
@@ -129,10 +256,25 @@ class LowerThirdController {
     }
   }
 
-  _applyBottomMargin() {
+  _applyMargins() {
     if (this.wrapper) {
       this.wrapper.style.bottom = `${this.bottomMargin}px`;
+      
+      // Reset horizontal margins
+      this.wrapper.style.left = '';
+      this.wrapper.style.right = '';
+      this.wrapper.style.transform = ''; // Clear center transform if any
+
+      if (this.align === 'left') {
+        this.wrapper.style.left = `${this.sideMargin}px`;
+      } else if (this.align === 'right') {
+        this.wrapper.style.right = `${this.sideMargin}px`;
+      }
     }
+
+    // 4. Animation Speed
+    const speedMap = { 'slow': '1.5s', 'normal': '0.8s', 'fast': '0.4s' };
+    document.documentElement.style.setProperty('--lt-anim-duration', speedMap[this.animSpeed] || '0.8s');
   }
 
   _applyColors() {
@@ -179,7 +321,8 @@ class LowerThirdController {
       this.wrapper.classList.remove(
         'lt-anim-slide-right', 'lt-anim-slide-left',
         'lt-anim-fade', 'lt-anim-scale', 'lt-anim-slide-up',
-        'lt-anim-elastic', 'lt-anim-typewriter', 'lt-anim-cinematic'
+        'lt-anim-elastic', 'lt-anim-typewriter', 'lt-anim-cinematic',
+        'lt-anim-glitch', 'lt-anim-wipe'
       );
       this.wrapper.classList.add(`lt-anim-${this.animStyle}`);
     }
@@ -246,6 +389,10 @@ class LowerThirdController {
         if (cmd.location !== undefined) this.location = cmd.location;
         if (cmd.date !== undefined) this.date = cmd.date;
         if (cmd.font !== undefined) this.font = cmd.font;
+        if (cmd.nameSize !== undefined) this.nameSize = cmd.nameSize;
+        if (cmd.titleSize !== undefined) this.titleSize = cmd.titleSize;
+        if (cmd.locationSize !== undefined) this.locationSize = cmd.locationSize;
+        if (cmd.dateSize !== undefined) this.dateSize = cmd.dateSize;
         if (cmd.align !== undefined) this.align = cmd.align;
         if (cmd.duration !== undefined) this.duration = cmd.duration;
         if (cmd.bottomMargin !== undefined) this.bottomMargin = cmd.bottomMargin;
@@ -253,6 +400,7 @@ class LowerThirdController {
         if (cmd.colorText !== undefined) this.colorText = cmd.colorText;
         if (cmd.colorAccent !== undefined) this.colorAccent = cmd.colorAccent;
         if (cmd.animStyle !== undefined) this.animStyle = cmd.animStyle;
+        if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
         this._applyAll();
@@ -270,6 +418,10 @@ class LowerThirdController {
         if (cmd.location !== undefined) this.location = cmd.location;
         if (cmd.date !== undefined) this.date = cmd.date;
         if (cmd.font !== undefined) this.font = cmd.font;
+        if (cmd.nameSize !== undefined) this.nameSize = cmd.nameSize;
+        if (cmd.titleSize !== undefined) this.titleSize = cmd.titleSize;
+        if (cmd.locationSize !== undefined) this.locationSize = cmd.locationSize;
+        if (cmd.dateSize !== undefined) this.dateSize = cmd.dateSize;
         if (cmd.align !== undefined) this.align = cmd.align;
         if (cmd.duration !== undefined) this.duration = cmd.duration;
         if (cmd.bottomMargin !== undefined) this.bottomMargin = cmd.bottomMargin;
@@ -277,6 +429,7 @@ class LowerThirdController {
         if (cmd.colorText !== undefined) this.colorText = cmd.colorText;
         if (cmd.colorAccent !== undefined) this.colorAccent = cmd.colorAccent;
         if (cmd.animStyle !== undefined) this.animStyle = cmd.animStyle;
+        if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
         this._applyAll();
@@ -287,7 +440,7 @@ class LowerThirdController {
   _applyAll() {
     this._applyText();
     this._applyAlign();
-    this._applyBottomMargin();
+    this._applyMargins();
     this._applyColors();
     this._applyAnimStyle();
     this._applyLogo();
