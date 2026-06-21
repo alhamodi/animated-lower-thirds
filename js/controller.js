@@ -45,6 +45,7 @@ function getHijriDate() {
 class LowerThirdController {
   constructor() {
     this.params   = new URLSearchParams(window.location.search);
+    this.apiOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:8080';
     this.name     = this.params.get('name')  || '';
     this.title    = this.params.get('title') || '';
     this.location = this.params.get('location') || '';
@@ -106,7 +107,7 @@ class LowerThirdController {
     // Fallback 2: API Polling (100% Bulletproof for OBS isolated sources)
     this.lastCmdString = '';
     setInterval(() => {
-      fetch('http://localhost:8080/api/command')
+      fetch(`${this.apiOrigin}/api/command`)
         .then(res => res.json())
         .then(cmd => {
           const cmdString = JSON.stringify(cmd);
@@ -261,8 +262,6 @@ class LowerThirdController {
   }
 
   _applyText() {
-    const fontStr = this.font ? `"${this.font}", sans-serif` : '';
-    
     // Check if name (main title) is empty or just spaces
     if (this.wrapper) {
       if (!this.name || this.name.trim() === '') {
@@ -272,24 +271,34 @@ class LowerThirdController {
       }
     }
 
+    const setFontFamily = (element) => {
+      if (!element) return;
+      if (this.font) {
+        const sanitizedFont = this.font.replace(/['"]/g, '');
+        element.style.setProperty('font-family', `"${sanitizedFont}", sans-serif`, 'important');
+      } else {
+        element.style.removeProperty('font-family');
+      }
+    };
+
     if (this.nameEl) {
       this.nameEl.textContent = this.name;
-      this.nameEl.style.fontFamily = fontStr;
+      setFontFamily(this.nameEl);
       this.nameEl.style.fontSize = this.nameSize === 100 ? '' : `${this.nameSize}%`;
     }
     if (this.titleEl) {
       this.titleEl.textContent = this.title;
-      this.titleEl.style.fontFamily = fontStr;
+      setFontFamily(this.titleEl);
       this.titleEl.style.fontSize = this.titleSize === 100 ? '' : `${this.titleSize}%`;
     }
     if (this.locationEl) {
       this.locationEl.textContent = this.location;
-      this.locationEl.style.fontFamily = fontStr;
+      setFontFamily(this.locationEl);
       this.locationEl.style.fontSize = this.locationSize === 100 ? '' : `${this.locationSize}%`;
     }
     if (this.dateEl) {
       this.dateEl.textContent = this.date;
-      this.dateEl.style.fontFamily = fontStr;
+      setFontFamily(this.dateEl);
       this.dateEl.style.fontSize = this.dateSize === 100 ? '' : `${this.dateSize}%`;
     }
     
@@ -478,6 +487,7 @@ class LowerThirdController {
   }
 
   _handleCommand(cmd) {
+    this.lastCmdString = JSON.stringify(cmd);
     switch (cmd.type) {
       case 'show':
         if (cmd.name  !== undefined) this.name  = cmd.name;

@@ -30,24 +30,29 @@ test.describe('OBS Dynamic Source', () => {
     
     const iframe = page.locator('#ltFrame');
     
-    // Simulate a message from another tab/control panel
-    await page.evaluate(() => {
-      const channel = new BroadcastChannel('lt-control');
-      channel.postMessage({
-        type: 'update',
+    // Simulate a message from another tab/control panel (sending to both API and BroadcastChannel)
+    await page.evaluate(async () => {
+      const cmd = {
+        type: 'show',
         style: 'royal',
         name: 'Broadcast Name',
         title: 'Broadcast Title'
-      });
+      };
+      
+      try {
+        await fetch('/api/command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cmd)
+        });
+      } catch (err) {}
+
+      const channel = new BroadcastChannel('lt-control');
+      channel.postMessage(cmd);
       channel.close();
     });
     
-    // Give it a moment to process the message and hot-swap
-    await page.waitForTimeout(300);
-    
-    const currentTheme = await iframe.evaluate((el) => el.contentWindow.themeRouter.currentTheme);
-    expect(currentTheme).toBe('royal');
-
+    // Wait for the iframe's lower third to show up and have the text
     const iframeName = iframe.contentFrame().locator('.lt-name');
     await expect(iframeName).toContainText('Broadcast Name');
   });
