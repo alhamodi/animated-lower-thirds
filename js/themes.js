@@ -3513,6 +3513,172 @@ const THEME_REGISTRY = {
     inlineScript: null,
   },
 
+  "islamic-3d": {
+    num: 17,
+    css: `/* ═══════════════════════════════════════
+       STYLE 17: الإسلامي مجسم ثلاثي الأبعاد
+       Premium 3D Islamic Arch + Glassmorphism
+    ═══════════════════════════════════════ */
+
+    :root {
+      --gold-gradient: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+      --bg-glass: rgba(13, 27, 42, 0.75); /* أزرق إسلامي عميق شفاف */
+      --neon-glow: 0 0 15px rgba(191, 149, 63, 0.4);
+    }
+
+    body { background: transparent; }
+
+    /* حاوية الشريط ثلاثية الأبعاد */
+    .wrapper-3d {
+      display: flex;
+      align-items: center;
+      perspective: 1200px;
+      transform-style: preserve-3d;
+      overflow: visible;
+    }
+
+    /* المحراب الجانبي المتحرك */
+    .islamic-arch {
+      width: 70px;
+      height: 90px;
+      background: var(--gold-gradient);
+      clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%);
+      position: relative;
+      transform-style: preserve-3d;
+      z-index: 2;
+      box-shadow: var(--neon-glow);
+      opacity: 0;
+      transform: scale(0) rotateX(-90deg);
+      transition: all 0.5s ease;
+    }
+
+    .islamic-arch::after {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      background: #0d1b2a;
+      clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%);
+    }
+
+    /* بطاقة النصوص الزجاجية الفخمة */
+    .lt-panel.glass-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid transparent;
+      border-image: var(--gold-gradient) 1;
+      padding: 15px 40px 15px 30px;
+      margin-right: -20px;
+      transform-origin: right center;
+      transform: rotateY(-90deg);
+      opacity: 0;
+      box-shadow: var(--neon-glow), inset 0 0 20px rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .lt-name {
+      font-family: var(--font-arabic);
+      color: #fcf6ba;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .lt-title {
+      font-family: var(--font-arabic);
+      color: #e0e1dd;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .lt-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.95rem;
+      color: rgba(224, 225, 221, 0.7);
+    }
+
+    .lt-separator {
+      color: #bf953f;
+    }
+
+    /* 🔄 حالات الأنيميشن */
+    .lt-entering .islamic-arch {
+      animation: archEntrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, rotateArch 6s ease-in-out infinite alternate 0.8s;
+    }
+    
+    .lt-entering .lt-panel.glass-card {
+      animation: cardReveal 0.8s 0.3s cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+    }
+
+    .lt-visible .islamic-arch {
+      opacity: 1;
+      transform: scale(1) rotateX(0deg);
+      animation: rotateArch 6s ease-in-out infinite alternate;
+    }
+    .lt-visible .lt-panel.glass-card {
+      opacity: 1;
+      transform: rotateY(0deg);
+    }
+
+    .lt-exiting .islamic-arch {
+      animation: archExit 0.6s ease-in forwards;
+    }
+    .lt-exiting .lt-panel.glass-card {
+      animation: cardHide 0.6s ease-in forwards;
+    }
+
+    @keyframes archEntrance {
+      0% { transform: scale(0) rotateX(-90deg); opacity: 0; }
+      100% { transform: scale(1) rotateX(0deg); opacity: 1; }
+    }
+
+    @keyframes rotateArch {
+      0% { transform: rotateY(-10deg); }
+      100% { transform: rotateY(10deg); }
+    }
+
+    @keyframes cardReveal {
+      0% { transform: rotateY(-90deg); opacity: 0; }
+      100% { transform: rotateY(0deg); opacity: 1; }
+    }
+
+    @keyframes archExit {
+      0% { transform: scale(1) rotateX(0deg); opacity: 1; }
+      100% { transform: scale(0) rotateX(90deg); opacity: 0; }
+    }
+
+    @keyframes cardHide {
+      0% { transform: rotateY(0deg); opacity: 1; }
+      100% { transform: rotateY(90deg); opacity: 0; }
+    }`,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="wrapper-3d">
+      <!-- Islamic Arch (3D shape) -->
+      <div class="islamic-arch"></div>
+      
+      <!-- Text content (Glass card) -->
+      <div class="lt-panel glass-card">
+        <div class="lt-name">عبد الرحمن بن سالم</div>
+        <div class="lt-title">محاضر وباحث برمجيات</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">الرياض</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
 };
 
 // Expose globally

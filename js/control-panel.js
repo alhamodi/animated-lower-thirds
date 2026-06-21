@@ -118,6 +118,7 @@ class ControlPanel {
       { file: 'templates/render.html', theme: 'ramadan-plum',   name: 'رمضان الأرجواني والذهبي', gradient: 'linear-gradient(135deg,#31064f,#c9a84c)' },
       { file: 'templates/render.html', theme: 'dynamic',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
       { file: 'templates/render.html', theme: 'minimalist',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
+      { file: 'templates/render.html', theme: 'islamic-3d',      name: 'الإسلامي مجسم ثلاثي الأبعاد', gradient: 'linear-gradient(135deg,#bf953f,#0d1b2a)' },
     ];
 
     // BroadcastChannel
