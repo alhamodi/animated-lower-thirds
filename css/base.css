@@ -75,21 +75,24 @@ html, body {
   height: 1080px;
   overflow: hidden;
   background: transparent;
-  direction: rtl;
+  direction: rtl; /* Default layout direction */
   font-family: var(--font-arabic);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+html[dir="ltr"], html[dir="ltr"] body {
+  direction: ltr;
+}
+
+html[dir="rtl"], html[dir="rtl"] body {
+  direction: rtl;
+}
+
 /* ─── Lower Third Container ─── */
 .lower-third-wrapper {
   position: fixed;
-  bottom: 80px;
-  right: 0;
-  left: 0;
   display: flex;
-  justify-content: flex-end; /* RTL: anchor to right */
-  padding-right: 60px;
   pointer-events: none;
   will-change: transform; /* GPU compositing hint for drag & drop */
   contain: layout style; /* Isolate layout recalculations */
@@ -188,19 +191,16 @@ html, body {
 
 /* ─── Alignment Positional Overrides ─── */
 .lower-third-wrapper.lt-align-right {
-  justify-content: flex-start !important; /* In RTL, flex-start is the right side */
-  padding-right: 60px !important;
+  padding-right: 0 !important;
   padding-left: 0 !important;
 }
 
 .lower-third-wrapper.lt-align-left {
-  justify-content: flex-end !important; /* In RTL, flex-end is the left side */
-  padding-left: 60px !important;
+  padding-left: 0 !important;
   padding-right: 0 !important;
 }
 
 .lower-third-wrapper.lt-align-center {
-  justify-content: center !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }

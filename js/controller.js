@@ -45,10 +45,10 @@ function getHijriDate() {
 class LowerThirdController {
   constructor() {
     this.params   = new URLSearchParams(window.location.search);
-    this.name     = this.params.get('name')  || 'الحبيب علي';
-    this.title    = this.params.get('title') || 'المسمى الوظيفي';
-    this.location = this.params.get('location') || 'جامع تريس - تريس - حضرموت';
-    this.date     = this.params.get('date')     || getHijriDate();
+    this.name     = this.params.get('name')  || '';
+    this.title    = this.params.get('title') || '';
+    this.location = this.params.get('location') || '';
+    this.date     = this.params.get('date')     || '';
     this.font     = this.params.get('font')     || '';
     this.align    = this.params.get('align')    || 'right';
     this.autostart = this.params.get('autostart') !== 'false';
@@ -59,9 +59,19 @@ class LowerThirdController {
     this.locationSize = parseInt(this.params.get('locationSize') || '100');
     this.dateSize     = parseInt(this.params.get('dateSize') || '100');
 
-    // New feature properties
-    this.bottomMargin = parseInt(this.params.get('bottomMargin') || this.params.get('bottom') || '80');
-    this.sideMargin   = parseInt(this.params.get('sideMargin') || '60');
+    // Parse margins with backward compatibility (detect pixel values > 20 and convert to %)
+    let parsedBottom = parseInt(this.params.get('bottomMargin') || this.params.get('bottom') || '8');
+    if (parsedBottom > 20) {
+      parsedBottom = Math.round((parsedBottom / 1080) * 100);
+    }
+    this.bottomMargin = parsedBottom;
+
+    let parsedSide = parseInt(this.params.get('sideMargin') || '3');
+    if (parsedSide > 20) {
+      parsedSide = Math.round((parsedSide / 1920) * 100);
+    }
+    this.sideMargin = parsedSide;
+
     this.colorBg     = this.params.get('colorBg')     || '';
     this.colorText   = this.params.get('colorText')   || '';
     this.colorAccent = this.params.get('colorAccent') || '';
@@ -69,6 +79,7 @@ class LowerThirdController {
     this.animSpeed   = this.params.get('animSpeed')   || 'normal';
     this.logo        = this.params.get('logo')        || '';
     this.ornament    = this.params.get('ornament')    || 'none';
+    this.layoutDir   = this.params.get('layoutDir')   || 'rtl';
 
     this.wrapper  = null;
     this.nameEl   = null;
@@ -145,21 +156,21 @@ class LowerThirdController {
   _initDraggable() {
     if (!this.wrapper) return;
     this.wrapper.style.cursor = 'move';
+    this.wrapper.style.pointerEvents = 'auto'; // Ensure pointer events are active in preview iframe
+
+    // Prevent duplicate window event listeners
+    if (this._onMouseMoveRef) {
+      window.removeEventListener('mousemove', this._onMouseMoveRef);
+    }
+    if (this._onMouseUpRef) {
+      window.removeEventListener('mouseup', this._onMouseUpRef);
+    }
+
     let isDragging = false;
     let startX = 0, startY = 0;
     let initialBottom = 0, initialSide = 0;
     let rafId = null;
     let pendingDx = 0, pendingDy = 0;
-
-    // Compute scale factor between iframe viewport and 1920x1080 canvas
-    const getScaleFactor = () => {
-      const vw = window.innerWidth > 0 ? window.innerWidth : 1920;
-      const vh = window.innerHeight > 0 ? window.innerHeight : 1080;
-      return {
-        scaleX: 1920 / vw,
-        scaleY: 1080 / vh
-      };
-    };
 
     const onMouseDown = (e) => {
       if (e.target.tagName === 'BUTTON') return;
@@ -173,30 +184,27 @@ class LowerThirdController {
 
     const applyDrag = () => {
       rafId = null;
-      const scale = getScaleFactor();
-      const dx = pendingDx * scale.scaleX;
-      const dy = pendingDy * scale.scaleY;
+      
+      // Calculate delta in percentage of actual window/iframe dimensions
+      const dxPercent = (pendingDx / window.innerWidth) * 100;
+      const dyPercent = (pendingDy / window.innerHeight) * 100;
 
-      // Clamp to canvas boundaries (0 to 1920/1080 minus panel size)
-      this.bottomMargin = Math.max(0, Math.min(900, initialBottom - dy));
+      // Update margins in percentages (clamp bottom between 0% and 90%)
+      this.bottomMargin = Math.max(0, Math.min(90, initialBottom - dyPercent));
 
       if (this.align === 'left') {
-        this.sideMargin = Math.max(0, Math.min(1600, initialSide + dx));
+        this.sideMargin = Math.max(0, Math.min(90, initialSide + dxPercent));
       } else if (this.align === 'right') {
-        this.sideMargin = Math.max(0, Math.min(1600, initialSide - dx));
+        this.sideMargin = Math.max(0, Math.min(90, initialSide - dxPercent));
       }
 
       this._applyMargins();
 
-      // Post precision-mapped coordinates to parent
+      // Post percentage coordinates back to parent control panel
       window.parent.postMessage({
         type: 'lt-drag-update',
         x: Math.round(this.sideMargin),
-        y: Math.round(this.bottomMargin),
-        canvasX: Math.round(this.sideMargin),
-        canvasY: Math.round(this.bottomMargin),
-        viewportX: Math.round(this.sideMargin / scale.scaleX),
-        viewportY: Math.round(this.bottomMargin / scale.scaleY)
+        y: Math.round(this.bottomMargin)
       }, '*');
     };
 
@@ -204,7 +212,6 @@ class LowerThirdController {
       if (!isDragging) return;
       pendingDx = e.clientX - startX;
       pendingDy = e.clientY - startY;
-      // Throttle via requestAnimationFrame — prevents messaging congestion
       if (!rafId) {
         rafId = requestAnimationFrame(applyDrag);
       }
@@ -219,6 +226,11 @@ class LowerThirdController {
     };
 
     this.wrapper.addEventListener('mousedown', onMouseDown);
+    
+    // Store references for cleanup
+    this._onMouseMoveRef = onMouseMove;
+    this._onMouseUpRef = onMouseUp;
+    
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
   }
@@ -313,8 +325,9 @@ class LowerThirdController {
         
         if (scrollW > maxW && scrollW > 0) {
           const ratio = Math.max(minScale, maxW / scrollW);
+          const origin = (this.layoutDir === 'ltr') ? 'left center' : 'right center';
           el.style.transform = `scale(${ratio.toFixed(3)})`;
-          el.style.transformOrigin = 'right center'; // RTL: anchor to right
+          el.style.transformOrigin = origin;
           el.style.willChange = 'transform';
         } else {
           el.style.transform = '';
@@ -335,7 +348,7 @@ class LowerThirdController {
 
   _applyMargins() {
     if (this.wrapper) {
-      this.wrapper.style.bottom = `${this.bottomMargin}px`;
+      this.wrapper.style.bottom = `${this.bottomMargin}%`;
       
       // Reset horizontal margins
       this.wrapper.style.left = '';
@@ -343,9 +356,15 @@ class LowerThirdController {
       this.wrapper.style.transform = ''; // Clear center transform if any
 
       if (this.align === 'left') {
-        this.wrapper.style.left = `${this.sideMargin}px`;
+        this.wrapper.style.left = `${this.sideMargin}%`;
+        this.wrapper.style.right = 'auto';
       } else if (this.align === 'right') {
-        this.wrapper.style.right = `${this.sideMargin}px`;
+        this.wrapper.style.right = `${this.sideMargin}%`;
+        this.wrapper.style.left = 'auto';
+      } else if (this.align === 'center') {
+        this.wrapper.style.left = '50%';
+        this.wrapper.style.right = 'auto';
+        this.wrapper.style.transform = 'translateX(-50%)';
       }
     }
 
@@ -473,6 +492,7 @@ class LowerThirdController {
         if (cmd.align !== undefined) this.align = cmd.align;
         if (cmd.duration !== undefined) this.duration = cmd.duration;
         if (cmd.bottomMargin !== undefined) this.bottomMargin = cmd.bottomMargin;
+        if (cmd.sideMargin !== undefined) this.sideMargin = cmd.sideMargin;
         if (cmd.colorBg !== undefined) this.colorBg = cmd.colorBg;
         if (cmd.colorText !== undefined) this.colorText = cmd.colorText;
         if (cmd.colorAccent !== undefined) this.colorAccent = cmd.colorAccent;
@@ -480,6 +500,7 @@ class LowerThirdController {
         if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
+        if (cmd.layoutDir !== undefined) this.layoutDir = cmd.layoutDir;
         this._applyAll();
         this.enter();
         break;
@@ -502,6 +523,7 @@ class LowerThirdController {
         if (cmd.align !== undefined) this.align = cmd.align;
         if (cmd.duration !== undefined) this.duration = cmd.duration;
         if (cmd.bottomMargin !== undefined) this.bottomMargin = cmd.bottomMargin;
+        if (cmd.sideMargin !== undefined) this.sideMargin = cmd.sideMargin;
         if (cmd.colorBg !== undefined) this.colorBg = cmd.colorBg;
         if (cmd.colorText !== undefined) this.colorText = cmd.colorText;
         if (cmd.colorAccent !== undefined) this.colorAccent = cmd.colorAccent;
@@ -509,6 +531,7 @@ class LowerThirdController {
         if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
+        if (cmd.layoutDir !== undefined) this.layoutDir = cmd.layoutDir;
         this._applyAll();
         break;
     }
@@ -522,6 +545,11 @@ class LowerThirdController {
     this._applyAnimStyle();
     this._applyLogo();
     this._applyOrnament();
+    this._applyLayoutDir();
+  }
+
+  _applyLayoutDir() {
+    document.documentElement.dir = this.layoutDir || 'rtl';
   }
 
   enter() {

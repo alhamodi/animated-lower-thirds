@@ -49,21 +49,25 @@
     const channel = new BroadcastChannel('lt-control');
     
     function handleCmd(cmd) {
-      // Handle hot-swap theme changes
-      if (cmd.type === 'change-style' && cmd.style) {
-        currentStyle = cmd.style;
+      // 1. Handle theme style changes (either via explicit change-style command or style parameter in show/update)
+      const targetStyle = cmd.style || (cmd.styleFile ? cmd.styleFile.replace('style', '').split('-')[1]?.replace('.html', '') : null);
+      if (targetStyle && targetStyle !== currentStyle) {
+        currentStyle = targetStyle;
         try {
           if (frame.contentWindow && frame.contentWindow.themeRouter) {
-            frame.contentWindow.themeRouter.applyTheme(cmd.style);
-            return;
+            frame.contentWindow.themeRouter.applyTheme(targetStyle);
           }
-        } catch (e) {}
-        // Fallback: reload iframe
-        const url = new URL('templates/render.html', window.location.href);
-        url.searchParams.set('style', cmd.style);
-        url.searchParams.set('autostart', 'false');
-        url.searchParams.set('t', Date.now());
-        frame.src = url.toString();
+        } catch (e) {
+          // Fallback: reload iframe
+          const url = new URL(frame.src || 'templates/render.html', window.location.href);
+          url.searchParams.set('style', targetStyle);
+          url.searchParams.set('autostart', 'false');
+          url.searchParams.set('t', Date.now());
+          frame.src = url.toString();
+        }
+      }
+
+      if (cmd.type === 'change-style') {
         return;
       }
       
