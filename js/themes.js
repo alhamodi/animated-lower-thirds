@@ -3516,109 +3516,115 @@ const THEME_REGISTRY = {
   "islamic-3d": {
     num: 17,
     css: `/* ═══════════════════════════════════════
-       STYLE 17: الزجاج الإسلامي السائل
-       Islamic Liquid Glass + SVG Displacement
-       GPU-accelerated, OBS-optimized
+       STYLE 17: الزمرد الإسلامي الذهبي
+       Premium Islamic Emerald & Gold
+       Pure CSS — No SVG Filters — OBS Stable
     ═══════════════════════════════════════ */
 
     :root {
-      --gold-liquid: linear-gradient(135deg, #e5c07b 0%, #f3e7c4 30%, #b58926 70%, #f7ebb8 100%);
-      --neon-teal: #00f2fe;
-      --glass-bg: rgba(7, 15, 26, 0.65);
-      --gold-dark: #b58926;
+      --emerald-deep: #022c22;
+      --emerald-glass: rgba(2, 44, 34, 0.88);
+      --gold-gradient: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+      --gold-solid: #bf953f;
+      --gold-light: #fcf6ba;
     }
 
     body { background: transparent; }
 
-    /* حاوية العرض ثلاثية الأبعاد — معزولة لتحسين الأداء */
-    .liquid-wrapper {
+    /* حاوية العرض */
+    .emerald-wrapper {
       display: flex;
       align-items: center;
-      perspective: 1200px;
-      transform-style: preserve-3d;
       overflow: visible;
-      contain: layout style;
     }
 
-    /* 🕌 القوس المحرابي الإسلامي السائل */
-    .liquid-arch {
-      width: 85px;
-      height: 110px;
-      background: var(--gold-liquid);
+    /* 🕌 القوس المحرابي الإسلامي — ذهبي مفرغ بقلب زمردي */
+    .emerald-arch {
+      width: 75px;
+      height: 95px;
+      background: var(--gold-gradient);
       clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
       position: relative;
-      transform-style: preserve-3d;
-      box-shadow: 0 0 30px rgba(229, 192, 123, 0.3);
-      filter: url(#liquid-goo);
-      z-index: 3;
+      z-index: 2;
+      box-shadow: 0 4px 20px rgba(191, 149, 63, 0.35);
       opacity: 0;
       transform: scale(0) rotateX(-90deg);
     }
 
-    /* قلب القوس المفرغ بوهج النيون */
-    .liquid-arch::before {
+    /* القلب الزمردي المفرغ */
+    .emerald-arch::after {
       content: '';
       position: absolute;
-      top: 5px; left: 5px; right: 5px; bottom: 5px;
-      background: rgba(10, 25, 41, 0.9);
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      background: var(--emerald-deep);
       clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
-      box-shadow: inset 0 0 15px var(--neon-teal);
     }
 
-    /* 🌌 بطاقة الزجاج السائل بتشويه بلوري */
+    /* نجمة ذهبية صغيرة في مركز القوس */
+    .emerald-arch::before {
+      content: '✦';
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--gold-light);
+      font-size: 16px;
+      z-index: 1;
+      text-shadow: 0 0 8px rgba(252, 246, 186, 0.6);
+    }
+
+    /* 💎 بطاقة النصوص الزمردية الزجاجية */
     .lt-panel {
       position: relative;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      filter: url(#crystal-refraction);
-      border-radius: 0 20px 20px 0;
-      padding: 20px 50px 20px 40px;
+      background: var(--emerald-glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 2px solid var(--gold-solid);
+      border-right: none;
+      border-radius: 0 15px 15px 0;
+      padding: 18px 45px 18px 35px;
       margin-right: -15px;
-      border: 1px solid rgba(243, 231, 196, 0.2);
-      border-left: none;
       transform-origin: right center;
       opacity: 0;
-      transform: scaleX(0.8) rotateY(-30deg);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.05);
+      transform: translateX(50px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 0 rgba(252, 246, 186, 0.1);
       display: flex;
       flex-direction: column;
       gap: 4px;
       overflow: visible;
     }
 
-    /* الغاء تأثير الشيمر الافتراضي */
+    /* إلغاء تأثير الشيمر الافتراضي */
     .lt-panel::before {
       display: none;
     }
 
-    /* الحافة المضيئة النيون الممتدة */
-    .lt-glow-edge {
+    /* الخط الذهبي الفاصل أسفل البطاقة */
+    .gold-accent-line {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--neon-teal), #e5c07b, transparent);
-      border-radius: 0 0 20px 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), var(--gold-solid), var(--gold-light), transparent);
+      border-radius: 0 0 15px 0;
       opacity: 0;
     }
 
     .lt-name {
       font-family: var(--font-arabic);
-      color: #f3e7c4;
+      color: var(--gold-light);
       font-size: 2.2rem;
       font-weight: 700;
       margin: 0;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 10px rgba(7, 15, 26, 0.8);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     .lt-title {
       font-family: var(--font-arabic);
-      color: #a0aec0;
+      color: #e2e8f0;
       font-size: 1.2rem;
       font-weight: 500;
       margin: 0;
-      letter-spacing: 0.5px;
     }
 
     .lt-meta-row {
@@ -3627,114 +3633,97 @@ const THEME_REGISTRY = {
       gap: 8px;
       margin-top: 4px;
       font-size: 0.95rem;
-      color: rgba(160, 174, 192, 0.7);
+      color: rgba(226, 232, 240, 0.7);
     }
 
     .lt-separator {
-      color: var(--gold-dark);
+      color: var(--gold-solid);
     }
 
     /* ═══ حالات الدخول (Entering) ═══ */
-    .lt-entering .liquid-arch {
-      animation: archLiquidIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    .lt-entering .emerald-arch {
+      animation: archEmeraldIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     .lt-entering .lt-panel {
-      animation: cardLiquidIn 1.2s cubic-bezier(0.19, 1, 0.22, 1) 0.3s forwards;
+      animation: cardEmeraldIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s forwards;
     }
-    .lt-entering .lt-glow-edge {
-      animation: glowFadeIn 0.6s ease 1s forwards;
+    .lt-entering .gold-accent-line {
+      animation: lineReveal 0.5s ease 0.8s forwards;
     }
 
     /* ═══ حالات الثبات (Visible) ═══ */
-    .lt-visible .liquid-arch {
+    .lt-visible .emerald-arch {
       opacity: 1;
       transform: scale(1) rotateX(0deg);
-      animation: archFloat 4s ease-in-out infinite alternate;
+      animation: archGentlePulse 3s ease-in-out infinite alternate;
     }
     .lt-visible .lt-panel {
       opacity: 1;
-      transform: scaleX(1) rotateY(0deg);
-      filter: url(#crystal-refraction);
+      transform: translateX(0);
     }
-    .lt-visible .lt-glow-edge {
+    .lt-visible .gold-accent-line {
       opacity: 1;
-      animation: pulseGlow 3s linear infinite;
+      animation: goldShimmer 4s ease-in-out infinite alternate;
     }
 
     /* ═══ حالات الخروج (Exiting) ═══ */
-    .lt-exiting .liquid-arch {
-      animation: archLiquidOut 0.6s ease-in forwards;
+    .lt-exiting .emerald-arch {
+      animation: archEmeraldOut 0.5s ease-in forwards;
     }
     .lt-exiting .lt-panel {
-      animation: cardLiquidOut 0.5s ease-in forwards;
+      animation: cardEmeraldOut 0.5s ease-in 0.1s forwards;
     }
-    .lt-exiting .lt-glow-edge {
-      animation: glowFadeOut 0.3s ease forwards;
+    .lt-exiting .gold-accent-line {
+      animation: lineHide 0.3s ease forwards;
     }
 
-    /* ═══ الحركات السائلة (Keyframes) ═══ */
-    @keyframes archLiquidIn {
+    /* ═══ الحركات (Keyframes) ═══ */
+    @keyframes archEmeraldIn {
       0%   { transform: scale(0) rotateX(-90deg); opacity: 0; }
-      60%  { transform: scale(1.1) rotateX(5deg); opacity: 1; }
+      70%  { transform: scale(1.05) rotateX(3deg); opacity: 1; }
       100% { transform: scale(1) rotateX(0deg); opacity: 1; }
     }
 
-    @keyframes archFloat {
-      0%   { transform: translateY(0px) rotateY(-5deg); }
-      100% { transform: translateY(-8px) rotateY(15deg); }
+    @keyframes archGentlePulse {
+      0%   { box-shadow: 0 4px 20px rgba(191, 149, 63, 0.35); }
+      100% { box-shadow: 0 4px 25px rgba(191, 149, 63, 0.55), 0 0 10px rgba(252, 246, 186, 0.2); }
     }
 
-    @keyframes cardLiquidIn {
-      0%   { opacity: 0; transform: scaleX(0.8) rotateY(-30deg); }
-      100% { opacity: 1; transform: scaleX(1) rotateY(0deg); }
+    @keyframes cardEmeraldIn {
+      0%   { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
     }
 
-    @keyframes glowFadeIn {
+    @keyframes lineReveal {
       0%   { opacity: 0; }
       100% { opacity: 1; }
     }
 
-    @keyframes pulseGlow {
-      0%   { filter: hue-rotate(0deg); opacity: 0.6; }
-      50%  { opacity: 1; }
-      100% { filter: hue-rotate(360deg); opacity: 0.6; }
+    @keyframes goldShimmer {
+      0%   { opacity: 0.7; }
+      100% { opacity: 1; }
     }
 
-    @keyframes archLiquidOut {
+    @keyframes archEmeraldOut {
       0%   { transform: scale(1) rotateX(0deg); opacity: 1; }
-      100% { transform: scale(0) rotateX(90deg) translateY(20px); opacity: 0; }
+      100% { transform: scale(0) rotateX(90deg); opacity: 0; }
     }
 
-    @keyframes cardLiquidOut {
-      0%   { opacity: 1; transform: scaleX(1) rotateY(0deg); }
-      100% { opacity: 0; transform: scaleX(0.6) rotateY(40deg); }
+    @keyframes cardEmeraldOut {
+      0%   { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(60px); }
     }
 
-    @keyframes glowFadeOut {
+    @keyframes lineHide {
       0%   { opacity: 1; }
       100% { opacity: 0; }
     }`,
-    bodyHTML: `<!-- SVG Filters: Liquid Goo + Crystal Refraction -->
-  <svg style="position:absolute;width:0;height:0" width="0" height="0" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <filter id="liquid-goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"/>
-        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
-      </filter>
-      <filter id="crystal-refraction">
-        <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-    </defs>
-  </svg>
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="emerald-wrapper">
+      <!-- Islamic Emerald Arch -->
+      <div class="emerald-arch"></div>
 
-  <div class="lower-third-wrapper lt-hidden" id="ltWrapper">
-    <div class="liquid-wrapper">
-      <!-- Islamic Liquid Arch -->
-      <div class="liquid-arch"></div>
-
-      <!-- Liquid Glass Card -->
+      <!-- Emerald Glass Card -->
       <div class="lt-panel">
         <div class="lt-name">عبد الرحمن بن سالم</div>
         <div class="lt-title">محاضر وباحث برمجيات</div>
@@ -3743,7 +3732,7 @@ const THEME_REGISTRY = {
           <span class="lt-separator">✦</span>
           <span class="lt-date">التاريخ الهجري</span>
         </div>
-        <div class="lt-glow-edge"></div>
+        <div class="gold-accent-line"></div>
       </div>
     </div>
   </div>`,
