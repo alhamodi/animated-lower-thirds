@@ -34,11 +34,11 @@ function getHijriDate() {
     formatted = convertArabicDigitsToWestern(formatted);
     const parts = formatted.split(' ');
     if (parts.length >= 3) {
-      return `${parts[0]} / ${parts[1]} / ${parts[2]} هـ`;
+      return `${parts[0]} / ${parts[1]} / ${parts[2]} هجري`;
     }
-    return formatted + ' هـ';
+    return formatted + ' هجري';
   } catch (e) {
-    return '٢٨ / ذو الحجة / ١٤٤٧ هـ';
+    return '٢٨ / ذو الحجة / ١٤٤٧ هجري';
   }
 }
 
