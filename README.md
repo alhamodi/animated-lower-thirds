@@ -42,7 +42,7 @@
 3. **اربطها ببرنامج OBS**:
    - داخل الـ OBS، أضف مصدر متصفح جديد **(Browser Source)**.
    - ضع علامة صح (`✓`) بجوار **Local File**.
-   - انقر على `Browse` واختر القالب الذي تريده (مثلاً: `style16-minimalist.html`) من المجلد الذي قمت بفك الضغط عنه.
+   - انقر على `Browse` واختر القالب الذي تريده (مثلاً: `templates/style16-minimalist.html`) من المجلد الذي قمت بفك الضغط عنه.
    - اجعل العرض (`Width`) **1920** والارتفاع (`Height`) **1080**.
    - اضغط `OK`.
 
@@ -69,8 +69,8 @@
 ```text
 Animated-Lower-Thirds/
 ├── index.html              # لوحة التحكم الأساسية (افتحها في المتصفح)
-├── style1-emerald.html     # قوالب العرض (تُضاف في الـ OBS)
-├── style16-minimalist.html # قالب المونتاج الزجاجي الجديد
+├── templates/style1-emerald.html     # قوالب العرض (تُضاف في الـ OBS)
+├── templates/style16-minimalist.html # قالب المونتاج الزجاجي الجديد
 ├── css/                    # ملفات التنسيق
 ├── js/
 │   ├── controller.js       # كود التحكم بـ OBS

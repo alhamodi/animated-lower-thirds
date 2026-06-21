@@ -3,7 +3,7 @@
    RTL Support | Google Fonts | Design Tokens
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Almarai:wght@400;700;800&family=Changa:wght@400;600;700&display=swap');
+@import url('fonts.css');
 
 /* ─── CSS Variables / Design Tokens ─── */
 :root {

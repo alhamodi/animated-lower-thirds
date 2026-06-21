@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Lower Third - الأخضر السعودي</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <style>
+    /* ═══════════════════════════════════════
+       STYLE 8: الأخضر السعودي
+       Deep Saudi/Islamic Green + White
+       Clean Government/Official Style
+    ═══════════════════════════════════════ */
+    body { background: transparent; }
+
+    :root {
+      --saudi-green:   #006c35;
+      --saudi-green2:  #005528;
+      --saudi-green3:  #004020;
+      --white-cream:   #f5f0e8;
+    }
+
+    /* Sword ornament animation */
+    @keyframes swordReveal {
+      from { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); opacity: 0; }
+      to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+    }
+
+    .lt-panel {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-width: 580px;
+      max-width: 740px;
+      min-height: 100px;
+      padding: 18px 24px 18px 40px;
+      background: linear-gradient(
+        108deg,
+        var(--saudi-green3) 0%,
+        var(--saudi-green2) 40%,
+        var(--saudi-green)  100%
+      );
+      border-radius: 6px 0 0 6px;
+      box-shadow:
+        -4px 0 0 0 #ffffff,
+        0 8px 40px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+      overflow: hidden;
+      transform: translateX(110%);
+      opacity: 0;
+    }
+
+    .lt-entering .lt-panel { animation: slideFromRight 0.48s var(--ease-out) forwards; }
+    .lt-exiting  .lt-panel { animation: slideToRight  0.38s var(--ease-in-out) forwards; }
+
+    /* White top border */
+    .lt-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    }
+
+    /* Islamic palm tree / geometric pattern (subtle) */
+    .lt-bg-pattern {
+      position: absolute;
+      left: 10px; top: 0; bottom: 0;
+      width: 180px;
+      opacity: 0.06;
+      overflow: hidden;
+    }
+    .lt-bg-pattern svg { width: 100%; height: 100%; }
+
+    /* Right white vertical stripe */
+    .lt-right-bar {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: #ffffff;
+    }
+
+    /* White badge on right side */
+    .lt-badge {
+      position: relative;
+      z-index: 2;
+      margin-left: 22px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0;
+    }
+    .lt-entering .lt-badge { animation: scaleIn 0.45s var(--ease-out) 0.85s both; }
+    .lt-badge svg { animation: softFloat 6s ease-in-out infinite; }
+
+    /* Text */
+    .lt-content {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .lt-name {
+      font-family: var(--font-arabic);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--white-cream);
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      opacity: 0;
+    }
+    .lt-entering .lt-name { animation: textReveal 0.45s var(--ease-out) 0.48s both; }
+
+    .lt-line {
+      width: 100%;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6) 40%, transparent);
+      transform: scaleX(0);
+      transform-origin: right;
+      margin: 3px 0;
+    }
+    .lt-entering .lt-line { animation: lineGrow 0.38s var(--ease-out) 0.3s both; }
+
+    .lt-title {
+      font-family: var(--font-arabic);
+      font-size: 1.08rem;
+      color: rgba(220,240,220,0.85);
+      opacity: 0;
+    }
+    .lt-entering .lt-title { animation: textReveal 0.4s var(--ease-out) 0.66s both; }
+  </style>
+</head>
+<body>
+  <div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel">
+      <div class="lt-bg-pattern">
+        <svg viewBox="0 0 180 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="islamicGreen" x="0" y="0" width="45" height="45" patternUnits="userSpaceOnUse">
+              <polygon points="22.5,2 26,13 37,11 29,19 32,30 22.5,24 13,30 16,19 8,11 19,13"
+                fill="none" stroke="#ffffff" stroke-width="0.7"/>
+              <circle cx="22.5" cy="22.5" r="6" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="180" height="120" fill="url(#islamicGreen)"/>
+        </svg>
+      </div>
+
+      <div class="lt-right-bar"></div>
+
+      <div class="lt-badge">
+        <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <!-- Simplified palm tree (Saudi symbol) -->
+          <g fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.2" stroke-linecap="round">
+            <line x1="16" y1="28" x2="16" y2="10"/>
+            <path d="M16 14 Q10 10 6 12" />
+            <path d="M16 12 Q10  7 7  8" />
+            <path d="M16 14 Q22 10 26 12"/>
+            <path d="M16 12 Q22  7 25  8"/>
+            <path d="M16 16 Q13 14 10 16"/>
+            <path d="M16 16 Q19 14 22 16"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="lt-content">
+        <div class="lt-name">الاسم الكريم</div>
+        <div class="lt-line"></div>
+        <div class="lt-title">المسمى الوظيفي أو العنوان</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">جامع تريس - تريس - حضرموت</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../js/controller.js"></script>
+</body>
+</html>

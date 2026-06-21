@@ -4,6 +4,7 @@
   "description": "Premium animated lower thirds for Arabic live streaming with OBS Studio. Featuring 12 stunning Islamic-inspired visual styles, a real-time control panel, and seamless BroadcastChannel API integration.",
   "main": "index.js",
   "scripts": {
+    "start": "python3 server.py",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
