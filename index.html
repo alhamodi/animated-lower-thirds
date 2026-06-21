@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم Lower Thirds — عارضات سفلية إسلامية متحركة</title>
+  <meta name="description" content="لوحة تحكم احترافية للعارضات السفلية الإسلامية المتحركة للبث العربي عبر OBS Studio. دعم كامل للعربية RTL مع 12 نمط مختلف.">
+  <meta property="og:title" content="لوحة تحكم Lower Thirds — عارضات سفلية إسلامية متحركة">
+  <meta property="og:description" content="لوحة تحكم احترافية للعارضات السفلية الإسلامية المتحركة للبث العربي عبر OBS Studio. دعم كامل للعربية RTL مع 12 نمط مختلف.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="css/control-panel.css">
+</head>
+<body>
+
+  <!-- ════════════════════════════════════
+       PARTICLE BACKGROUND
+       ════════════════════════════════════ -->
+  <div class="particles-bg" id="particlesBg"></div>
+
+  <!-- ════════════════════════════════════
+       APP SHELL
+       ════════════════════════════════════ -->
+  <div class="app-shell">
+
+    <!-- ─── HEADER ─── -->
+    <header class="app-header" id="appHeader">
+      <div class="header-brand">
+        <span class="brand-icon">☽✦</span>
+        <h1>لوحة تحكم Lower Thirds</h1>
+      </div>
+      <div class="header-status">
+        <div class="status-badge" id="statusBadge">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">غير نشط</span>
+        </div>
+        <span class="style-name-badge" id="styleNameBadge">الذهب والزمرد</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-icon-btn" id="btnShortcuts" title="اختصارات لوحة المفاتيح (?)">⌨</button>
+      </div>
+    </header>
+
+    <!-- ─── SIDEBAR ─── -->
+    <nav class="app-sidebar" id="appSidebar" aria-label="التنقل الرئيسي">
+      <div class="sidebar-section-label">التحكم</div>
+      <div class="sidebar-nav-item active" data-tab="text" role="button" tabindex="0" aria-label="النص">
+        <span class="sidebar-nav-icon">✏</span>
+        <span>النص</span>
+      </div>
+      <div class="sidebar-nav-item" data-tab="style" role="button" tabindex="0" aria-label="النمط">
+        <span class="sidebar-nav-icon">🎨</span>
+        <span>النمط</span>
+      </div>
+      <div class="sidebar-nav-item" data-tab="settings" role="button" tabindex="0" aria-label="الإعدادات">
+        <span class="sidebar-nav-icon">⚙</span>
+        <span>الإعدادات</span>
+      </div>
+      <div class="sidebar-nav-item" data-tab="colors" role="button" tabindex="0" aria-label="الألوان والوسائط">
+        <span class="sidebar-nav-icon">🎨</span>
+        <span>الألوان</span>
+      </div>
+
+      <div class="sidebar-section-label">البيانات</div>
+      <div class="sidebar-nav-item" data-tab="presets" role="button" tabindex="0" aria-label="البيانات المحفوظة">
+        <span class="sidebar-nav-icon">📋</span>
+        <span>البيانات</span>
+      </div>
+      <div class="sidebar-nav-item" data-tab="queue" role="button" tabindex="0" aria-label="قائمة التشغيل">
+        <span class="sidebar-nav-icon">📑</span>
+        <span>القائمة</span>
+      </div>
+
+      <div class="sidebar-section-label">المساعدة</div>
+      <div class="sidebar-nav-item" data-tab="guide" role="button" tabindex="0" aria-label="دليل الاستخدام">
+        <span class="sidebar-nav-icon">📖</span>
+        <span>الدليل</span>
+      </div>
+    </nav>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="app-main" id="appMain">
+
+      <!-- ═══ PREVIEW ═══ -->
+      <section class="preview-section" aria-label="معاينة البث">
+        <div class="preview-wrapper">
+          <div class="preview-bg"></div>
+          <div class="preview-grid-overlay"></div>
+          <iframe id="previewFrame" src="style1-emerald.html?autostart=false" allowtransparency="true" title="معاينة Lower Third"></iframe>
+
+          <span class="preview-label">معاينة البث الحية (16:9)</span>
+
+          <!-- Countdown badge -->
+          <div class="countdown-floating hidden" id="countdownBadge">
+            ⏳ <span id="countdownVal">0</span>ث
+          </div>
+
+          <!-- Floating Toolbar -->
+          <div class="preview-toolbar">
+            <button class="preview-toolbar-btn btn-show-lt" id="btnShow" title="إظهار (Space)" aria-label="إظهار العارضة السفلية">▶</button>
+            <button class="preview-toolbar-btn btn-update-lt" id="btnUpdate" title="تحديث النص" aria-label="تحديث النص">🔄</button>
+            <button class="preview-toolbar-btn btn-hide-lt" id="btnHide" title="إخفاء (Esc)" aria-label="إخفاء العارضة السفلية">✕</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ ACTION BUTTONS (always visible) ═══ -->
+      <div class="action-buttons">
+        <button class="btn btn-show" id="btnShowMobile" aria-label="إظهار">▶ إظهار</button>
+        <button class="btn btn-update" id="btnUpdateMobile" aria-label="تحديث النص">🔄 تحديث</button>
+        <button class="btn btn-hide" id="btnHideMobile" aria-label="إخفاء">✕ إخفاء</button>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           TAB PANELS
+           ═══════════════════════════════════ -->
+
+      <!-- ─── TAB: TEXT ─── -->
+      <div class="tab-panel active" id="panel-text">
+        <div class="card">
+          <div class="card-title">✏ النص والمحتوى</div>
+
+          <label for="nameInput">الاسم الكريم</label>
+          <input type="text" id="nameInput" placeholder="اكتب الاسم هنا..." value="الحبيب علي" aria-label="الاسم">
+
+          <label for="titleInput">المسمى أو العنوان</label>
+          <input type="text" id="titleInput" placeholder="مثل: عالم، داعية، مقدم برنامج..." value="المسمى الوظيفي" aria-label="المسمى">
+
+          <label for="locationInput">المكان / الجامع</label>
+          <input type="text" id="locationInput" list="locationsList" placeholder="مثل: جامع تريس - تريس - حضرموت" value="جامع تريس - تريس - حضرموت" aria-label="المكان">
+          <datalist id="locationsList">
+            <option value="مسجد الأحمدين – رباط الإمام المهاجر إلى الله – الحسيسة"></option>
+            <option value="تريم – حافة المحضار – بلعشر"></option>
+            <option value="تريم – حافة المحضار – مسجد عاشق"></option>
+            <option value="معهد حراء - المكلا - حضرموت"></option>
+            <option value="مسجد لصور - أحور - أبين"></option>
+            <option value="رباط المشهور – أحور – أبين"></option>
+            <option value="جامع تريس - تريس - حضرموت"></option>
+          </datalist>
+
+          <label for="dateInput">التاريخ</label>
+          <input type="text" id="dateInput" placeholder="التاريخ الهجري..." value="" aria-label="التاريخ">
+
+          <label for="fontInput">خط النص (Font Family)</label>
+          <input type="text" id="fontInput" list="fontsList" placeholder="Cairo, Amiri, Geeza Pro..." value="" aria-label="الخط">
+          <datalist id="fontsList">
+            <option value="Cairo, sans-serif"></option>
+            <option value="Amiri, serif"></option>
+            <option value="Geeza Pro, sans-serif"></option>
+            <option value="Traditional Arabic, serif"></option>
+            <option value="Simplified Arabic, sans-serif"></option>
+            <option value="Adobe Arabic, serif"></option>
+            <option value="DecoType Naskh, serif"></option>
+            <option value="Arial, sans-serif"></option>
+          </datalist>
+
+          <label>موضع ظهور المستطيل (المحاذاة)</label>
+          <div class="align-group">
+            <button type="button" class="align-btn active" data-align="left" aria-label="يسار">يسار (الافتراضي)</button>
+            <button type="button" class="align-btn" data-align="center" aria-label="وسط">وسط</button>
+            <button type="button" class="align-btn" data-align="right" aria-label="يمين">يمين</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: STYLE ─── -->
+      <div class="tab-panel" id="panel-style">
+        <div class="card">
+          <div class="card-title">🎨 النمط البصري</div>
+          <div class="style-grid">
+
+            <div class="style-card active" data-style="1" title="الذهب والزمرد" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#0d5c3a,#c9a84c); border:none;"></span>
+              الذهب والزمرد
+            </div>
+            <div class="style-card" data-style="2" title="الليل الملكي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#0a1628,#00c4b8); border:none;"></span>
+              الليل الملكي
+            </div>
+            <div class="style-card" data-style="3" title="الأنيق الحديث" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#111,#c9a84c); border:none;"></span>
+              الأنيق الحديث
+            </div>
+            <div class="style-card" data-style="4" title="الفجر" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#1a0533,#c08040); border:none;"></span>
+              الفجر
+            </div>
+            <div class="style-card" data-style="5" title="الأزرق الفضي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#1a2535,#a8b8cc); border:none;"></span>
+              الأزرق الفضي
+            </div>
+            <div class="style-card" data-style="6" title="التراث والحداثة" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#6b1a1a,#c9a84c); border:none;"></span>
+              التراث والحداثة
+            </div>
+            <div class="style-card" data-style="7" title="الزجاج المضيء" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,rgba(255,255,255,0.2),#c9a84c); border:1px solid rgba(255,255,255,0.4);"></span>
+              الزجاج المضيء
+            </div>
+            <div class="style-card" data-style="8" title="الأخضر السعودي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#006c35,#ffffff); border:none;"></span>
+              الأخضر السعودي
+            </div>
+            <div class="style-card" data-style="9" title="الكوفي الهندسي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#131210,#b87333); border:none;"></span>
+              الكوفي الهندسي
+            </div>
+            <div class="style-card" data-style="10" title="الذهبي الفاخر" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#111111,#d4af37); border:none;"></span>
+              الذهبي الفاخر
+            </div>
+
+            <!-- NEW STYLES -->
+            <div class="style-card" data-style="11" title="الياقوت المنتصف" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#0a0e2a,#4a90d9); border:none;"></span>
+              الياقوت المنتصف
+            </div>
+            <div class="style-card" data-style="12" title="الرخام والذهب الوردي" role="button" tabindex="0">
+              <span class="style-dot" style="background: linear-gradient(135deg,#e8e0d0,#c08060); border:none;"></span>
+              الرخام والذهب الوردي
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: SETTINGS ─── -->
+      <div class="tab-panel" id="panel-settings">
+        <div class="card">
+          <div class="card-title">⚙ الإعدادات</div>
+
+          <label>⏱️ مؤقت الإخفاء التلقائي (ثواني)</label>
+          <div class="range-row">
+            <input type="range" id="durationSlider" min="0" max="60" value="0" step="1" aria-label="مدة الإخفاء التلقائي">
+            <span class="range-val" id="durationVal">0 (مستمر)</span>
+          </div>
+
+          <label>📐 الهامش من الأسفل (بكسل)</label>
+          <div class="range-row">
+            <input type="range" id="bottomSlider" min="20" max="500" value="80" step="5" aria-label="الهامش من الأسفل">
+            <span class="range-val" id="bottomVal">80px</span>
+          </div>
+
+          <label for="animSelect">🔄 نمط الحركة (دخول/خروج)</label>
+          <select id="animSelect" aria-label="نمط الحركة">
+            <option value="slide-right" selected>↘ انزلاق من اليمين (افتراضي)</option>
+            <option value="slide-left">↙ انزلاق من اليسار</option>
+            <option value="slide-up">↑ ارتفاع من الأسفل</option>
+            <option value="fade">✨ تلاشي (Fade)</option>
+            <option value="scale">🔍 تكبير (Scale)</option>
+            <option value="elastic">🎯 ارتداد مرن (Elastic)</option>
+            <option value="typewriter">⌨ آلة كاتبة (Typewriter)</option>
+            <option value="cinematic">🎬 سينمائي (Cinematic Wipe)</option>
+          </select>
+
+          <label for="ornamentSelect">🌙 الزخرفة الإسلامية</label>
+          <select id="ornamentSelect" aria-label="الزخرفة">
+            <option value="none" selected>بدون زخرفة</option>
+            <option value="bismillah">﷽ بسملة</option>
+            <option value="geometric">◇ أنماط هندسية</option>
+            <option value="star8">✦ نجمة ثمانية</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ─── TAB: COLORS & MEDIA ─── -->
+      <div class="tab-panel" id="panel-colors">
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-title">🎨 تخصيص الألوان</div>
+
+            <label>ألوان المستطيل</label>
+            <div class="color-row">
+              <div class="color-item">
+                <label>الخلفية</label>
+                <input type="color" id="colorBg" value="#0d5c3a" aria-label="لون الخلفية">
+              </div>
+              <div class="color-item">
+                <label>النص</label>
+                <input type="color" id="colorText" value="#ffffff" aria-label="لون النص">
+              </div>
+              <div class="color-item">
+                <label>اللون الذهبي</label>
+                <input type="color" id="colorAccent" value="#c9a84c" aria-label="لون التمييز">
+              </div>
+            </div>
+            <button type="button" class="btn-reset" id="btnResetColors">↩ إرجاع الألوان الافتراضية</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📸 الوسائط</div>
+
+            <label>صورة/لوجو بجانب الاسم</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="logoInput" accept="image/*" aria-label="رفع صورة">
+              <div class="file-input-label" id="logoLabel">📁 اختر صورة من الجهاز...</div>
+            </div>
+            <button type="button" class="btn-reset" id="btnRemoveLogo" disabled>🗑️ إزالة الصورة</button>
+
+            <label>🖼️ خلفية المعاينة (صورة/فيديو)</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="previewBgInput" accept="image/*,video/*" aria-label="رفع خلفية المعاينة">
+              <div class="file-input-label" id="previewBgLabel">📁 اختر صورة أو فيديو للخلفية...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: PRESETS ─── -->
+      <div class="tab-panel" id="panel-presets">
+        <div class="card">
+          <div class="card-title">📋 البيانات المحفوظة (Presets)</div>
+          <button type="button" class="btn-save-preset" id="btnSavePreset">💾 حفظ البيانات الحالية</button>
+          <div class="presets-list" id="presetsList">
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              لا توجد بيانات محفوظة بعد. اضغط "حفظ" لإضافة أول preset.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: QUEUE ─── -->
+      <div class="tab-panel" id="panel-queue">
+        <div class="card">
+          <div class="card-title">📑 قائمة التشغيل (Queue)</div>
+
+          <div class="queue-controls">
+            <button type="button" class="btn-queue" id="btnQueueAdd">➕ إضافة الحالي</button>
+            <button type="button" class="btn-queue" id="btnQueueAutoPlay">▶ تشغيل تلقائي</button>
+            <button type="button" class="btn-queue" id="btnQueueClear">🗑️ مسح الكل</button>
+          </div>
+
+          <div class="queue-controls">
+            <button type="button" class="btn-queue" id="btnQueueExport">📤 تصدير JSON</button>
+            <button type="button" class="btn-queue" id="btnQueueImport">📥 استيراد JSON</button>
+          </div>
+
+          <div class="queue-list" id="queueList">
+            <div class="empty-state">
+              <div class="empty-state-icon">📑</div>
+              أضف عناصر من البيانات الحالية لبدء قائمة التشغيل
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: GUIDE ─── -->
+      <div class="tab-panel" id="panel-guide">
+        <div class="obs-card">
+          <h3>⚙ طريقة الاستخدام في OBS Studio</h3>
+
+          <div class="obs-warning">
+            ⚠️ تنبيه لنظام Mac/OBS: لضمان التحديث المباشر الفوري، يرجى عدم تفعيل خيار "ملف محلي (Local File)" في OBS، بل استخدم الرابط المباشر (HTTP) أدناه.
+          </div>
+
+          <ol class="obs-steps">
+            <li>
+              <span class="step-num">1</span>
+              <span>في OBS، أضف مصدرًا جديدًا من نوع <span class="code-pill">Browser Source</span></span>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <span><strong>ألغِ تفعيل</strong> خيار <span class="code-pill">Local File</span> وضعه كرابط URL مباشر</span>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <span>اضبط العرض على <span class="code-pill">1920</span> والارتفاع على <span class="code-pill">1080</span> واجعل الخلفية شفافة</span>
+            </li>
+            <li>
+              <span class="step-num">4</span>
+              <span>افتح لوحة التحكم عبر <span class="code-pill">http://localhost:8080/index.html</span> للتحكم الفوري!</span>
+            </li>
+            <li>
+              <span class="step-num">5</span>
+              <span>اضغط <span class="code-pill">Space</span> أو <span class="code-pill">Enter</span> لتبديل الظهور/الإخفاء</span>
+            </li>
+          </ol>
+
+          <div style="margin-top:14px;">
+            <label style="color:var(--text-dim); font-size:0.78rem; display:block; margin-bottom:6px;">
+              🔗 رابط OBS المباشر للنسخ:
+            </label>
+            <div class="url-box" id="urlDisplay" title="انقر للنسخ">
+              style1-emerald.html?name=الحبيب علي&title=المسمى الوظيفي
+            </div>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Reference -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-title">⌨ اختصارات لوحة المفاتيح</div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">إظهار / إخفاء العارضة</span>
+            <div class="shortcut-keys"><span class="key">Space</span> <span class="key">Enter</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">إخفاء فوري</span>
+            <div class="shortcut-keys"><span class="key">Esc</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">عرض الاختصارات</span>
+            <div class="shortcut-keys"><span class="key">?</span></div>
+          </div>
+          <div class="shortcut-row">
+            <span class="shortcut-desc">تبديل النمط (1-10)</span>
+            <div class="shortcut-keys"><span class="key">Alt</span> + <span class="key">1-0</span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ─── FOOTER ─── -->
+    <footer class="app-footer" id="appFooter">
+      <div class="footer-url" id="footerUrl" title="انقر للنسخ">
+        style1-emerald.html
+      </div>
+      <div class="footer-branding">
+        ☽ Lower Thirds إسلامية • OBS Studio ✦
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ════════════════════════════════════
+       KEYBOARD SHORTCUTS OVERLAY
+       ════════════════════════════════════ -->
+  <div class="shortcuts-overlay" id="shortcutsOverlay">
+    <div class="shortcuts-panel">
+      <h3>⌨ اختصارات لوحة المفاتيح</h3>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">إظهار / إخفاء العارضة</span>
+        <div class="shortcut-keys"><span class="key">Space</span></div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">إظهار / إخفاء (بديل)</span>
+        <div class="shortcut-keys"><span class="key">Enter</span></div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">إخفاء فوري / إغلاق</span>
+        <div class="shortcut-keys"><span class="key">Esc</span></div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">عرض هذه النافذة</span>
+        <div class="shortcut-keys"><span class="key">?</span></div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">تبديل النمط (1-10)</span>
+        <div class="shortcut-keys"><span class="key">Alt</span> + <span class="key">رقم</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SCRIPTS
+       ════════════════════════════════════ -->
+  <script src="js/control-panel.js"></script>
+</body>
+</html>

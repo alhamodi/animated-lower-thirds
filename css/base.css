@@ -1,0 +1,207 @@
+/* ============================================
+   BASE CSS - Islamic Arabic Lower Thirds
+   RTL Support | Google Fonts | Design Tokens
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
+
+/* ─── CSS Variables / Design Tokens ─── */
+:root {
+  /* === Color Palette === */
+  --gold:          #c9a84c;
+  --gold-light:    #e8c96a;
+  --gold-dark:     #9a7a30;
+  --gold-shimmer:  linear-gradient(90deg, #b8943e, #f0d070, #c9a84c, #f0d070, #b8943e);
+
+  --emerald:       #0d5c3a;
+  --emerald-light: #1a8050;
+  --emerald-dark:  #083d26;
+
+  --royal-blue:    #0a1628;
+  --royal-blue-mid:#0f2040;
+  --teal:          #00c4b8;
+
+  --rose-gold:     #c08040;
+
+  --silver-blue:   #1a2535;
+  --silver:        #a8b8cc;
+
+  --burgundy:      #6b1a1a;
+  --burgundy-light:#8b2525;
+
+  --black:         #0a0a0a;
+  --charcoal:      #1a1a1a;
+  --white:         #ffffff;
+  --off-white:     #f0ead8;
+  --gray-light:    #cccccc;
+
+  /* === Typography === */
+  --font-arabic:   'Cairo', 'Noto Naskh Arabic', sans-serif;
+  --font-amiri:    'Amiri', 'Noto Naskh Arabic', serif;
+
+  --size-name:     2.4rem;
+  --size-title:    1.2rem;
+  --weight-name:   700;
+  --weight-title:  400;
+
+  /* === Spacing === */
+  --pad-x:         40px;
+  --pad-y:         18px;
+  --gap:           8px;
+
+  /* === Timing === */
+  --enter-bg:      0.45s;
+  --enter-line:    0.35s;
+  --enter-name:    0.45s;
+  --enter-sub:     0.4s;
+
+  --delay-line:    0.25s;
+  --delay-name:    0.45s;
+  --delay-sub:     0.65s;
+
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Global Reset ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  direction: rtl;
+  font-family: var(--font-arabic);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Lower Third Container ─── */
+.lower-third-wrapper {
+  position: fixed;
+  bottom: 80px;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: flex-end; /* RTL: anchor to right */
+  padding-right: 60px;
+  pointer-events: none;
+}
+
+/* ─── Utility Classes ─── */
+.hidden { display: none !important; }
+.invisible { visibility: hidden !important; }
+
+.text-gold    { color: var(--gold); }
+.text-white   { color: var(--white); }
+.text-silver  { color: var(--silver); }
+.text-teal    { color: var(--teal); }
+
+/* ─── Shimmer Animation Utility ─── */
+.shimmer-text {
+  background: var(--gold-shimmer);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerMove 3s linear infinite;
+}
+
+@keyframes shimmerMove {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── Metadata Row (Location & Date) ─── */
+.lt-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--gold-light);
+  opacity: 0;
+  margin-top: 4px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.lt-entering .lt-meta-row {
+  animation: textReveal 0.42s var(--ease-out) 0.85s both;
+}
+
+.lt-location {
+  font-weight: 600;
+  color: var(--off-white);
+}
+
+.lt-separator {
+  color: var(--gold);
+  opacity: 0.65;
+}
+
+.lt-date {
+  color: var(--gold-light);
+}
+
+/* ─── Layout & Typography Hierarchy Overrides ─── */
+.lt-panel {
+  width: fit-content !important;
+  max-width: 1400px !important;
+  /* Make sure flex layout wraps if absolutely necessary, but prioritize horizontal expansion */
+  flex-wrap: nowrap !important;
+}
+
+.lt-name {
+  font-size: 2.4rem !important;
+}
+
+.lt-title {
+  font-size: 1.35rem !important;
+  margin-top: 2px !important;
+}
+
+.lt-meta-row {
+  font-size: 0.95rem !important;
+  margin-top: 4px !important;
+}
+
+/* ─── Alignment Positional Overrides ─── */
+.lower-third-wrapper.lt-align-right {
+  justify-content: flex-start !important; /* In RTL, flex-start is the right side */
+  padding-right: 60px !important;
+  padding-left: 0 !important;
+}
+
+.lower-third-wrapper.lt-align-left {
+  justify-content: flex-end !important; /* In RTL, flex-end is the left side */
+  padding-left: 60px !important;
+  padding-right: 0 !important;
+}
+
+.lower-third-wrapper.lt-align-center {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Rounded corners for left/center layouts */
+.lower-third-wrapper.lt-align-left .lt-panel {
+  border-radius: 0 6px 6px 0 !important;
+  box-shadow: 4px 8px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(201,168,76,0.2) !important;
+}
+.lower-third-wrapper.lt-align-left .lt-right-bar {
+  right: auto !important;
+  left: 0 !important;
+}
+
+.lower-third-wrapper.lt-align-center .lt-panel {
+  border-radius: 6px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(201,168,76,0.2) !important;
+}
+
+
+

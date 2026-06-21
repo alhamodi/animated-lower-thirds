@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>Lower Third - الأنيق الحديث</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    /* ═══════════════════════════════════════
+       STYLE 3: الأنيق الحديث
+       Modern Elegant | Black + Gold Minimal
+    ═══════════════════════════════════════ */
+
+    body { background: transparent; }
+
+    /* Main panel - minimal black with diagonal gold accent */
+    .lt-panel {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-width: 520px;
+      max-width: 680px;
+      min-height: 90px;
+      padding: 16px 28px 16px 50px;
+      background: linear-gradient(
+        108deg,
+        rgba(14,14,14,0.97) 0%,
+        rgba(20,20,20,0.95) 50%,
+        rgba(12,12,12,0.98) 100%
+      );
+      border-radius: 4px 0 0 4px;
+      overflow: hidden;
+      box-shadow:
+        -3px 0 0 0 var(--gold),
+        0 6px 30px rgba(0,0,0,0.7),
+        inset 0 0 0 1px rgba(201,168,76,0.08);
+      transform: translateX(110%);
+      opacity: 0;
+    }
+
+    .lt-entering .lt-panel {
+      animation: slideFromRight 0.45s var(--ease-out) forwards;
+    }
+    .lt-exiting .lt-panel {
+      animation: slideToRight 0.35s var(--ease-in-out) forwards;
+    }
+
+    /* Diagonal gold line across panel */
+    .lt-diagonal {
+      position: absolute;
+      top: 0; bottom: 0;
+      right: 60px;
+      width: 60px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .lt-diagonal::before {
+      content: '';
+      position: absolute;
+      top: -10%; bottom: -10%;
+      left: 50%;
+      width: 1.5px;
+      background: linear-gradient(180deg, transparent, var(--gold) 20%, var(--gold-light) 50%, var(--gold) 80%, transparent);
+      transform: rotate(-12deg);
+      opacity: 0;
+    }
+    .lt-entering .lt-diagonal::before {
+      animation: fadeInUp 0.4s ease 0.6s both;
+    }
+
+    /* Hexagon pattern - very subtle */
+    .lt-hex-pattern {
+      position: absolute;
+      left: 0; top: 0; right: 0; bottom: 0;
+      opacity: 0.04;
+      overflow: hidden;
+    }
+    .lt-hex-pattern svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Gold top edge */
+    .lt-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; left: 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent 20%, var(--gold) 50%, transparent);
+    }
+
+    /* Thin gold right vertical bar */
+    .lt-right-bar {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, transparent, var(--gold), transparent);
+    }
+
+    /* Text area */
+    .lt-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+
+    /* Gold dot accent */
+    .lt-dot-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+      opacity: 0;
+    }
+    .lt-entering .lt-dot-row {
+      animation: fadeInUp 0.3s ease 0.35s both;
+    }
+    .lt-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .lt-dot-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold-dark), transparent);
+    }
+
+    .lt-name {
+      font-family: var(--font-arabic);
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+      opacity: 0;
+    }
+    .lt-entering .lt-name {
+      animation: textReveal 0.4s var(--ease-out) 0.45s both;
+    }
+
+    .lt-title {
+      font-family: var(--font-arabic);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: rgba(180,180,180,0.85);
+      letter-spacing: 0.05em;
+      opacity: 0;
+    }
+    .lt-entering .lt-title {
+      animation: textReveal 0.4s var(--ease-out) 0.6s both;
+    }
+
+    /* Minimal hexagon icon */
+    .lt-icon {
+      position: relative;
+      z-index: 2;
+      margin-left: 20px;
+      opacity: 0;
+    }
+    .lt-entering .lt-icon {
+      animation: scaleIn 0.5s var(--ease-out) 0.8s both;
+    }
+    .lt-icon svg {
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel">
+      <!-- Hex pattern background -->
+      <div class="lt-hex-pattern">
+        <svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="hexPat" x="0" y="0" width="30" height="26" patternUnits="userSpaceOnUse">
+              <polygon points="15,1 28,8 28,18 15,25 2,18 2,8"
+                fill="none" stroke="#c9a84c" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="300" height="100" fill="url(#hexPat)"/>
+        </svg>
+      </div>
+
+      <!-- Right bar -->
+      <div class="lt-right-bar"></div>
+
+      <!-- Diagonal accent -->
+      <div class="lt-diagonal"></div>
+
+      <!-- Hexagon icon -->
+      <div class="lt-icon">
+        <svg width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="21,2 38,11 38,31 21,40 4,31 4,11"
+            fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+          <polygon points="21,7 33,14 33,28 21,35 9,28 9,14"
+            fill="rgba(201,168,76,0.08)" stroke="#c9a84c" stroke-width="0.6"/>
+          <!-- Inner star hint -->
+          <polygon points="21,12 23,17 28,17 24,20 26,25 21,22 16,25 18,20 14,17 19,17"
+            fill="rgba(201,168,76,0.3)" stroke="none"/>
+        </svg>
+      </div>
+
+      <!-- Text content -->
+      <div class="lt-content">
+        <div class="lt-dot-row">
+          <div class="lt-dot"></div>
+          <div class="lt-dot-line"></div>
+        </div>
+        <div class="lt-name">الاسم الكريم</div>
+        <div class="lt-title">المسمى الوظيفي أو العنوان</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">جامع تريس - تريس - حضرموت</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/controller.js"></script>
+</body>
+</html>

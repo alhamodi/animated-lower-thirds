@@ -1,0 +1,492 @@
+/* ============================================
+   ANIMATIONS CSS - Islamic Arabic Lower Thirds
+   All keyframes and animation definitions
+   ============================================ */
+
+/* ─── ENTER Animations ─── */
+
+/* Slide from right (main panel) */
+@keyframes slideFromRight {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide from right with clip */
+@keyframes revealFromRight {
+  from {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0%);
+    opacity: 1;
+  }
+}
+
+/* Line scale from right to left */
+@keyframes lineGrow {
+  from {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: right center;
+  }
+}
+
+/* Text fade + blur reveal */
+@keyframes textReveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0);
+  }
+}
+
+/* Fade in upward */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glow pulse for decorative elements */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.7; filter: drop-shadow(0 0 4px currentColor); }
+  50%       { opacity: 1;   filter: drop-shadow(0 0 12px currentColor); }
+}
+
+/* Soft float (idle animation for icons) */
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
+}
+
+/* Particle float (for royal style) */
+@keyframes particleFloat {
+  0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+  50%  { transform: translateY(-30px) scale(0.8); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0.6); opacity: 0; }
+}
+
+/* ─── EXIT Animations ─── */
+
+@keyframes slideToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ─── Shimmer sweep (gold elements) ─── */
+@keyframes goldSweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── Diagonal line draw ─── */
+@keyframes diagonalDraw {
+  from {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  }
+  to {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/* ─── Rotation for geometric pattern ─── */
+@keyframes slowRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─── Scale in ─── */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ─── State Classes ─── */
+.lt-entering .lt-panel {
+  animation: slideFromRight var(--enter-bg) var(--ease-out) forwards;
+}
+
+.lt-entering .lt-line {
+  animation: lineGrow var(--enter-line) var(--ease-out) var(--delay-line) both;
+}
+
+.lt-entering .lt-name {
+  animation: textReveal var(--enter-name) var(--ease-out) var(--delay-name) both;
+}
+
+.lt-entering .lt-title {
+  animation: textReveal var(--enter-sub) var(--ease-out) var(--delay-sub) both;
+}
+
+.lt-visible .lt-panel {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+.lt-visible .lt-line {
+  transform: scaleX(1) !important;
+}
+
+.lt-visible .lt-name,
+.lt-visible .lt-title,
+.lt-visible .lt-meta-row,
+.lt-visible .lt-icon-area,
+.lt-visible .lt-ornament,
+.lt-visible .lt-tag-row {
+  opacity: 1 !important;
+}
+
+.lt-exiting .lt-panel {
+  animation: slideToRight 0.4s var(--ease-in-out) forwards;
+}
+
+.lt-exiting .lt-name,
+.lt-exiting .lt-title,
+.lt-exiting .lt-line,
+.lt-exiting .lt-meta-row,
+.lt-exiting .lt-icon-area,
+.lt-exiting .lt-ornament,
+.lt-exiting .lt-tag-row {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+/* ─── Left Slide Keyframes ─── */
+@keyframes slideFromLeft {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideToLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-110%); opacity: 0; }
+}
+
+/* ─── Bottom Slide Keyframes ─── */
+@keyframes slideFromBottom {
+  from { transform: translateY(120px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideToBottom {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(120px); opacity: 0; }
+}
+
+/* ─── Alignment Animation Overrides ─── */
+
+/* Left Alignment Animations */
+.lower-third-wrapper.lt-align-left .lt-panel {
+  transform: translateX(-110%);
+}
+.lower-third-wrapper.lt-align-left.lt-entering .lt-panel {
+  animation: slideFromLeft var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lower-third-wrapper.lt-align-left.lt-exiting .lt-panel {
+  animation: slideToLeft 0.4s var(--ease-in-out) forwards !important;
+}
+.lower-third-wrapper.lt-align-left.lt-visible .lt-panel {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* Center Alignment Animations */
+.lower-third-wrapper.lt-align-center .lt-panel {
+  transform: translateY(120px);
+}
+.lower-third-wrapper.lt-align-center.lt-entering .lt-panel {
+  animation: slideFromBottom var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lower-third-wrapper.lt-align-center.lt-exiting .lt-panel {
+  animation: slideToBottom 0.4s var(--ease-in-out) forwards !important;
+}
+.lower-third-wrapper.lt-align-center.lt-visible .lt-panel {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION STYLE OVERRIDES
+   (Feature 5: Different enter/exit styles)
+   ═══════════════════════════════════════════ */
+
+/* Fade only */
+@keyframes fadeInOnly {
+  from { opacity: 0; filter: blur(6px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+@keyframes fadeOutOnly {
+  from { opacity: 1; filter: blur(0); }
+  to   { opacity: 0; filter: blur(6px); }
+}
+
+/* Scale bounce */
+@keyframes scaleInBounce {
+  from { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.04); }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes scaleOutShrink {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.5); opacity: 0; }
+}
+
+/* Slide up reveal */
+@keyframes slideUpReveal {
+  from { transform: translateY(100px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideDownHide {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(100px); opacity: 0; }
+}
+
+/* ─── Animation Style: Fade ─── */
+.lt-anim-fade .lt-panel { transform: none; opacity: 0; }
+.lt-anim-fade.lt-entering .lt-panel {
+  animation: fadeInOnly var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lt-anim-fade.lt-exiting .lt-panel {
+  animation: fadeOutOnly 0.4s var(--ease-in-out) forwards !important;
+}
+.lt-anim-fade.lt-visible .lt-panel {
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* ─── Animation Style: Scale ─── */
+.lt-anim-scale .lt-panel { transform: scale(0.5); opacity: 0; }
+.lt-anim-scale.lt-entering .lt-panel {
+  animation: scaleInBounce var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lt-anim-scale.lt-exiting .lt-panel {
+  animation: scaleOutShrink 0.4s var(--ease-in-out) forwards !important;
+}
+.lt-anim-scale.lt-visible .lt-panel {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Animation Style: Slide Up ─── */
+.lt-anim-slide-up .lt-panel { transform: translateY(100px); opacity: 0; }
+.lt-anim-slide-up.lt-entering .lt-panel {
+  animation: slideUpReveal var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lt-anim-slide-up.lt-exiting .lt-panel {
+  animation: slideDownHide 0.4s var(--ease-in-out) forwards !important;
+}
+.lt-anim-slide-up.lt-visible .lt-panel {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Animation Style: Slide Left ─── */
+.lt-anim-slide-left .lt-panel { transform: translateX(-110%); opacity: 0; }
+.lt-anim-slide-left.lt-entering .lt-panel {
+  animation: slideFromLeft var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lt-anim-slide-left.lt-exiting .lt-panel {
+  animation: slideToLeft 0.4s var(--ease-in-out) forwards !important;
+}
+.lt-anim-slide-left.lt-visible .lt-panel {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+/* ═══════════════════════════════════════════
+   LOGO STYLING (Feature 7)
+   ═══════════════════════════════════════════ */
+.lt-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gold, #c9a84c);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  margin-left: 14px;
+  flex-shrink: 0;
+  z-index: 3;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   ORNAMENT OVERLAYS (Feature 8)
+   ═══════════════════════════════════════════ */
+.lt-ornament-overlay {
+  position: fixed;
+  bottom: 160px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lt-ornament-bismillah {
+  font-size: 3rem;
+  color: var(--gold, #c9a84c);
+  opacity: 0.12;
+  text-shadow: 0 2px 8px rgba(201,168,76,0.3);
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+.lt-ornament-geo {
+  width: 120px;
+  height: 120px;
+  color: var(--gold, #c9a84c);
+  opacity: 0.15;
+  animation: slowRotate 20s linear infinite;
+}
+
+.lt-ornament-star {
+  width: 100px;
+  height: 100px;
+  color: var(--gold, #c9a84c);
+  opacity: 0.15;
+  animation: slowRotate 15s linear infinite, glowPulse 3s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════
+   NEW ANIMATION STYLES (Phase 3)
+   ═══════════════════════════════════════════ */
+
+/* ─── Elastic Bounce ─── */
+@keyframes elasticIn {
+  0%   { transform: translateX(110%) scale(0.8); opacity: 0; }
+  40%  { transform: translateX(-4%) scale(1.03); opacity: 1; }
+  60%  { transform: translateX(2%) scale(0.99); }
+  80%  { transform: translateX(-1%) scale(1.005); }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes elasticOut {
+  0%   { transform: translateX(0) scale(1); opacity: 1; }
+  30%  { transform: translateX(-3%) scale(1.02); }
+  100% { transform: translateX(110%) scale(0.8); opacity: 0; }
+}
+
+.lt-anim-elastic .lt-panel { transform: translateX(110%); opacity: 0; }
+.lt-anim-elastic.lt-entering .lt-panel {
+  animation: elasticIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+.lt-anim-elastic.lt-exiting .lt-panel {
+  animation: elasticOut 0.45s var(--ease-in-out) forwards !important;
+}
+.lt-anim-elastic.lt-visible .lt-panel {
+  transform: translateX(0) scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Typewriter Reveal ─── */
+@keyframes typewriterSlide {
+  from { clip-path: inset(0 100% 0 0); opacity: 0; }
+  to   { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+
+@keyframes typewriterHide {
+  from { clip-path: inset(0 0 0 0); opacity: 1; }
+  to   { clip-path: inset(0 0 0 100%); opacity: 0; }
+}
+
+@keyframes cursorBlink {
+  0%, 50% { border-right-color: var(--gold, #c9a84c); }
+  51%, 100% { border-right-color: transparent; }
+}
+
+.lt-anim-typewriter .lt-panel {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+}
+.lt-anim-typewriter.lt-entering .lt-panel {
+  animation: typewriterSlide 0.8s steps(20, end) forwards !important;
+}
+.lt-anim-typewriter.lt-exiting .lt-panel {
+  animation: typewriterHide 0.5s steps(15, end) forwards !important;
+}
+.lt-anim-typewriter.lt-visible .lt-panel {
+  clip-path: inset(0 0 0 0) !important;
+  opacity: 1 !important;
+}
+
+/* ─── Cinematic Wipe ─── */
+@keyframes cinematicWipeIn {
+  from {
+    clip-path: inset(0 0 0 100%);
+    filter: blur(4px);
+    opacity: 0;
+  }
+  50% {
+    filter: blur(2px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes cinematicWipeOut {
+  from {
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+    opacity: 1;
+  }
+  50% {
+    filter: blur(2px);
+  }
+  to {
+    clip-path: inset(0 100% 0 0);
+    filter: blur(4px);
+    opacity: 0;
+  }
+}
+
+.lt-anim-cinematic .lt-panel {
+  clip-path: inset(0 0 0 100%);
+  opacity: 0;
+}
+.lt-anim-cinematic.lt-entering .lt-panel {
+  animation: cinematicWipeIn 0.65s var(--ease-out) forwards !important;
+}
+.lt-anim-cinematic.lt-exiting .lt-panel {
+  animation: cinematicWipeOut 0.5s var(--ease-in-out) forwards !important;
+}
+.lt-anim-cinematic.lt-visible .lt-panel {
+  clip-path: inset(0 0 0 0) !important;
+  filter: blur(0) !important;
+  opacity: 1 !important;
+}
