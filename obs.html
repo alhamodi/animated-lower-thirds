@@ -32,6 +32,9 @@
   <script>
     const frame = document.getElementById('ltFrame');
     
+    let lastCmdString = '';
+    const apiOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:8080';
+    
     // Parse initial URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     let currentStyle = urlParams.get('style') || 'emerald';
@@ -53,6 +56,7 @@
     const channel = new BroadcastChannel('lt-control');
     
     function handleCmd(cmd) {
+      lastCmdString = JSON.stringify(cmd);
       // 1. Handle theme style changes (either via explicit change-style command or style parameter in show/update)
       const targetStyle = cmd.style || (cmd.styleFile ? cmd.styleFile.replace('style', '').split('-')[1]?.replace('.html', '') : null);
       if (targetStyle && targetStyle !== currentStyle) {
@@ -60,14 +64,26 @@
         try {
           if (frame.contentWindow && frame.contentWindow.themeRouter) {
             frame.contentWindow.themeRouter.applyTheme(targetStyle);
+          } else {
+            throw new Error('themeRouter not ready');
           }
         } catch (e) {
-          // Fallback: reload iframe
+          // Fallback: reload iframe with all parameters to prevent data loss
           const url = new URL(frame.src || 'templates/render.html', window.location.href);
           url.searchParams.set('style', targetStyle);
-          url.searchParams.set('autostart', 'false');
+          Object.keys(cmd).forEach(k => {
+            if (k !== 'type' && cmd[k] !== undefined && cmd[k] !== '') {
+              url.searchParams.set(k, cmd[k]);
+            }
+          });
+          if (cmd.type === 'show') {
+            url.searchParams.set('autostart', 'true');
+          } else if (cmd.type === 'hide') {
+            url.searchParams.set('autostart', 'false');
+          }
           url.searchParams.set('t', Date.now());
           frame.src = url.toString();
+          return;
         }
       }
 
@@ -78,7 +94,7 @@
       // Forward commands directly to iframe's controller
       let ltReady = false;
       try {
-        if (frame.contentWindow && frame.contentWindow.LT) {
+        if (frame.contentWindow && frame.contentWindow.LT && frame.contentWindow.document.readyState === 'complete') {
           frame.contentWindow.LT._handleCommand(cmd);
           ltReady = true;
         }
@@ -114,9 +130,8 @@
     });
 
     // 3. API Polling (100% Bulletproof for OBS isolated sources)
-    let lastCmdString = '';
     setInterval(() => {
-      fetch('http://localhost:8080/api/command')
+      fetch(`${apiOrigin}/api/command`)
         .then(res => res.json())
         .then(cmd => {
           const cmdString = JSON.stringify(cmd);

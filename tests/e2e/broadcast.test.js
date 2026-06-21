@@ -6,13 +6,18 @@ test.describe('BroadcastChannel Integration', () => {
     const controlPanelPage = await context.newPage();
     const displayPage = await context.newPage();
 
+    controlPanelPage.on('console', msg => console.log('CONTROL PANEL LOG:', msg.text()));
+    controlPanelPage.on('pageerror', err => console.error('CONTROL PANEL ERROR:', err.message));
+    displayPage.on('console', msg => console.log('DISPLAY PAGE LOG:', msg.text()));
+    displayPage.on('pageerror', err => console.error('DISPLAY PAGE ERROR:', err.message));
+
     // Navigate to local files assuming python server is running or using file://
     // For playwright testing with Vite, the base URL is provided if webServer is configured.
     // If not, we can test via file protocol, but BroadcastChannel needs a web server context typically.
     // Assuming Playwright is running a local dev server via vite/playwright config.
     
     // We will test if the playwright config provides a baseURL. If not we use the local server url.
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5173';
+    const baseUrl = process.env.BASE_URL || 'http://127.0.0.1:8080';
     
     try {
       await controlPanelPage.goto(`${baseUrl}/index.html`);
@@ -24,18 +29,28 @@ test.describe('BroadcastChannel Integration', () => {
 
     // Wait for elements to load
     await controlPanelPage.waitForSelector('#nameInput');
-    await displayPage.waitForSelector('.lt-name');
+    
+    console.log('DISPLAY PAGE URL:', displayPage.url());
+    let wrapperClasses = await displayPage.locator('#ltWrapper').evaluate(el => el.className).catch(e => 'Wrapper not found: ' + e.message);
+    console.log('LT WRAPPER CLASSES (INITIAL):', wrapperClasses);
+    const ltAutostart = await displayPage.evaluate(() => window.LT ? window.LT.autostart : 'No LT').catch(e => 'LT eval error: ' + e.message);
+    console.log('LT AUTOSTART:', ltAutostart);
+    
+    await displayPage.waitForTimeout(2000);
+    wrapperClasses = await displayPage.locator('#ltWrapper').evaluate(el => el.className).catch(e => 'Wrapper not found: ' + e.message);
+    console.log('LT WRAPPER CLASSES (AFTER 2S):', wrapperClasses);
+
+    await displayPage.waitForSelector('.lt-name', { state: 'attached' });
 
     // Change value in control panel
     await controlPanelPage.fill('#nameInput', 'تجربة بثเพลย์ไรท์');
     
     // Trigger update if it requires a button click, or wait if debounced
-    await controlPanelPage.waitForTimeout(500); // Wait for debounce
-
+    await controlPanelPage.waitForTimeout(1000); // Wait for debounce and animation
+ 
     // The display page should receive the BroadcastChannel message and update
-    const displayName = await displayPage.locator('.lt-name').textContent();
-    
-    // In our app, empty spaces might be handled differently, but here it should match.
-    expect(displayName).toContain('تجربة بثเพลย์ไรท์');
+    const displayNameEl = displayPage.locator('.lt-name');
+    await expect(displayNameEl).toBeVisible();
+    await expect(displayNameEl).toHaveText('تجربة بثเพลย์ไรท์');
   });
 });

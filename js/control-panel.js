@@ -80,6 +80,7 @@ function initParticles() {
 
 class ControlPanel {
   constructor() {
+    this.apiOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:8080';
     // Style definitions — Polymorphic render.html architecture
     this.STYLES = [
       null,
@@ -166,7 +167,7 @@ class ControlPanel {
     });
 
     // Preview
-    this.updatePreview();
+    this.updateLT();
     this._renderPresets();
     this._updateUrlDisplay();
     this._scalePreview();
@@ -181,49 +182,6 @@ class ControlPanel {
     
     // Load system fonts async
     this._loadSystemFonts();
-  }
-
-  async _loadSystemFonts() {
-    const datalist = document.getElementById('fontsList');
-    if (!datalist) return;
-    
-    let fontList = [];
-    
-    try {
-      if ('queryLocalFonts' in window) {
-        const fonts = await window.queryLocalFonts();
-        const fontSet = new Set();
-        fonts.forEach(f => fontSet.add(f.family));
-        fontList = Array.from(fontSet).sort();
-      }
-    } catch(e) {
-      console.warn('Local Font API denied or failed', e);
-    }
-    
-    if (fontList.length === 0) {
-      try {
-        const res = await fetch('http://localhost:8080/api/fonts');
-        if (res.ok) {
-          fontList = await res.json();
-        }
-      } catch(e) {}
-    }
-    
-    if (fontList.length === 0) {
-      fontList = [
-        'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
-      ];
-    }
-    
-    datalist.innerHTML = '';
-    fontList.forEach(font => {
-      const option = document.createElement('option');
-      option.value = font;
-      datalist.appendChild(option);
-    });
-    
-    const fontInput = document.getElementById('fontInput');
-    if (fontInput) fontInput.placeholder = 'اختر أو اكتب اسم الخط...';
   }
 
   // ─── Navigation ───────────────────────────
@@ -342,7 +300,7 @@ class ControlPanel {
     } catch (e) {}
     // 3. API Server (100% bulletproof for OBS)
     try {
-      fetch('http://localhost:8080/api/command', {
+      fetch(`${this.apiOrigin}/api/command`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cmd)
@@ -355,7 +313,11 @@ class ControlPanel {
   _bindInputs() {
     // Text inputs (debounced)
     ['nameInput', 'titleInput', 'locationInput', 'dateInput', 'fontInput'].forEach(id => {
-      document.getElementById(id)?.addEventListener('input', () => this._debouncedUpdate());
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => this._debouncedUpdate());
+        el.addEventListener('change', () => this._debouncedUpdate());
+      }
     });
 
     // Alignment
@@ -698,7 +660,7 @@ class ControlPanel {
     
     if (fontList.length === 0) {
       try {
-        const res = await fetch('http://localhost:8080/api/fonts');
+        const res = await fetch(`${this.apiOrigin}/api/fonts`);
         if (res.ok) {
           fontList = await res.json();
         }
@@ -710,6 +672,10 @@ class ControlPanel {
         'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
       ];
     }
+    
+    // Ensure Thmanyah and premium fonts are at the top and Thmanyah is absolute first
+    const preferredFonts = ['Thmanyah', 'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri'];
+    fontList = preferredFonts.concat(fontList.filter(f => !preferredFonts.includes(f)));
     
     const renderOptions = (list) => {
       fontOptions.innerHTML = '';
@@ -728,6 +694,7 @@ class ControlPanel {
           fontInput.value = font;
           fontOptions.classList.add('hidden');
           fontInput.dispatchEvent(new Event('input', { bubbles: true }));
+          fontInput.dispatchEvent(new Event('change', { bubbles: true }));
         });
         fontOptions.appendChild(option);
       });

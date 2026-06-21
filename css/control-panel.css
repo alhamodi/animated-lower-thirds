@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
-   CONTROL PANEL — Premium Broadcast Studio UI
-   Islamic Lower Thirds | RTL Arabic | Glassmorphic Dark
-   ═══════════════════════════════════════════════════════════ */
-
+@import url('fonts.css');
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap');
 
 /* ─────────────────────────────────
@@ -71,7 +67,7 @@ html, body {
   height: 100vh;
   background: var(--bg-deep);
   color: var(--text);
-  font-family: 'Cairo', 'Inter', sans-serif;
+  font-family: 'Thmanyah', 'Cairo', 'Inter', sans-serif;
   direction: rtl;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

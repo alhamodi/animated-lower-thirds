@@ -36,8 +36,8 @@
   --gray-light:    #cccccc;
 
   /* === Typography === */
-  --font-arabic:   'Cairo', 'Noto Naskh Arabic', sans-serif;
-  --font-amiri:    'Amiri', 'Noto Naskh Arabic', serif;
+  --font-arabic:   'Thmanyah', 'Cairo', 'Noto Naskh Arabic', sans-serif;
+  --font-amiri:    'Thmanyah', 'Amiri', 'Noto Naskh Arabic', serif;
 
   --size-name:     2.4rem;
   --size-title:    1.2rem;
@@ -76,7 +76,7 @@ html, body {
   overflow: hidden;
   background: transparent;
   direction: rtl; /* Default layout direction */
-  font-family: var(--font-arabic);
+  font-family: 'Thmanyah', var(--font-arabic);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -94,6 +94,7 @@ html[dir="rtl"], html[dir="rtl"] body {
   position: fixed;
   display: flex;
   pointer-events: none;
+  font-family: 'Thmanyah', sans-serif;
   will-change: transform; /* GPU compositing hint for drag & drop */
   contain: layout style; /* Isolate layout recalculations */
 }
