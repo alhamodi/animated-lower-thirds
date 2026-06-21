@@ -17,7 +17,27 @@
 
 ## 🚀 أسرع طريقة للاستخدام (في أقل من دقيقة!)
 
-1. **حمّل الإضافة**: اضغط على الزر الأخضر (Code > Download ZIP) وفك الضغط عن الملف في جهازك.
+1. **حمّل الإضافة**: 
+   - **بالطريقة العادية**: اضغط على الزر الأخضر (Code > Download ZIP) وفك الضغط عن الملف.
+   - **أو عبر موجه الأوامر (Terminal) للمطورين**:
+     - **في ويندوز (Windows)**: افتح CMD أو PowerShell واكتب:
+       ```cmd
+       git clone https://github.com/alhamodi/animated-lower-thirds.git
+       cd animated-lower-thirds
+       start index.html
+       ```
+     - **في الماك (Mac)**: افتح Terminal واكتب:
+       ```bash
+       git clone https://github.com/alhamodi/animated-lower-thirds.git
+       cd animated-lower-thirds
+       open index.html
+       ```
+     - **في لينكس (Linux)**: افتح Terminal واكتب:
+       ```bash
+       git clone https://github.com/alhamodi/animated-lower-thirds.git
+       cd animated-lower-thirds
+       xdg-open index.html
+       ```
 2. **افتح لوحة التحكم**: انقر نقراً مزدوجاً على ملف `index.html` ليفتح في متصفحك (يفضل Chrome).
 3. **اربطها ببرنامج OBS**:
    - داخل الـ OBS، أضف مصدر متصفح جديد **(Browser Source)**.
