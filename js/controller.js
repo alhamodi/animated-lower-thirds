@@ -24,21 +24,39 @@ function convertArabicDigitsToWestern(str) {
 
 // Hijri date auto-generator
 function getHijriDate() {
+  const hijriMonths = [
+    "محرّم", "صفر", "ربيع الأول", "ربيع الآخر", 
+    "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", 
+    "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+  ];
+  const arabicDays = [
+    "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+  ];
+
   try {
-    const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+    const today = new Date();
+    const dayName = arabicDays[today.getDay()];
+
+    const formatter = new Intl.DateTimeFormat('ar-TN-u-ca-islamic-umalqura', {
       day: 'numeric',
-      month: 'long',
+      month: 'numeric',
       year: 'numeric'
     });
-    let formatted = formatter.format(new Date());
-    formatted = convertArabicDigitsToWestern(formatted);
-    const parts = formatted.split(' ');
-    if (parts.length >= 3) {
-      return `${parts[0]} / ${parts[1]} / ${parts[2]} هجري`;
+
+    const parts = formatter.formatToParts(today);
+    let day = '', monthNum = 1, year = '';
+
+    for (const part of parts) {
+      const cleanVal = convertArabicDigitsToWestern(part.value);
+      if (part.type === 'day') day = cleanVal;
+      if (part.type === 'month') monthNum = parseInt(cleanVal, 10);
+      if (part.type === 'year') year = cleanVal;
     }
-    return formatted + ' هجري';
+
+    const monthName = hijriMonths[Math.max(0, Math.min(11, monthNum - 1))];
+    return `${dayName}، ${day} ${monthName} ${year} هجري`;
   } catch (e) {
-    return '٢٨ / ذو الحجة / ١٤٤٧ هجري';
+    return 'الأحد، ٢٨ ذو الحجة ١٤٤٧ هجري';
   }
 }
 
