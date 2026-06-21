@@ -110,6 +110,24 @@ describe('Lower Third Controller', () => {
       expect(applySpy).toHaveBeenCalled();
     });
 
+    it('should update font and apply it to elements', () => {
+      // Arrange
+      const payload = {
+        type: 'update',
+        font: 'Tajawal'
+      };
+
+      // Act
+      ltInstance._handleCommand(payload);
+
+      // Assert
+      expect(ltInstance.font).toBe('Tajawal');
+      
+      const nameEl = document.querySelector('.lt-name');
+      // jsdom might format it slightly differently, but it should contain Tajawal
+      expect(nameEl.style.fontFamily).toContain('Tajawal');
+    });
+
     it('should call enter on show command', () => {
       // Arrange
       const enterSpy = vi.spyOn(ltInstance, 'enter');
