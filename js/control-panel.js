@@ -110,8 +110,9 @@ class ControlPanel {
     this.isVisible = false;
     this.currentAlign = 'right';
     this.currentDuration = 0;
-    this.currentBottom = 80;
-    this.currentSideMargin = 60;
+    this.currentBottom = 8;
+    this.currentSideMargin = 3;
+    this.currentLayoutDir = 'rtl';
     this.currentAnimStyle = 'slide-right';
     this.currentOrnament = 'none';
     this.currentColorBg = '';
@@ -153,12 +154,12 @@ class ControlPanel {
         if (x !== undefined) {
           this.currentSideMargin = x;
           const sliderX = document.getElementById('sideMarginSlider');
-          if (sliderX) { sliderX.value = x; document.getElementById('sideMarginVal').textContent = `${x}px`; }
+          if (sliderX) { sliderX.value = x; document.getElementById('sideMarginVal').textContent = `${x}%`; }
         }
         if (y !== undefined) {
           this.currentBottom = y;
           const sliderY = document.getElementById('marginSlider');
-          if (sliderY) { sliderY.value = y; document.getElementById('marginVal').textContent = `${y}px`; }
+          if (sliderY) { sliderY.value = y; document.getElementById('marginVal').textContent = `${y}%`; }
         }
         this._debouncedUpdate();
       }
@@ -280,7 +281,10 @@ class ControlPanel {
     setTimeout(() => ripple.remove(), 600);
   }
 
-  showLT() {
+  showLT(fromSequencer = false) {
+    if (!fromSequencer) {
+      this._stopQueueAutoPlay();
+    }
     const s = this._getAllSettings();
 
     // Broadcast to OBS
@@ -302,7 +306,10 @@ class ControlPanel {
     }
   }
 
-  hideLT() {
+  hideLT(fromSequencer = false) {
+    if (!fromSequencer) {
+      this._stopQueueAutoPlay();
+    }
     this._broadcastCommand({ type: 'hide' });
     this._getPreviewLT()?.exit();
     this.isVisible = false;
@@ -310,7 +317,10 @@ class ControlPanel {
     this._setStatus(false);
   }
 
-  updateLT() {
+  updateLT(fromSequencer = false) {
+    if (!fromSequencer) {
+      this._stopQueueAutoPlay();
+    }
     const s = this._getAllSettings();
     this._broadcastCommand({ type: 'update', ...s });
 
@@ -368,14 +378,20 @@ class ControlPanel {
     // Bottom margin slider
     document.getElementById('marginSlider')?.addEventListener('input', (e) => {
       this.currentBottom = parseInt(e.target.value);
-      document.getElementById('marginVal').textContent = `${this.currentBottom}px`;
+      document.getElementById('marginVal').textContent = `${this.currentBottom}%`;
       this._debouncedUpdate();
     });
 
     // Side margin slider
     document.getElementById('sideMarginSlider')?.addEventListener('input', (e) => {
       this.currentSideMargin = parseInt(e.target.value);
-      document.getElementById('sideMarginVal').textContent = `${this.currentSideMargin}px`;
+      document.getElementById('sideMarginVal').textContent = `${this.currentSideMargin}%`;
+      this._debouncedUpdate();
+    });
+
+    // Layout Direction Select
+    document.getElementById('layoutDirSelect')?.addEventListener('change', (e) => {
+      this.currentLayoutDir = e.target.value;
       this._debouncedUpdate();
     });
 
@@ -529,8 +545,8 @@ class ControlPanel {
     }
   }
 
-  _getName()     { return document.getElementById('nameInput')?.value     || 'الحبيب علي'; }
-  _getTitle()    { return document.getElementById('titleInput')?.value    || 'المسمى الوظيفي'; }
+  _getName()     { return document.getElementById('nameInput')?.value     || ''; }
+  _getTitle()    { return document.getElementById('titleInput')?.value    || ''; }
   _getLocation() { return document.getElementById('locationInput')?.value || ''; }
   _getDate()     { return document.getElementById('dateInput')?.value     || ''; }
   _getFont()     { return document.getElementById('fontInput')?.value     || ''; }
@@ -564,6 +580,7 @@ class ControlPanel {
       animSpeed: this.currentAnimSpeed,
       logo: this.currentLogo,
       ornament: this.currentOrnament,
+      layoutDir: this.currentLayoutDir,
     };
   }
 
@@ -578,7 +595,7 @@ class ControlPanel {
       nameSize: s.nameSize, titleSize: s.titleSize,
       locationSize: s.locationSize, dateSize: s.dateSize,
       duration: s.duration, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
-      anim: s.animStyle, ornament: s.ornament, autostart: 'false'
+      anim: s.animStyle, ornament: s.ornament, layoutDir: s.layoutDir, autostart: 'false'
     });
     if (s.colorBg) params.set('colorBg', s.colorBg);
     if (s.colorText) params.set('colorText', s.colorText);
@@ -598,7 +615,7 @@ class ControlPanel {
       duration: 0, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
       colorBg: s.colorBg, colorText: s.colorText,
       colorAccent: s.colorAccent, animStyle: s.animStyle,
-      logo: s.logo, ornament: s.ornament,
+      logo: s.logo, ornament: s.ornament, layoutDir: s.layoutDir,
     });
     lt._applyAll();
   }

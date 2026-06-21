@@ -80,6 +80,9 @@ const i18nData = {
     "ornament_bismillah": "﷽ بسملة",
     "ornament_geometric": "◇ أنماط هندسية",
     "ornament_star8": "✦ نجمة ثمانية",
+    "label_layout_dir": "اتجاه تخطيط OBS (Layout Direction)",
+    "layout_dir_rtl": "من اليمين إلى اليسار (RTL)",
+    "layout_dir_ltr": "من اليسار إلى اليمين (LTR)",
 
     // Colors Tab
     "colors_tab_title": "🎨 تخصيص الألوان",
@@ -214,6 +217,9 @@ const i18nData = {
     "ornament_bismillah": "﷽ Bismillah",
     "ornament_geometric": "◇ Geometric",
     "ornament_star8": "✦ 8-Point Star",
+    "label_layout_dir": "OBS Layout Direction",
+    "layout_dir_rtl": "Right-to-Left (RTL)",
+    "layout_dir_ltr": "Left-to-Right (LTR)",
 
     // Colors Tab
     "colors_tab_title": "🎨 Color Customization",

@@ -275,25 +275,30 @@
             <option value="normal" selected>عادي (Normal)</option>
             <option value="fast">سريع (Snappy & Fast)</option>
           </select>
-          <div class="control-group">
-          <label>المسافة من الأسفل (Y-Offset)</label>
+          <label data-i18n="label_y_offset">المسافة من الأسفل (Y-Offset)</label>
           <div class="slider-container">
-            <input type="range" id="marginSlider" min="0" max="800" value="80" class="lt-slider">
-            <span class="slider-val" id="marginVal">80px</span>
+            <input type="range" id="marginSlider" min="0" max="100" value="8" class="lt-slider">
+            <span class="slider-val" id="marginVal">8%</span>
           </div>
 
-          <label>المسافة الجانبية (X-Offset)</label>
+          <label data-i18n="label_x_offset">المسافة الجانبية (X-Offset)</label>
           <div class="slider-container">
-            <input type="range" id="sideMarginSlider" min="0" max="1000" value="60" class="lt-slider">
-            <span class="slider-val" id="sideMarginVal">60px</span>
+            <input type="range" id="sideMarginSlider" min="0" max="100" value="3" class="lt-slider">
+            <span class="slider-val" id="sideMarginVal">3%</span>
           </div>
 
-          <label>موضع ظهور المستطيل (المحاذاة)</label>
+          <label data-i18n="label_align">موضع ظهور المستطيل (المحاذاة)</label>
           <div class="align-group">
-            <button type="button" class="align-btn" data-align="left" aria-label="يسار">يسار</button>
-            <button type="button" class="align-btn" data-align="center" aria-label="وسط">وسط</button>
-            <button type="button" class="align-btn active" data-align="right" aria-label="يمين">يمين (الافتراضي)</button>
+            <button type="button" class="align-btn" data-align="left" aria-label="يسار" data-i18n="align_left">يسار</button>
+            <button type="button" class="align-btn" data-align="center" aria-label="وسط" data-i18n="align_center">وسط</button>
+            <button type="button" class="align-btn active" data-align="right" aria-label="يمين" data-i18n="align_right">يمين (الافتراضي)</button>
           </div>
+
+          <label for="layoutDirSelect" style="margin-top: 16px;" data-i18n="label_layout_dir">اتجاه تخطيط OBS (Layout Direction)</label>
+          <select id="layoutDirSelect" aria-label="اتجاه تخطيط OBS">
+            <option value="rtl" selected data-i18n="layout_dir_rtl">من اليمين إلى اليسار (RTL)</option>
+            <option value="ltr" data-i18n="layout_dir_ltr">من اليسار إلى اليمين (LTR)</option>
+          </select>
 
           <label for="animSelect" style="margin-top: 16px;">🔄 نمط الحركة (دخول/خروج)</label>
           <select id="animSelect" aria-label="نمط الحركة">

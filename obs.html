@@ -30,9 +30,11 @@
     
     // Parse initial URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    let currentStyle = urlParams.get('styleFile') || 'style1-emerald.html';
+    let currentStyle = urlParams.get('style') || 'emerald';
     
-    const initialUrl = new URL(currentStyle, window.location.href);
+    // Build initial URL using polymorphic render.html
+    const initialUrl = new URL('templates/render.html', window.location.href);
+    initialUrl.searchParams.set('style', currentStyle);
     urlParams.forEach((value, key) => {
       if (key !== 'styleFile') {
         initialUrl.searchParams.set(key, value);
@@ -47,55 +49,49 @@
     const channel = new BroadcastChannel('lt-control');
     
     function handleCmd(cmd) {
-      // Check if a style change is requested
-      if (cmd.styleFile && cmd.styleFile !== currentStyle) {
-        currentStyle = cmd.styleFile;
-        
-        // Build the new URL with all current settings as parameters
-        const url = new URL(cmd.styleFile, window.location.href);
+      // Handle hot-swap theme changes
+      if (cmd.type === 'change-style' && cmd.style) {
+        currentStyle = cmd.style;
+        try {
+          if (frame.contentWindow && frame.contentWindow.themeRouter) {
+            frame.contentWindow.themeRouter.applyTheme(cmd.style);
+            return;
+          }
+        } catch (e) {}
+        // Fallback: reload iframe
+        const url = new URL('templates/render.html', window.location.href);
+        url.searchParams.set('style', cmd.style);
+        url.searchParams.set('autostart', 'false');
+        url.searchParams.set('t', Date.now());
+        frame.src = url.toString();
+        return;
+      }
+      
+      // Forward commands directly to iframe's controller
+      let ltReady = false;
+      try {
+        if (frame.contentWindow && frame.contentWindow.LT) {
+          frame.contentWindow.LT._handleCommand(cmd);
+          ltReady = true;
+        }
+      } catch (err) {
+        console.warn('LT access error:', err);
+      }
+      
+      if (!ltReady) {
+        const url = new URL(frame.src || window.location.href);
         Object.keys(cmd).forEach(k => {
-          if (k !== 'type' && k !== 'styleFile' && cmd[k] !== undefined && cmd[k] !== '') {
+          if (k !== 'type' && cmd[k] !== undefined && cmd[k] !== '') {
             url.searchParams.set(k, cmd[k]);
           }
         });
-        
-        // If the command is 'show', we want it to animate in immediately when the iframe loads
         if (cmd.type === 'show') {
           url.searchParams.set('autostart', 'true');
-        } else {
+        } else if (cmd.type === 'hide') {
           url.searchParams.set('autostart', 'false');
         }
-        
-        url.searchParams.set('t', Date.now()); // Prevent OBS caching
-        
+        url.searchParams.set('t', Date.now());
         frame.src = url.toString();
-      } else {
-        // Same style, try to forward command directly or update iframe src if not ready
-        let ltReady = false;
-        try {
-          if (frame.contentWindow && frame.contentWindow.LT) {
-            frame.contentWindow.LT._handleCommand(cmd);
-            ltReady = true;
-          }
-        } catch (err) {
-          console.warn("LT access error:", err);
-        }
-        
-        if (!ltReady) {
-          const url = new URL(frame.src || window.location.href);
-          Object.keys(cmd).forEach(k => {
-            if (k !== 'type' && k !== 'styleFile' && cmd[k] !== undefined && cmd[k] !== '') {
-              url.searchParams.set(k, cmd[k]);
-            }
-          });
-          if (cmd.type === 'show') {
-            url.searchParams.set('autostart', 'true');
-          } else if (cmd.type === 'hide') {
-            url.searchParams.set('autostart', 'false');
-          }
-          url.searchParams.set('t', Date.now());
-          frame.src = url.toString();
-        }
       }
     }
     
