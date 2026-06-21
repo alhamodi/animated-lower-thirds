@@ -67,7 +67,7 @@ html, body {
   height: 100vh;
   background: var(--bg-deep);
   color: var(--text);
-  font-family: 'Thmanyah', 'Cairo', 'Inter', sans-serif;
+  font-family: 'Thmanyah Serif Display - Bold', 'Cairo', 'Inter', sans-serif;
   direction: rtl;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

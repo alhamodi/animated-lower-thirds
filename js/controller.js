@@ -99,6 +99,7 @@ class LowerThirdController {
     this.logo        = this.params.get('logo')        || '';
     this.ornament    = this.params.get('ornament')    || 'none';
     this.layoutDir   = this.params.get('layoutDir')   || 'rtl';
+    this.showLogo    = this.params.get('showLogo') === 'true';
 
     this.wrapper  = null;
     this.nameEl   = null;
@@ -300,22 +301,22 @@ class LowerThirdController {
     };
 
     if (this.nameEl) {
-      this.nameEl.textContent = this.name;
+      this.nameEl.textContent = this.name && this.name.trim() !== '' ? this.name : '\u00A0';
       setFontFamily(this.nameEl);
       this.nameEl.style.fontSize = this.nameSize === 100 ? '' : `${this.nameSize}%`;
     }
     if (this.titleEl) {
-      this.titleEl.textContent = this.title;
+      this.titleEl.textContent = this.title && this.title.trim() !== '' ? this.title : '\u00A0';
       setFontFamily(this.titleEl);
       this.titleEl.style.fontSize = this.titleSize === 100 ? '' : `${this.titleSize}%`;
     }
     if (this.locationEl) {
-      this.locationEl.textContent = this.location;
+      this.locationEl.textContent = this.location && this.location.trim() !== '' ? this.location : '\u00A0';
       setFontFamily(this.locationEl);
       this.locationEl.style.fontSize = this.locationSize === 100 ? '' : `${this.locationSize}%`;
     }
     if (this.dateEl) {
-      this.dateEl.textContent = this.date;
+      this.dateEl.textContent = this.date && this.date.trim() !== '' ? this.date : '\u00A0';
       setFontFamily(this.dateEl);
       this.dateEl.style.fontSize = this.dateSize === 100 ? '' : `${this.dateSize}%`;
     }
@@ -454,7 +455,11 @@ class LowerThirdController {
   _applyLogo() {
     if (!this.panelEl) return;
     let logoEl = this.panelEl.querySelector('.lt-logo');
-    if (this.logo) {
+    
+    // Validate logo string to prevent broken "null" or "undefined" src paths
+    const isValidLogo = this.logo && this.logo !== "null" && this.logo !== "undefined" && this.logo.trim() !== '';
+
+    if (this.showLogo && isValidLogo) {
       if (!logoEl) {
         logoEl = document.createElement('img');
         logoEl.className = 'lt-logo';
@@ -560,6 +565,7 @@ class LowerThirdController {
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
         if (cmd.layoutDir !== undefined) this.layoutDir = cmd.layoutDir;
+        if (cmd.showLogo !== undefined) this.showLogo = cmd.showLogo;
         this._applyAll();
         break;
     }
@@ -572,8 +578,17 @@ class LowerThirdController {
     this._applyColors();
     this._applyAnimStyle();
     this._applyLogo();
+    this._applyThemeLogos();
     this._applyOrnament();
     this._applyLayoutDir();
+  }
+
+  _applyThemeLogos() {
+    if (!this.wrapper) return;
+    const logoElements = this.wrapper.querySelectorAll('.emerald-arch, .chrome-liquid-blob, .neon-fluid-glow, .organic-arch-shape, .lt-icon-area, .lt-glow, .logo-container, .islamic-3d-star, .islamic-fluid-arch, .islamic-star-decor, .crescent-container, .radiant-star');
+    logoElements.forEach(el => {
+      el.style.display = this.showLogo ? '' : 'none';
+    });
   }
 
   _applyLayoutDir() {

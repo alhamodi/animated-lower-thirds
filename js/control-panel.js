@@ -119,6 +119,13 @@ class ControlPanel {
       { file: 'templates/render.html', theme: 'dynamic',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
       { file: 'templates/render.html', theme: 'minimalist',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
       { file: 'templates/render.html', theme: 'islamic-3d',      name: 'الزمرد الإسلامي الذهبي',   gradient: 'linear-gradient(135deg,#022c22,#bf953f)' },
+      { file: 'templates/render.html', theme: 'liquid-chrome',   name: 'الزجاج الكرومي السائل',     gradient: 'linear-gradient(135deg,#94a3b8,#e2e8f0)' },
+      { file: 'templates/render.html', theme: 'liquid-neon',     name: 'الزجاج السائل النيوني',     gradient: 'linear-gradient(135deg,#00f2fe,#4f46e5)' },
+      { file: 'templates/render.html', theme: 'liquid-organic-islamic', name: 'الزجاج الإسلامي العضوي', gradient: 'linear-gradient(135deg,#bf953f,#fbf5b7)' },
+      { file: 'templates/render.html', theme: 'news-ticker',     name: 'شريط الأخبار العاجلة',      gradient: '#dc2626' },
+      { file: 'templates/render.html', theme: 'andalusian-royal', name: 'الملكي الأندلسي', gradient: 'linear-gradient(90deg, #1a1a1a 0%, #d4af37 100%)' },
+      { file: 'templates/render.html', theme: 'ramadan-eid',     name: 'رمضان والأعياد 🌙',      gradient: 'linear-gradient(135deg, #064e3b, #d4af37)' },
+      { file: 'templates/render.html', theme: 'golden-stroke',   name: 'الإطار الخطي ✨',      gradient: 'linear-gradient(135deg, #000, #444)' },
     ];
 
     // BroadcastChannel
@@ -406,6 +413,12 @@ class ControlPanel {
       this._debouncedUpdate();
     });
 
+    // Toggle Logo/Icon
+    document.getElementById('toggle-logo')?.addEventListener('change', (e) => {
+      this.currentShowLogo = e.target.checked;
+      this._debouncedUpdate();
+    });
+
     // Animation select
     document.getElementById('animSelect')?.addEventListener('change', (e) => {
       this.currentAnimStyle = e.target.value;
@@ -562,6 +575,7 @@ class ControlPanel {
       logo: this.currentLogo,
       ornament: this.currentOrnament,
       layoutDir: this.currentLayoutDir,
+      showLogo: !!this.currentShowLogo,
     };
   }
 
@@ -576,7 +590,8 @@ class ControlPanel {
       nameSize: s.nameSize, titleSize: s.titleSize,
       locationSize: s.locationSize, dateSize: s.dateSize,
       duration: s.duration, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
-      anim: s.animStyle, ornament: s.ornament, layoutDir: s.layoutDir, autostart: 'false'
+      anim: s.animStyle, ornament: s.ornament, layoutDir: s.layoutDir, autostart: 'false',
+      showLogo: s.showLogo ? 'true' : 'false'
     });
     if (s.colorBg) params.set('colorBg', s.colorBg);
     if (s.colorText) params.set('colorText', s.colorText);
@@ -597,6 +612,7 @@ class ControlPanel {
       colorBg: s.colorBg, colorText: s.colorText,
       colorAccent: s.colorAccent, animStyle: s.animStyle,
       logo: s.logo, ornament: s.ornament, layoutDir: s.layoutDir,
+      showLogo: s.showLogo
     });
     lt._applyAll();
   }
@@ -686,14 +702,10 @@ class ControlPanel {
       } catch(e) {}
     }
     
-    if (fontList.length === 0) {
-      fontList = [
-        'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
-      ];
-    }
+    fontList = ["AlSharkTitle - Black", "Arabic UI Text - SemiBold", "BaksoSapi", "IBMPlexSans-Italic - VariableFont", "IBMPlexSans - VariableFont", "Masmak", "Montserrat-Italic - VariableFont", "Montserrat - VariableFont", "Symbols1_Ver02", "The Year of Handicrafts - Black", "The Year of Handicrafts - Bold", "The Year of Handicrafts - Medium", "The Year of Handicrafts - Regular", "The Year of Handicrafts - SemiBold", "The Year of The Camel - Bold", "The Year of The Camel - ExtraBold", "The Year of The Camel - ExtraLight", "The Year of The Camel - Light", "The Year of The Camel - Medium", "The Year of The Camel - Regular", "The Year of The Camel - Thin", "Thmanyah Sans - Black", "Thmanyah Sans - Bold", "Thmanyah Sans - Light", "Thmanyah Sans - Medium", "Thmanyah Sans - Regular", "Thmanyah Serif Display - Black", "Thmanyah Serif Display - Bold", "Thmanyah Serif Display - Light", "Thmanyah Serif Display - Medium", "Thmanyah Serif Display - Regular", "Thmanyah Serif Text - Black", "Thmanyah Serif Text - Bold", "Thmanyah Serif Text - Light", "Thmanyah Serif Text - Medium", "Thmanyah Serif Text - Regular"];
     
     // Ensure Thmanyah and premium fonts are at the top and Thmanyah is absolute first
-    const preferredFonts = ['Thmanyah', 'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri'];
+    const preferredFonts = [];
     fontList = preferredFonts.concat(fontList.filter(f => !preferredFonts.includes(f)));
     
     const renderOptions = (list) => {
