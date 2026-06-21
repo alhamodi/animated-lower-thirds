@@ -1565,6 +1565,20 @@ input[type="color"]:hover {
     height: 32px;
     font-size: 0.85rem;
   }
+
+  .align-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .align-btn {
+    width: 100%;
+  }
+
+  .slider-container {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 /* ─────────────────────────────────
