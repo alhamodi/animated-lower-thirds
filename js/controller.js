@@ -608,12 +608,17 @@ class LowerThirdController {
 
   _applyShapePreset() {
     if (!this.wrapper) return;
-    const targets = this.wrapper.querySelectorAll('.info-corner, .event-tag, .lt-title, .location-box');
+    const targets = this.wrapper.querySelectorAll('.info-corner, .event-tag, .location-box');
     
     // First, remove any existing preset shape classes from these structural elements
     targets.forEach(el => {
       el.classList.remove('preset-mihrab', 'preset-mihrab-right', 'preset-arch', 'preset-star', 'preset-octagon');
     });
+
+    const titleEl = this.wrapper.querySelector('.lt-title');
+    if (titleEl) {
+      titleEl.classList.remove('preset-mihrab', 'preset-mihrab-right', 'preset-arch', 'preset-star', 'preset-octagon');
+    }
 
     // Apply the new shape preset if it's not 'none'
     if (this.shapePreset && this.shapePreset !== 'none') {

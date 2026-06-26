@@ -38,4 +38,23 @@ test.describe('Control Panel UI', () => {
     // In style1-emerald.html, it should update
     await expect(iframeTitle).toContainText('Playwright Tester');
   });
+
+  test('should persist input data across page reloads', async ({ page }) => {
+    // Fill in inputs
+    const titleInput = page.locator('#titleInput');
+    const nameInput = page.locator('#nameInput');
+    
+    await titleInput.fill('E2E Persistent Name');
+    await nameInput.fill('E2E Persistent Title');
+    
+    // Wait for debounced save to complete (100ms debounce + margin)
+    await page.waitForTimeout(300);
+    
+    // Reload the page
+    await page.reload();
+    
+    // Verify inputs have the persisted values
+    await expect(page.locator('#titleInput')).toHaveValue('E2E Persistent Name');
+    await expect(page.locator('#nameInput')).toHaveValue('E2E Persistent Title');
+  });
 });

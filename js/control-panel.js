@@ -188,6 +188,9 @@ class ControlPanel {
     this._bindKeyboard();
     this._initDate();
 
+    // Load saved settings from localStorage
+    this._loadSettingsFromStorage();
+
     // Listen for drag updates from iframe
     window.addEventListener('message', (e) => {
       if (e.data && e.data.type === 'lt-drag-update') {
@@ -348,6 +351,7 @@ class ControlPanel {
     if (lt) this._applyToPreview(lt);
 
     this._updateUrlDisplay();
+    this._saveSettingsToStorage();
   }
 
   _broadcastCommand(cmd) {
@@ -363,10 +367,17 @@ class ControlPanel {
     } catch (e) {}
     // 3. API Server (100% bulletproof for OBS)
     try {
+      // Use Content-Type: 'text/plain' to avoid triggering CORS preflight OPTIONS requests on file:/// protocol
       fetch(`${this.apiOrigin}/api/command`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(cmd)
+      }).catch(() => {});
+
+      // Fallback: Send command via GET request as a backup to bypass strict file:/// CORS/preflight blocks
+      fetch(`${this.apiOrigin}/api/command?cmd=${encodeURIComponent(JSON.stringify(cmd))}&t=${Date.now()}`, {
+        method: 'GET',
+        mode: 'no-cors'
       }).catch(() => {});
     } catch (e) {}
   }
@@ -695,6 +706,7 @@ class ControlPanel {
     const wasVisible = this.isVisible;
     const prevStyle = this.currentStyle;
     this.currentStyle = num;
+    this._saveSettingsToStorage();
     document.querySelectorAll('[data-style]').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
     
@@ -1324,6 +1336,149 @@ class ControlPanel {
     }
     const btn = document.getElementById('btnLiveClock');
     if (btn) btn.classList.remove('active');
+  }
+
+  _saveSettingsToStorage() {
+    try {
+      const s = this._getAllSettings();
+      localStorage.setItem('lt-last-settings', JSON.stringify(s));
+    } catch (e) {}
+  }
+
+  _loadSettingsFromStorage() {
+    try {
+      const saved = localStorage.getItem('lt-last-settings');
+      if (saved) {
+        const s = JSON.parse(saved);
+        
+        // Restore state properties
+        if (s.styleId !== undefined) this.currentStyle = s.styleId;
+        if (s.align !== undefined) this.currentAlign = s.align;
+        if (s.duration !== undefined) this.currentDuration = s.duration;
+        if (s.bottomMargin !== undefined) this.currentBottom = s.bottomMargin;
+        if (s.sideMargin !== undefined) this.currentSideMargin = s.sideMargin;
+        if (s.colorBg !== undefined) this.currentColorBg = s.colorBg;
+        if (s.colorText !== undefined) this.currentColorText = s.colorText;
+        if (s.colorAccent !== undefined) this.currentColorAccent = s.colorAccent;
+        if (s.animStyle !== undefined) this.currentAnimStyle = s.animStyle;
+        if (s.animSpeed !== undefined) this.currentAnimSpeed = s.animSpeed;
+        if (s.logo !== undefined) this.currentLogo = s.logo;
+        if (s.ornament !== undefined) this.currentOrnament = s.ornament;
+        if (s.shapePreset !== undefined) this.currentShapePreset = s.shapePreset;
+        if (s.textStyle !== undefined) this.currentTextStyle = s.textStyle;
+        if (s.layoutDir !== undefined) this.currentLayoutDir = s.layoutDir;
+        if (s.showLogo !== undefined) this.currentShowLogo = s.showLogo;
+        
+        if (s.nameSize !== undefined) this.nameSize = s.nameSize;
+        if (s.titleSize !== undefined) this.titleSize = s.titleSize;
+        if (s.locationSize !== undefined) this.locationSize = s.locationSize;
+        if (s.dateSize !== undefined) this.dateSize = s.dateSize;
+
+        // Restore HTML input field values
+        const nameInput = document.getElementById('nameInput'); // Lesson Title input
+        const titleInput = document.getElementById('titleInput'); // Speaker Name input
+        const locationInput = document.getElementById('locationInput');
+        const dateInput = document.getElementById('dateInput');
+        const fontInput = document.getElementById('fontInput');
+
+        if (nameInput && s.title !== undefined) nameInput.value = s.title;
+        if (titleInput && s.name !== undefined) titleInput.value = s.name;
+        if (locationInput && s.location !== undefined) locationInput.value = s.location;
+        if (dateInput && s.date !== undefined) dateInput.value = s.date;
+        if (fontInput && s.font !== undefined) fontInput.value = s.font;
+
+        // Update UI controls to match restored state
+        
+        // 1. Style Cards
+        document.querySelectorAll('[data-style]').forEach(c => {
+          c.classList.toggle('active', parseInt(c.dataset.style, 10) === this.currentStyle);
+        });
+
+        // 2. Alignment Buttons
+        document.querySelectorAll('[data-align]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.align === this.currentAlign);
+        });
+
+        // 3. Duration Slider
+        const durationSlider = document.getElementById('durationSlider');
+        const durationVal = document.getElementById('durationVal');
+        if (durationSlider) {
+          durationSlider.value = this.currentDuration;
+          if (durationVal) {
+            durationVal.textContent = this.currentDuration === 0 ? '0 (مستمر)' : `${this.currentDuration}ث`;
+          }
+        }
+
+        // 4. Margins
+        const marginSlider = document.getElementById('marginSlider');
+        const marginVal = document.getElementById('marginVal');
+        if (marginSlider) {
+          marginSlider.value = this.currentBottom;
+          if (marginVal) marginVal.textContent = `${this.currentBottom}%`;
+        }
+
+        const sideMarginSlider = document.getElementById('sideMarginSlider');
+        const sideMarginVal = document.getElementById('sideMarginVal');
+        if (sideMarginSlider) {
+          sideMarginSlider.value = this.currentSideMargin;
+          if (sideMarginVal) sideMarginVal.textContent = `${this.currentSideMargin}%`;
+        }
+
+        // 5. Layout Direction
+        const layoutSelect = document.getElementById('layoutDirSelect');
+        if (layoutSelect) layoutSelect.value = this.currentLayoutDir;
+
+        // 6. Colors
+        const colorBg = document.getElementById('colorBg');
+        if (colorBg && this.currentColorBg) colorBg.value = this.currentColorBg;
+
+        const colorText = document.getElementById('colorText');
+        if (colorText && this.currentColorText) colorText.value = this.currentColorText;
+
+        const colorAccent = document.getElementById('colorAccent');
+        if (colorAccent && this.currentColorAccent) colorAccent.value = this.currentColorAccent;
+
+        // 7. Ornament Selector
+        const ornamentSelect = document.getElementById('ornamentSelect');
+        if (ornamentSelect) ornamentSelect.value = this.currentOrnament;
+
+        // 8. Shape Preset Selector
+        const shapeSelect = document.getElementById('shapeSelect');
+        if (shapeSelect) shapeSelect.value = this.currentShapePreset;
+
+        // 9. Animation Style Selector
+        const animSelect = document.getElementById('animSelect');
+        if (animSelect) animSelect.value = this.currentAnimStyle;
+
+        // 10. Animation Speed Selector
+        const animationSpeed = document.getElementById('animationSpeed');
+        if (animationSpeed) animationSpeed.value = this.currentAnimSpeed;
+
+        // 11. Text Style Selector
+        const textStyleSelect = document.getElementById('textStyleSelect');
+        if (textStyleSelect) textStyleSelect.value = this.currentTextStyle;
+
+        // 12. Show Logo checkbox
+        const toggleLogo = document.getElementById('toggle-logo');
+        if (toggleLogo) toggleLogo.checked = this.currentShowLogo;
+
+        // 13. Font Sizes Displays
+        ['nameSize', 'titleSize', 'locationSize', 'dateSize'].forEach(target => {
+          const display = document.getElementById(`${target}Display`);
+          if (display && this[target] !== undefined) {
+            display.textContent = `${this[target]}%`;
+          }
+        });
+
+        // Set restored style URL to the iframe
+        const frame = this._getFrame();
+        if (frame) {
+          frame.src = this._buildUrl(this.currentStyle);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load saved settings:', e);
+    }
   }
 
   _escapeHtml(str) {

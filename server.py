@@ -29,15 +29,32 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(b'{"status":"success"}')
             except Exception as e:
                 self.send_response(400)
+                self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
                 self.wfile.write(b'{"status":"error"}')
         else:
             self.send_response(404)
             self.end_headers()
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
     def do_GET(self):
         path_clean = self.path.split('?')[0]
         if path_clean == '/api/command':
+            from urllib.parse import urlparse, parse_qs
+            try:
+                query_components = parse_qs(urlparse(self.path).query)
+                if 'cmd' in query_components:
+                    cmd_json = query_components['cmd'][0]
+                    ControlPanelHandler.latest_cmd = json.loads(cmd_json)
+            except Exception:
+                pass
+
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
