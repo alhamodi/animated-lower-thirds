@@ -27,17 +27,80 @@
   </style>
 </head>
 <body>
-  <iframe id="ltFrame" src=""></iframe>
+  <iframe id="ltFrame" src="about:blank"></iframe>
 
   <script>
+    const STYLE_MAP = {
+      1: 'style1-emerald.html',
+      2: 'style2-royal.html',
+      3: 'style3-modern.html',
+      4: 'style4-fajr.html',
+      5: 'style5-silver.html',
+      6: 'style6-heritage.html',
+      7: 'style7-glass.html',
+      8: 'style8-saudi.html',
+      9: 'style9-kufic.html',
+      10: 'style10-gold.html',
+      11: 'style11-midnight.html',
+      12: 'style12-marble.html',
+      13: 'style13-ramadan-green.html',
+      14: 'style14-ramadan-plum.html',
+      15: 'style15-dynamic.html',
+      16: 'style16-minimalist.html',
+      17: 'style17-islamic-3d.html',
+      18: 'style18-liquid-chrome.html',
+      19: 'style19-liquid-neon.html',
+      20: 'style20-liquid-organic-islamic.html',
+      21: 'style21-news-ticker.html',
+      22: 'style22-andalusian-royal.html',
+      23: 'style23-ramadan-eid.html',
+      24: 'style24-golden-stroke.html',
+      25: 'style25-master-ticker.html',
+      26: 'style26-cyber-mosaic.html'
+    };
+
+    const STYLE_THEME_MAP = {
+      1: 'emerald',
+      2: 'royal',
+      3: 'modern',
+      4: 'fajr',
+      5: 'silver',
+      6: 'heritage',
+      7: 'glass',
+      8: 'saudi',
+      9: 'kufic',
+      10: 'gold',
+      11: 'midnight',
+      12: 'marble',
+      13: 'ramadan-green',
+      14: 'ramadan-plum',
+      15: 'dynamic',
+      16: 'minimalist',
+      17: 'islamic-3d',
+      18: 'liquid-chrome',
+      19: 'liquid-neon',
+      20: 'liquid-organic-islamic',
+      21: 'news-ticker',
+      22: 'andalusian-royal',
+      23: 'ramadan-eid',
+      24: 'golden-stroke',
+      25: 'master-ticker',
+      26: 'cyber-mosaic'
+    };
+
     const frame = document.getElementById('ltFrame');
     
     let lastCmdString = '';
+    let lastSeq = 0;
     const apiOrigin = window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:8080';
     
     // Parse initial URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    let currentStyle = urlParams.get('style') || 'emerald';
+    const styleIdParam = urlParams.get('styleId');
+    let currentStyle = urlParams.get('style') || 'islamic-3d';
+    if (styleIdParam && STYLE_THEME_MAP[styleIdParam]) {
+      currentStyle = STYLE_THEME_MAP[styleIdParam];
+    }
     
     // Build initial URL using polymorphic render.html
     const initialUrl = new URL('templates/render.html', window.location.href);
@@ -56,67 +119,49 @@
     const channel = new BroadcastChannel('lt-control');
     
     function handleCmd(cmd) {
-      lastCmdString = JSON.stringify(cmd);
-      // 1. Handle theme style changes (either via explicit change-style command or style parameter in show/update)
-      const targetStyle = cmd.style || (cmd.styleFile ? cmd.styleFile.replace('style', '').split('-')[1]?.replace('.html', '') : null);
-      if (targetStyle && targetStyle !== currentStyle) {
+      const { seq, ...comparisonCmd } = cmd;
+      lastCmdString = JSON.stringify(comparisonCmd);
+      if (seq) lastSeq = seq;
+
+      // 1. Handle theme style changes
+      let targetStyle = cmd.style;
+      if (cmd.styleId && STYLE_THEME_MAP[cmd.styleId]) {
+        targetStyle = STYLE_THEME_MAP[cmd.styleId];
+      }
+
+      if (cmd.type === 'change-style' && targetStyle && targetStyle !== currentStyle) {
         currentStyle = targetStyle;
+        // Try to hot-swap via postMessage first
+        try {
+          frame.contentWindow.postMessage({ type: 'change-style', style: targetStyle }, '*');
+        } catch(e) {}
+        // Also try direct themeRouter access
         try {
           if (frame.contentWindow && frame.contentWindow.themeRouter) {
             frame.contentWindow.themeRouter.applyTheme(targetStyle);
-          } else {
-            throw new Error('themeRouter not ready');
           }
-        } catch (e) {
-          // Fallback: reload iframe with all parameters to prevent data loss
-          const url = new URL(frame.src || 'templates/render.html', window.location.href);
-          url.searchParams.set('style', targetStyle);
-          Object.keys(cmd).forEach(k => {
-            if (k !== 'type' && cmd[k] !== undefined && cmd[k] !== '') {
-              url.searchParams.set(k, cmd[k]);
-            }
-          });
-          if (cmd.type === 'show') {
-            url.searchParams.set('autostart', 'true');
-          } else if (cmd.type === 'hide') {
-            url.searchParams.set('autostart', 'false');
-          }
-          url.searchParams.set('t', Date.now());
-          frame.src = url.toString();
-          return;
-        }
-      }
-
-      if (cmd.type === 'change-style') {
+        } catch(e) {}
         return;
       }
+
+      if (cmd.type === 'change-style') return;
       
-      // Forward commands directly to iframe's controller
-      let ltReady = false;
+      // 2. Forward show/update/hide commands directly to the iframe's LT controller
+      // Try direct JS access first (works when same origin)
       try {
         if (frame.contentWindow && frame.contentWindow.LT && frame.contentWindow.document.readyState === 'complete') {
           frame.contentWindow.LT._handleCommand(cmd);
-          ltReady = true;
         }
       } catch (err) {
-        console.warn('LT access error:', err);
+        // Cross-origin or LT not ready — iframe's own API polling (every 250ms) will handle it
       }
       
-      if (!ltReady) {
-        const url = new URL(frame.src || window.location.href);
-        Object.keys(cmd).forEach(k => {
-          if (k !== 'type' && cmd[k] !== undefined && cmd[k] !== '') {
-            url.searchParams.set(k, cmd[k]);
-          }
-        });
-        if (cmd.type === 'show') {
-          url.searchParams.set('autostart', 'true');
-        } else if (cmd.type === 'hide') {
-          url.searchParams.set('autostart', 'false');
-        }
-        url.searchParams.set('t', Date.now());
-        frame.src = url.toString();
-      }
+      // 3. Also send via postMessage as a reliable backup
+      try {
+        frame.contentWindow.postMessage({ ...cmd, _source: 'obs' }, '*');
+      } catch(e) {}
+      
+      // Note: We do NOT reload the iframe here. The iframe's own API polling handles any missed commands.
     }
     
     channel.onmessage = (e) => handleCmd(e.data);
@@ -129,19 +174,33 @@
       }
     });
 
-    // 3. API Polling (100% Bulletproof for OBS isolated sources)
-    setInterval(() => {
-      fetch(`${apiOrigin}/api/command`)
+    // API Polling (bulletproof fallback for OBS isolated sources)
+    const apiInterval = setInterval(() => {
+      fetch(`${apiOrigin}/api/command?t=${Date.now()}`)
         .then(res => res.json())
         .then(cmd => {
-          const cmdString = JSON.stringify(cmd);
-          if (cmd && cmd.type && cmdString !== lastCmdString) {
-            lastCmdString = cmdString;
-            handleCmd(cmd);
+          if (cmd && cmd.type) {
+            const { seq, ...comparisonCmd } = cmd;
+            const cmdString = JSON.stringify(comparisonCmd);
+            if (cmdString !== lastCmdString || (seq && seq !== lastSeq)) {
+              lastCmdString = cmdString;
+              lastSeq = seq;
+              handleCmd(cmd);
+            }
           }
         })
         .catch(() => {});
     }, 250);
+
+    // Unload listener to prevent memory leaks
+    window.addEventListener('unload', () => {
+      if (apiInterval) {
+        clearInterval(apiInterval);
+      }
+      if (channel) {
+        channel.close();
+      }
+    });
   </script>
 </body>
 </html>

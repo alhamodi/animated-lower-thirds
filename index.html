@@ -125,7 +125,7 @@
               <button type="button" class="size-btn" data-target="nameSize" data-action="increase" aria-label="تكبير" style="background: none; border: none; color: #fff; cursor: pointer;">+</button>
             </div>
           </div>
-          <input type="text" id="nameInput" placeholder="اكتب العنوان هنا..." value="" aria-label="العنوان">
+          <input type="text" id="nameInput" placeholder="اكتب عنوان الدرس أو الكلمة..." value="" aria-label="عنوان الدرس">
 
           <div class="input-header" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;">
             <label for="titleInput" style="margin: 0;">اسم المحاضر / الشيخ (الفرعي)</label>
@@ -135,7 +135,7 @@
               <button type="button" class="size-btn" data-target="titleSize" data-action="increase" aria-label="تكبير" style="background: none; border: none; color: #fff; cursor: pointer;">+</button>
             </div>
           </div>
-          <input type="text" id="titleInput" placeholder="مثل: الحبيب علي..." value="الحبيب علي بن محضار بن علي المشهور" aria-label="الاسم">
+          <input type="text" id="titleInput" placeholder="مثل: الحبيب علي بن محضار..." value="الحبيب علي بن محضار بن علي المشهور" aria-label="اسم المحاضر">
 
           <div class="input-header" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 4px;">
             <label for="locationInput" style="margin: 0;">المكان / الجامع</label>
@@ -188,7 +188,7 @@
           <div class="card-title">🎨 النمط البصري</div>
           <div class="style-grid">
 
-            <div class="style-card active" data-style="1" title="الذهب والزمرد" role="button" tabindex="0">
+            <div class="style-card" data-style="1" title="الذهب والزمرد" role="button" tabindex="0">
               <span class="style-dot" style="background: linear-gradient(135deg,#0d5c3a,#c9a84c); border:none;"></span>
               الذهب والزمرد
             </div>
@@ -254,7 +254,7 @@
               <span class="style-dot" style="background: #ffffff; border: 1px solid #ddd;"></span>
               بسيط (Minimalist)
             </div>
-            <div class="style-card" data-style="17" title="الزمرد الإسلامي الذهبي" role="button" tabindex="0">
+            <div class="style-card active" data-style="17" title="الزمرد الإسلامي الذهبي" role="button" tabindex="0">
               <span class="style-dot" style="background: linear-gradient(135deg,#022c22,#bf953f); border:none;"></span>
               الزمرد الإسلامي الذهبي
             </div>
@@ -298,8 +298,12 @@
 
             <!-- MASTER TICKER -->
             <div class="style-card" data-style="25" title="الشريط الشامل 📰" role="button" tabindex="0" style="background: linear-gradient(135deg, #141414, #c0392b);">
-              <span class="style-dot" style="background: #d4af37; border:none;"></span>
-              الشريط الشامل 📰
+              <span class="style-dot" style="background: linear-gradient(135deg,#e74c3c,#f39c12); border:none;"></span>
+              الشريط الشامل
+            </div>
+            <div class="style-card" data-style="26" title="الموزاييك النيوني التراثي 🕌✨" role="button" tabindex="0" style="background: linear-gradient(135deg, #090909, #d4af37);">
+              <span class="style-dot" style="background: radial-gradient(circle, #ffe066 0%, #d4af37 100%); border:none; box-shadow: 0 0 5px #d4af37;"></span>
+              الموزاييك النيوني
             </div>
 
           </div>
@@ -369,12 +373,24 @@
             <option value="wipe">↔ مسح جانبي (Snappy Wipe)</option>
           </select>
 
-          <label for="ornamentSelect">🌙 الزخرفة الإسلامية</label>
+          <label for="ornamentSelect" style="margin-top: 16px;">🌙 الزخرفة الإسلامية</label>
           <select id="ornamentSelect" aria-label="الزخرفة">
             <option value="none" selected>بدون زخرفة</option>
-            <option value="bismillah">﷽ بسملة</option>
-            <option value="geometric">◇ أنماط هندسية</option>
-            <option value="star8">✦ نجمة ثمانية</option>
+            <option value="arabesque">نقش أرابيسك 1</option>
+            <option value="arabesque2">نقش أرابيسك 2</option>
+            <option value="geometry">هندسة إسلامية</option>
+            <option value="lantern">فانوس رمضاني</option>
+          </select>
+
+          <label for="shapeSelect" style="margin-top: 16px;">🕌 الأشكال الهندسية (Presets)</label>
+          <select id="shapeSelect" aria-label="الأشكال الهندسية">
+            <option value="none">بدون قص (افتراضي)</option>
+            <option value="mihrab" selected>محراب (Mihrab)</option>
+            <option value="arch">قوس أندلسي (Arch)</option>
+            <option value="star">نجمة ثمانية (Star)</option>
+            <option value="octagon">شكل مثمن (Octagon)</option>
+            <option value="outline-arch">محراب مفرغ (Hollow Arch)</option>
+            <option value="outline-deco">زخرفة دائرية مفرغة (Hollow Deco)</option>
           </select>
         </div>
       </div>
@@ -384,6 +400,14 @@
         <div class="card-grid">
           <div class="card">
             <div class="card-title">🎨 تخصيص الألوان</div>
+
+            <label for="textStyleSelect" style="margin-bottom: 8px;">✨ نمط الخط (3D Style)</label>
+            <select id="textStyleSelect" aria-label="نمط الخط ثلاثي الأبعاد" style="margin-bottom: 16px;">
+              <option value="none" selected>لا يوجد (Flat)</option>
+              <option value="3d-gold">ذهب بارز (Extruded Gold)</option>
+              <option value="3d-neon">نيون مشع (Glow Neon)</option>
+              <option value="3d-float">خط هولوغرامي (Floating Perspective)</option>
+            </select>
 
             <label>ألوان المستطيل</label>
             <div class="color-row">

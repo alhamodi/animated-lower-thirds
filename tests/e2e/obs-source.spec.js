@@ -8,10 +8,10 @@ test.describe('OBS Dynamic Source', () => {
     const iframe = page.locator('#ltFrame');
     await expect(iframe).toBeVisible();
     
-    // Check if the iframe src contains render.html and style=emerald
+    // Check if the iframe src contains render.html and style=islamic-3d
     const src = await iframe.getAttribute('src');
     expect(src).toContain('render.html');
-    expect(src).toContain('style=emerald');
+    expect(src).toContain('style=islamic-3d');
   });
 
   test('should parse URL parameters and apply them to iframe', async ({ page }) => {
@@ -54,6 +54,6 @@ test.describe('OBS Dynamic Source', () => {
     
     // Wait for the iframe's lower third to show up and have the text
     const iframeName = iframe.contentFrame().locator('.lt-name');
-    await expect(iframeName).toContainText('Broadcast Name');
+    await expect(iframeName).toContainText('Broadcast Title');
   });
 });

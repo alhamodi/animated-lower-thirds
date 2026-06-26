@@ -251,3 +251,105 @@ html[dir="rtl"], html[dir="rtl"] body {
   background: rgba(201, 168, 76, 0.1) !important;
   box-shadow: 0 0 12px rgba(201, 168, 76, 0.2) !important;
 }
+
+/* --- Islamic Geometric Presets --- */
+
+/* 1. شكل المحراب النقي (Mihrab) - بفتحة قوس انسيابية من الأعلى */
+.preset-mihrab {
+    clip-path: path('M 0 0 H 100 V 100 H 0 V 40 Q 0 0 50 0 Q 100 0 100 40 V 100 H 0 Z');
+    /* ملاحظة: هذا المسار مصمم ليتم قلبه أو استخدامه حسب اتجاه الشريط */
+}
+
+/* نسخة المحراب الموجهة لليمين (مثالية لركن المعلومات في جهة اليمين) */
+.preset-mihrab-right {
+    clip-path: polygon(0 0, 100% 0, 100% 20%, 85% 0, 0 0, 0 100%, 85% 100%, 100% 80%, 100% 100%, 0 100%);
+    /* شكل هندسي إسلامي مدبب الأطراف */
+    padding-right: 25px !important; /* مساحة لبروز المحراب */
+    margin-right: -10px; /* لدمجه بسلاسة مع شريط التمرير */
+}
+
+/* 2. القوس الأندلسي (Andalusian Arch) - زاوية مدببة فخمة */
+.preset-arch {
+    clip-path: polygon(10% 0, 90% 0, 100% 20%, 100% 100%, 0 100%, 0 20%);
+    padding: 0 25px !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 3. النجمة الثمانية (Rub el Hizb) - رائعة للأيقونات أو أطراف العناوين */
+.preset-star {
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* 4. الشكل المثمن الزخرفي (Octagon Deco) */
+.preset-octagon {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+/* --- High-End Outlined Frames (Image 2 Style) --- */
+
+/* بريست: المحراب المفرغ المزدوج (Hollow Arch Frame) */
+.preset-outline-arch {
+    position: relative;
+    border: 2px solid #d4af37;
+    background: rgba(0,0,0,0.4);
+    clip-path: path('M 0 100 V 40 C 0 10 50 10 50 10 C 50 10 100 10 100 40 V 100 H 0 Z');
+}
+
+/* بريست: الإطار الدائري الزخرفي المزدوج (Ornamental Ring) */
+.preset-outline-deco {
+    border: 1.5px solid #fcf6ba;
+    padding: 2px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgba(212, 175, 55, 0.5);
+}
+
+/* إطار مذهب رقيق ليظهر جمال الشكل المقصوص */
+.shape-border {
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    position: relative;
+}
+
+/* --- 3D Text Layering Presets --- */
+
+/* 1. الذهب البارز (3D Extruded Gold) - يظهر سمك الخط المعدني */
+.text-3d-gold {
+    color: #fcf6ba !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    text-shadow: 
+        0 1px 0 #b38728,
+        0 2px 0 #aa771c,
+        0 3px 0 #906316,
+        0 4px 0 #765011,
+        0 5px 0 #5c3e0d,
+        0 6px 1px rgba(0,0,0,.1),
+        0 0 5px rgba(0,0,0,.2),
+        0 1px 3px rgba(0,0,0,.3),
+        0 3px 5px rgba(0,0,0,.2),
+        0 5px 10px rgba(0,0,0,.25),
+        0 10px 10px rgba(0,0,0,.2),
+        0 20px 20px rgba(0,0,0,.15);
+}
+
+/* 2. النيون المشع العميق (Deep Glow 3D) */
+.text-3d-neon {
+    color: #fff !important;
+    font-weight: 800 !important;
+    text-shadow: 
+        1px 1px 0 #d4af37,
+        2px 2px 0 #d4af37,
+        3px 3px 20px rgba(212, 175, 55, 0.8),
+        0 0 10px rgba(212, 175, 55, 0.5),
+        0 0 40px rgba(212, 175, 55, 0.3);
+}
+
+/* 3. الظل المبتعد (Perspective Shadow) - يعطي إيحاءً بالطيران */
+.text-3d-float {
+    text-shadow: 
+        0 20px 25px rgba(0, 0, 0, 0.5),
+        0 10px 10px rgba(0, 0, 0, 0.3);
+    transform: perspective(500px) rotateX(10deg);
+}

@@ -9,8 +9,15 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
     # Class variable to store the latest command
     latest_cmd = {}
 
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
     def do_POST(self):
-        if self.path == '/api/command':
+        path_clean = self.path.split('?')[0]
+        if path_clean == '/api/command':
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
             try:
@@ -29,7 +36,8 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
     def do_GET(self):
-        if self.path == '/api/command':
+        path_clean = self.path.split('?')[0]
+        if path_clean == '/api/command':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -37,7 +45,7 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             self.end_headers()
             self.wfile.write(json.dumps(ControlPanelHandler.latest_cmd).encode('utf-8'))
-        elif self.path == '/api/fonts':
+        elif path_clean == '/api/fonts':
             font_dirs = [
                 '/System/Library/Fonts',
                 '/System/Library/Fonts/Supplemental',
@@ -54,7 +62,8 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
                             for suffix in [' Bold', ' Italic', ' Regular', ' Medium', ' Light', ' Thin', ' Black']:
                                 if name.endswith(suffix):
                                     name = name[:-len(suffix)]
-                            fonts.add(name)
+                             # Strip trailing spaces
+                            fonts.add(name.strip())
             
             windir = os.environ.get('WINDIR')
             if windir:
@@ -62,7 +71,7 @@ class ControlPanelHandler(http.server.SimpleHTTPRequestHandler):
                 if os.path.exists(win_fonts):
                     for f in os.listdir(win_fonts):
                         if f.lower().endswith(('.ttf', '.otf', '.ttc')):
-                            fonts.add(os.path.splitext(f)[0].replace('-', ' '))
+                            fonts.add(os.path.splitext(f)[0].replace('-', ' ').strip())
             
             font_list = sorted(list(fonts))
             self.send_response(200)

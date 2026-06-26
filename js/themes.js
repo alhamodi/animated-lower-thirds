@@ -3347,8 +3347,8 @@ const THEME_REGISTRY = {
 
       panel.classList.remove('lt-layout-stacked', 'lt-layout-vertical-sub', 'lt-layout-numbered');
 
-      // 1. Stacked Typographic: If the name contains multiple words, split and stack
-      const nameParts = nameVal.split(' ');
+      // 1. Stacked Typographic: If the name contains multiple words, split and stack (Disabled for Lesson Title hierarchy)
+      const nameParts = [];
       if (nameParts.length >= 2) {
         panel.classList.add('lt-layout-stacked');
         const first = nameParts[0];
@@ -4491,7 +4491,9 @@ const THEME_REGISTRY = {
         font-family: var(--font-arabic);
         overflow: hidden;
         background: rgba(20, 20, 20, 0.95);
-        border-top: 3px solid #d4af37; /* لمسة ذهبية */
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 50px;
+        margin: 10px 20px;
         box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
     }
 
@@ -4505,9 +4507,10 @@ const THEME_REGISTRY = {
         justify-content: center;
         align-items: center;
         padding: 5px;
+        padding-right: 20px;
         z-index: 10;
         font-weight: bold;
-        clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%); /* شكل جمالي */
+        border-radius: 0 50px 50px 0; /* تدوير الجزء الأيمن */
     }
 
     .time { font-size: 1.2rem; }
@@ -4526,7 +4529,9 @@ const THEME_REGISTRY = {
         background: #c0392b; /* لون أحمر للفعالية */
         color: white;
         padding: 0 20px;
-        height: 100%;
+        height: calc(100% - 10px);
+        margin: 5px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         font-weight: bold;
@@ -4560,9 +4565,9 @@ const THEME_REGISTRY = {
     }
     `,
     bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
-    <div class="lt-panel master-ticker-wrapper">
+    <div class="lt-panel master-ticker-wrapper theme-islamic-presets">
         <!-- الركن الثابت للمعلومات -->
-        <div class="info-corner">
+        <div class="info-corner preset-mihrab-right">
             <div class="time" id="live-clock">00:00:00</div>
             <div class="date-row">
                 <span id="current-day">الأحد</span>
@@ -4573,7 +4578,7 @@ const THEME_REGISTRY = {
 
         <!-- مسار النصوص المتحركة -->
         <div class="ticker-main">
-            <div class="event-tag lt-title">اسم الفعالية</div>
+            <div class="event-tag preset-arch lt-title">اسم الفعالية</div>
             <div class="scrolling-zone">
                 <div class="scrolling-text lt-name" id="ticker-data">
                     هنا تظهر البيانات والأخبار التي تقوم بإضافتها وتتحرك باستمرار...
@@ -4603,6 +4608,253 @@ const THEME_REGISTRY = {
           window.masterClockInterval = setInterval(window.updateMasterClock, 1000);
       }
       window.updateMasterClock(); // تشغيل فوري عند التحميل
+    `
+  },
+
+  "cyber-mosaic": {
+    num: 26,
+    css: `/* ═══════════════════════════════════════
+       STYLE 26: الموزاييك النيوني التراثي
+       Cyber-Mosaic Heritage
+       ═══════════════════════════════════════ */
+
+    /* 1. هيكل الشريط (Royal Black Base) */
+    .theme-cyber-mosaic .master-ticker-wrapper {
+        position: fixed;
+        bottom: 50px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: stretch;
+        direction: rtl;
+        font-family: var(--font-primary);
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        border-radius: 50px;
+        margin: 10px 30px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        overflow: hidden;
+        background: #090909; /* Royal Black */
+        /* إضاءة محيطية (Ambient Light) تتمدد خارج الكبسولة */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8),
+                    0 0 40px rgba(212, 175, 55, 0.3),
+                    inset 0 0 50px rgba(0,0,0,0.9);
+    }
+
+    /* 2. النمط الحركي للموزاييك (Kinetic Mosaic Background) */
+    .theme-cyber-mosaic .master-ticker-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -100%; left: -100%; width: 300%; height: 300%;
+        background-image: 
+            radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 10px, 
+                rgba(212, 175, 55, 0.03) 10px, 
+                rgba(212, 175, 55, 0.03) 20px),
+            repeating-linear-gradient(-45deg, 
+                transparent, 
+                transparent 10px, 
+                rgba(212, 175, 55, 0.02) 10px, 
+                rgba(212, 175, 55, 0.02) 20px);
+        opacity: 0.8;
+        animation: kinetic-mosaic 60s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    @keyframes kinetic-mosaic {
+        0% { transform: rotate(0deg) translate(0, 0); }
+        50% { transform: rotate(5deg) translate(-2%, -2%); }
+        100% { transform: rotate(0deg) translate(0, 0); }
+    }
+
+    /* 3. حاوية المعلومات الثابتة (Info Corner) */
+    .theme-cyber-mosaic .info-corner {
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        color: var(--gold);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 180px;
+        border-left: 2px solid var(--gold);
+        box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1);
+        padding: 5px 15px 5px 25px;
+        border-top-right-radius: 50px;
+        border-bottom-right-radius: 50px;
+    }
+
+    /* تأثير النيون الذهبي على حواف المحراب أو القص (Neon Stroke) */
+    .theme-cyber-mosaic .info-corner::after,
+    .theme-cyber-mosaic .event-tag::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: inherit;
+        z-index: -1;
+        box-shadow: 0 0 10px var(--gold), inset 0 0 15px var(--gold);
+        opacity: 0.3;
+        animation: neon-pulse 3s infinite alternate ease-in-out;
+    }
+
+    @keyframes neon-pulse {
+        0% { opacity: 0.2; box-shadow: 0 0 5px var(--gold); }
+        100% { opacity: 0.6; box-shadow: 0 0 20px var(--gold), inset 0 0 15px var(--gold); }
+    }
+
+    .theme-cyber-mosaic .time {
+        font-size: 1.5em;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #fff;
+        position: relative;
+        padding: 5px 15px;
+        z-index: 1;
+    }
+
+    /* النجمة الثمانية الدائرية (Rounded Octagram) خلف الوقت */
+    .theme-cyber-mosaic .time::before,
+    .theme-cyber-mosaic .time::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 110%;
+        height: 150%;
+        background: rgba(212, 175, 55, 0.15);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 12px;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+    
+    .theme-cyber-mosaic .time::after {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .theme-cyber-mosaic .date-row {
+        display: flex;
+        gap: 10px;
+        font-size: 0.9em;
+        opacity: 0.8;
+    }
+
+    .theme-cyber-mosaic .location-box {
+        margin-top: 2px;
+        font-size: 0.85em;
+        color: var(--gold);
+        background: rgba(212,175,55,0.1);
+        padding: 2px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(212,175,55,0.3);
+    }
+
+    /* 4. قسم الشريط المتحرك (Ticker Main) */
+    .theme-cyber-mosaic .ticker-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* وسم الفعالية (Event Tag) */
+    .theme-cyber-mosaic .event-tag {
+        background: linear-gradient(90deg, #d4af37, #b8860b);
+        color: #000;
+        padding: 5px 20px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-weight: 800;
+        font-size: 1.2em;
+        text-shadow: none;
+        z-index: 2;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    }
+
+    /* منطقة النص المتحرك */
+    .theme-cyber-mosaic .scrolling-zone {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    .theme-cyber-mosaic .scrolling-zone::before {
+        content: '';
+        position: absolute;
+        right: 0; top: 0; bottom: 0; width: 50px;
+        background: linear-gradient(to left, #090909, transparent);
+        z-index: 2;
+    }
+
+    .theme-cyber-mosaic .scrolling-text {
+        white-space: nowrap;
+        color: #ffffff;
+        font-size: 1.4em;
+        display: inline-block;
+        animation: cyber-ticker-move 20s linear infinite;
+        padding-left: 100%;
+    }
+
+    @keyframes cyber-ticker-move {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel master-ticker-wrapper theme-cyber-mosaic">
+        <!-- الركن الثابت للمعلومات -->
+        <div class="info-corner preset-mihrab-right">
+            <div class="time text-3d-neon" id="live-clock">00:00:00</div>
+            <div class="date-row">
+                <span id="current-day">الأحد</span>
+                <span class="lt-date" id="current-date">2024/05/19</span>
+            </div>
+            <div class="location-box">📍 <span class="lt-location" id="location-name">الرياض</span></div>
+        </div>
+
+        <!-- مسار النصوص المتحركة -->
+        <div class="ticker-main">
+            <div class="event-tag preset-arch lt-title text-3d-gold">اسم الفعالية</div>
+            <div class="scrolling-zone">
+                <div class="scrolling-text lt-name" id="ticker-data">
+                    هنا تظهر البيانات والأخبار العاجلة تتلألأ بتأثير النيون الذهبي والموزاييك التراثي...
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: `
+      if (!window.masterClockInterval) {
+          window.updateMasterClock = function() {
+              const now = new Date();
+              
+              const clockEl = document.getElementById('live-clock');
+              if (clockEl) {
+                  clockEl.innerText = now.toLocaleTimeString('ar-SA');
+              }
+              
+              const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+              const dayEl = document.getElementById('current-day');
+              if (dayEl) {
+                  dayEl.innerText = days[now.getDay()];
+              }
+          };
+
+          window.masterClockInterval = setInterval(window.updateMasterClock, 1000);
+      }
+      window.updateMasterClock();
     `
   }
 

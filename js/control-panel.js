@@ -44,17 +44,28 @@ function getHijriDate() {
     });
 
     const parts = formatter.formatToParts(today);
-    let day = '', monthNum = 1, year = '';
+    let day = '', monthNum = 1, monthStr = '', year = '';
 
     for (const part of parts) {
       const cleanVal = convertArabicDigitsToWestern(part.value);
       if (part.type === 'day') day = cleanVal;
-      if (part.type === 'month') monthNum = parseInt(cleanVal, 10);
-      if (part.type === 'year') year = cleanVal;
+      if (part.type === 'month') {
+        const parsed = parseInt(cleanVal, 10);
+        if (!isNaN(parsed)) {
+          monthNum = parsed;
+        } else {
+          monthStr = part.value; // It's already a month string
+        }
+      }
+      if (part.type === 'year') year = cleanVal.replace(/ هـ/g, '');
     }
 
-    const monthName = hijriMonths[Math.max(0, Math.min(11, monthNum - 1))];
-    return `${dayName}، ${day} ${monthName} ${year} هجري`;
+    let finalMonth = monthStr;
+    if (!finalMonth) {
+      finalMonth = hijriMonths[Math.max(0, Math.min(11, monthNum - 1))];
+    }
+    
+    return `${dayName}، ${day} ${finalMonth} ${year} هجري`;
   } catch (e) {
     return 'الأحد، ٢٨ ذو الحجة ١٤٤٧ هجري';
   }
@@ -126,6 +137,8 @@ class ControlPanel {
       { file: 'templates/render.html', theme: 'andalusian-royal', name: 'الملكي الأندلسي', gradient: 'linear-gradient(90deg, #1a1a1a 0%, #d4af37 100%)' },
       { file: 'templates/render.html', theme: 'ramadan-eid',     name: 'رمضان والأعياد 🌙',      gradient: 'linear-gradient(135deg, #064e3b, #d4af37)' },
       { file: 'templates/render.html', theme: 'golden-stroke',   name: 'الإطار الخطي ✨',      gradient: 'linear-gradient(135deg, #000, #444)' },
+      { file: 'templates/render.html', theme: 'master-ticker',   name: 'الشريط الشامل 📰',      gradient: 'linear-gradient(135deg, #141414, #c0392b)' },
+      { file: 'templates/render.html', theme: 'cyber-mosaic',   name: 'الموزاييك النيوني 🕌✨', gradient: 'linear-gradient(135deg, #090909, #d4af37)' },
     ];
 
     // BroadcastChannel
@@ -133,7 +146,7 @@ class ControlPanel {
     this.channel = new BroadcastChannel(this.LT_CHANNEL);
 
     // State
-    this.currentStyle = 1;
+    this.currentStyle = 17;
     this.isVisible = false;
     this.currentAlign = 'right';
     this.currentDuration = 0;
@@ -149,9 +162,10 @@ class ControlPanel {
     this.locationSize = 100;
     this.dateSize = 100;
     this.currentColorAccent = '#ffffff';
-    this.currentAnimStyle = '1';
-    this.currentAnimSpeed = 'normal';
-    this.currentLogo = null;
+    this.currentAnimSpeed = 1;
+    this.currentShapePreset = 'mihrab';
+    this.currentTextStyle = 'none';
+    this.currentShowLogo = true;
     this.countdownInterval = null;
     this.activeTab = 'text';
     this.shortcutsVisible = false;
@@ -208,6 +222,16 @@ class ControlPanel {
     
     // Load system fonts async
     this._loadSystemFonts();
+
+    // Cleanup on unload to prevent memory leaks
+    window.addEventListener('unload', () => {
+      this._stopCountdown();
+      this._stopLiveClock();
+      this._stopQueueAutoPlay();
+      if (this.channel) {
+        this.channel.close();
+      }
+    });
   }
 
   // ─── Navigation ───────────────────────────
@@ -285,6 +309,12 @@ class ControlPanel {
     this.isVisible = true;
     this._setStatus(true);
 
+    // Sync button states
+    const btnShow = document.getElementById('btnShow');
+    const btnShowMobile = document.getElementById('btnShowMobile');
+    if (btnShow) btnShow.classList.add('active');
+    if (btnShowMobile) btnShowMobile.classList.add('active');
+
     if (this.currentDuration > 0) {
       this._startCountdown(this.currentDuration);
     }
@@ -299,6 +329,12 @@ class ControlPanel {
     this.isVisible = false;
     this._stopCountdown();
     this._setStatus(false);
+
+    // Sync button states
+    const btnShow = document.getElementById('btnShow');
+    const btnShowMobile = document.getElementById('btnShowMobile');
+    if (btnShow) btnShow.classList.remove('active');
+    if (btnShowMobile) btnShowMobile.classList.remove('active');
   }
 
   updateLT(fromSequencer = false) {
@@ -315,6 +351,7 @@ class ControlPanel {
   }
 
   _broadcastCommand(cmd) {
+    cmd.seq = Date.now();
     // 1. BroadcastChannel
     if (this.channel) {
       this.channel.postMessage(cmd);
@@ -433,6 +470,20 @@ class ControlPanel {
       this._getFrame().src = this._buildUrl(this.currentStyle);
     });
 
+    // Shape Preset select
+    document.getElementById('shapeSelect')?.addEventListener('change', (e) => {
+      this.currentShapePreset = e.target.value;
+      this.updateLT();
+      this._getFrame().src = this._buildUrl(this.currentStyle);
+    });
+
+    // 3D Text Style select
+    document.getElementById('textStyleSelect')?.addEventListener('change', (e) => {
+      this.currentTextStyle = e.target.value;
+      this.updateLT();
+      this._getFrame().src = this._buildUrl(this.currentStyle);
+    });
+
     // Color pickers
     ['colorBg', 'colorText', 'colorAccent'].forEach(id => {
       document.getElementById(id)?.addEventListener('change', () => this._onColorChange());
@@ -539,20 +590,21 @@ class ControlPanel {
     }
   }
 
-  _getName()     { return document.getElementById('nameInput')?.value     || ''; }
-  _getTitle()    { return document.getElementById('titleInput')?.value    || ''; }
+  _getName()     { return document.getElementById('titleInput')?.value    || ''; } // Swapped: returns speaker name
+  _getTitle()    { return document.getElementById('nameInput')?.value     || ''; } // Swapped: returns lesson title
   _getLocation() { return document.getElementById('locationInput')?.value || ''; }
   _getDate()     { return document.getElementById('dateInput')?.value     || ''; }
   _getFont()     { return document.getElementById('fontInput')?.value     || ''; }
   
-  _getNameSize()     { return this.nameSize; }
-  _getTitleSize()    { return this.titleSize; }
+  _getNameSize()     { return this.titleSize; } // Swapped: speaker name size
+  _getTitleSize()    { return this.nameSize; }  // Swapped: lesson title size
   _getLocationSize() { return this.locationSize; }
   _getDateSize()     { return this.dateSize; }
 
   _getAllSettings() {
     const activeStyle = this.STYLES[this.currentStyle];
     return {
+      styleId: this.currentStyle,
       styleFile: activeStyle ? activeStyle.file : '',
       name: this._getName(),
       title: this._getTitle(),
@@ -574,6 +626,8 @@ class ControlPanel {
       animSpeed: this.currentAnimSpeed,
       logo: this.currentLogo,
       ornament: this.currentOrnament,
+      shapePreset: this.currentShapePreset,
+      textStyle: this.currentTextStyle,
       layoutDir: this.currentLayoutDir,
       showLogo: !!this.currentShowLogo,
     };
@@ -584,13 +638,14 @@ class ControlPanel {
     if (!style) return '';
     const s = this._getAllSettings();
     const params = new URLSearchParams({
+      styleId: styleIdx,
       style: style.theme,
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
       nameSize: s.nameSize, titleSize: s.titleSize,
       locationSize: s.locationSize, dateSize: s.dateSize,
       duration: s.duration, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
-      anim: s.animStyle, ornament: s.ornament, layoutDir: s.layoutDir, autostart: 'false',
+      anim: s.animStyle, ornament: s.ornament, shapePreset: s.shapePreset, textStyle: s.textStyle, layoutDir: s.layoutDir, autostart: 'false',
       showLogo: s.showLogo ? 'true' : 'false'
     });
     if (s.colorBg) params.set('colorBg', s.colorBg);
@@ -604,6 +659,7 @@ class ControlPanel {
     if (!lt) return;
     const s = this._getAllSettings();
     Object.assign(lt, {
+      styleId: s.styleId,
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
       nameSize: s.nameSize, titleSize: s.titleSize,
@@ -611,7 +667,7 @@ class ControlPanel {
       duration: 0, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
       colorBg: s.colorBg, colorText: s.colorText,
       colorAccent: s.colorAccent, animStyle: s.animStyle,
-      logo: s.logo, ornament: s.ornament, layoutDir: s.layoutDir,
+      logo: s.logo, ornament: s.ornament, shapePreset: s.shapePreset, textStyle: s.textStyle, layoutDir: s.layoutDir,
       showLogo: s.showLogo
     });
     lt._applyAll();
@@ -649,7 +705,7 @@ class ControlPanel {
     // Only reload iframe if it hasn't been initialized yet (first load)
     if (frame && frame.contentWindow && prevStyle > 0) {
       try {
-        frame.contentWindow.postMessage({ type: 'change-style', style: style.theme }, '*');
+        frame.contentWindow.postMessage({ type: 'change-style', styleId: num, style: style.theme }, '*');
       } catch (e) {
         // Fallback: reload iframe if postMessage fails (cross-origin)
         frame.src = this._buildUrl(num);
@@ -659,7 +715,7 @@ class ControlPanel {
     }
     
     // Also broadcast for OBS browser sources
-    this._broadcastCommand({ type: 'change-style', style: style.theme });
+    this._broadcastCommand({ type: 'change-style', styleId: num, style: style.theme });
     
     this._updateUrlDisplay();
     this._updateStyleBadge();
@@ -902,10 +958,10 @@ class ControlPanel {
   _loadPreset(id) {
     const preset = this._getPresets().find(p => p.id === id);
     if (!preset) return;
-    document.getElementById('nameInput').value = preset.name;
-    document.getElementById('titleInput').value = preset.title;
-    document.getElementById('locationInput').value = preset.location;
-    document.getElementById('dateInput').value = preset.date;
+    document.getElementById('nameInput').value = preset.title || '';  // Lesson title
+    document.getElementById('titleInput').value = preset.name || ''; // Speaker name
+    document.getElementById('locationInput').value = preset.location || '';
+    document.getElementById('dateInput').value = preset.date || '';
     if (preset.font) document.getElementById('fontInput').value = preset.font;
     this.updateLT();
   }
@@ -1033,10 +1089,10 @@ class ControlPanel {
     if (!item) return;
     
     // Load data into inputs
-    document.getElementById('nameInput').value = item.name;
-    document.getElementById('titleInput').value = item.title;
-    document.getElementById('locationInput').value = item.location;
-    document.getElementById('dateInput').value = item.date;
+    document.getElementById('nameInput').value = item.title || '';  // Lesson title
+    document.getElementById('titleInput').value = item.name || ''; // Speaker name
+    document.getElementById('locationInput').value = item.location || '';
+    document.getElementById('dateInput').value = item.date || '';
     if (item.font) document.getElementById('fontInput').value = item.font;
     
     // If currently visible, exit first, then re-enter with new data
@@ -1100,10 +1156,10 @@ class ControlPanel {
   _playQueueItem(index) {
     const item = this.queue[index];
     if (!item) return;
-    document.getElementById('nameInput').value = item.name;
-    document.getElementById('titleInput').value = item.title;
-    document.getElementById('locationInput').value = item.location;
-    document.getElementById('dateInput').value = item.date;
+    document.getElementById('nameInput').value = item.title || '';  // Lesson title
+    document.getElementById('titleInput').value = item.name || ''; // Speaker name
+    document.getElementById('locationInput').value = item.location || '';
+    document.getElementById('dateInput').value = item.date || '';
     if (item.font) document.getElementById('fontInput').value = item.font;
     this.hideLT();
     const transitionGap = parseInt(document.getElementById('seqGapInput')?.value) || 800;

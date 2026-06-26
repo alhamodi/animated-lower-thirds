@@ -252,6 +252,20 @@
    (Feature 5: Different enter/exit styles)
    ═══════════════════════════════════════════ */
 
+/* ─── Animation Style: Slide Right ─── */
+.lt-anim-slide-right .lt-panel { transform: translateX(110%); opacity: 0; }
+.lt-anim-slide-right.lt-entering .lt-panel {
+  animation: slideFromRight var(--enter-bg) var(--ease-out) forwards !important;
+}
+.lt-anim-slide-right.lt-exiting .lt-panel {
+  animation: slideToRight 0.4s var(--ease-in-out) forwards !important;
+}
+.lt-anim-slide-right.lt-visible .lt-panel {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+}
+
+
 /* Fade only */
 @keyframes fadeInOnly {
   from { opacity: 0; filter: blur(6px); }
