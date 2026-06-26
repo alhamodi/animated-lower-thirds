@@ -67,7 +67,7 @@ html, body {
   height: 100vh;
   background: var(--bg-deep);
   color: var(--text);
-  font-family: 'Thmanyah', 'Cairo', 'Inter', sans-serif;
+  font-family: 'Thmanyah Serif Display - Bold', 'Cairo', 'Inter', sans-serif;
   direction: rtl;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -1678,3 +1678,28 @@ input[type="color"]:hover {
   font-size: 0.85rem;
   color: var(--gold);
 }
+
+/* Active Show Button Styling */
+.btn-show.active {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4), 0 6px 25px rgba(16, 185, 129, 0.6) !important;
+  animation: pulse-green 2s infinite;
+}
+.preview-toolbar-btn.btn-show-lt.active {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4), 0 4px 16px rgba(16, 185, 129, 0.6) !important;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.7), 0 4px 16px rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 4px 16px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0px rgba(16, 185, 129, 0), 0 4px 16px rgba(16, 185, 129, 0.4);
+  }
+}
+

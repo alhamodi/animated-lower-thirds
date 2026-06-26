@@ -9,6 +9,7 @@
   <meta property="og:description" content="محرك القوالب الموحد لعرض العارضات السفلية المتحركة. يدعم التحميل الديناميكي وتغيير الأنماط لحظياً مع الحفاظ على الأداء.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/fonts.css">
   <link rel="stylesheet" href="../css/animations.css">
   <style id="themeCSS">
     /* Theme CSS injected dynamically */
@@ -20,8 +21,8 @@
     <!-- Theme body HTML injected dynamically -->
   </div>
 
-  <script src="../js/themes.js"></script>
-  <script src="../js/controller.js"></script>
+  <script src="../js/themes.js?v=2"></script>
+  <script src="../js/controller.js?v=2"></script>
   <script>
     /**
      * ThemeRouter — Reads ?style=<key> from URL and applies the matching theme.
@@ -49,15 +50,27 @@
           console.warn('ThemeRouter: BroadcastChannel not available', err);
         }
 
-        // Also listen via postMessage (for iframe communication from control panel)
+        // Also listen via postMessage (for iframe communication from control panel or obs.html)
         window.addEventListener('message', (e) => {
-          if (e.data && e.data.type === 'change-style' && e.data.style) {
+          if (!e.data) return;
+          if (e.data.type === 'change-style' && e.data.style) {
             this.applyTheme(e.data.style);
+          } else if (['show', 'update', 'hide', 'toggle'].includes(e.data.type) && e.data._source === 'obs') {
+            // Forward to LT controller if direct JS access failed in obs.html
+            if (window.LT) {
+              window.LT._handleCommand(e.data);
+            }
           }
         });
       }
 
       applyTheme(key) {
+        // Clear any active clock interval from a previous theme to prevent memory leaks
+        if (window.masterClockInterval) {
+          clearInterval(window.masterClockInterval);
+          window.masterClockInterval = null;
+        }
+
         const theme = window.THEME_REGISTRY?.[key];
         if (!theme) {
           console.warn(`ThemeRouter: Unknown theme "${key}", falling back to "emerald".`);

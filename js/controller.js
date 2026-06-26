@@ -24,21 +24,39 @@ function convertArabicDigitsToWestern(str) {
 
 // Hijri date auto-generator
 function getHijriDate() {
+  const hijriMonths = [
+    "محرّم", "صفر", "ربيع الأول", "ربيع الآخر", 
+    "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", 
+    "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+  ];
+  const arabicDays = [
+    "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+  ];
+
   try {
-    const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+    const today = new Date();
+    const dayName = arabicDays[today.getDay()];
+
+    const formatter = new Intl.DateTimeFormat('ar-TN-u-ca-islamic-umalqura', {
       day: 'numeric',
-      month: 'long',
+      month: 'numeric',
       year: 'numeric'
     });
-    let formatted = formatter.format(new Date());
-    formatted = convertArabicDigitsToWestern(formatted);
-    const parts = formatted.split(' ');
-    if (parts.length >= 3) {
-      return `${parts[0]} / ${parts[1]} / ${parts[2]} هـ`;
+
+    const parts = formatter.formatToParts(today);
+    let day = '', monthNum = 1, year = '';
+
+    for (const part of parts) {
+      const cleanVal = convertArabicDigitsToWestern(part.value);
+      if (part.type === 'day') day = cleanVal;
+      if (part.type === 'month') monthNum = parseInt(cleanVal, 10);
+      if (part.type === 'year') year = cleanVal;
     }
-    return formatted + ' هـ';
+
+    const monthName = hijriMonths[Math.max(0, Math.min(11, monthNum - 1))];
+    return `${dayName}، ${day} ${monthName} ${year} هجري`;
   } catch (e) {
-    return '٢٨ / ذو الحجة / ١٤٤٧ هـ';
+    return 'الأحد، ٢٨ ذو الحجة ١٤٤٧ هجري';
   }
 }
 
@@ -78,9 +96,12 @@ class LowerThirdController {
     this.colorAccent = this.params.get('colorAccent') || '';
     this.animStyle   = this.params.get('anim')        || 'slide-right';
     this.animSpeed   = this.params.get('animSpeed')   || 'normal';
-    this.logo        = this.params.get('logo')        || '';
+    this.logo        = this.params.get('logo')        || null;
     this.ornament    = this.params.get('ornament')    || 'none';
+    this.shapePreset = this.params.get('shapePreset') || 'mihrab';
+    this.textStyle   = this.params.get('textStyle')   || 'none';
     this.layoutDir   = this.params.get('layoutDir')   || 'rtl';
+    this.showLogo    = this.params.get('showLogo') === 'true';
 
     this.wrapper  = null;
     this.nameEl   = null;
@@ -106,18 +127,33 @@ class LowerThirdController {
 
     // Fallback 2: API Polling (100% Bulletproof for OBS isolated sources)
     this.lastCmdString = '';
-    setInterval(() => {
-      fetch(`${this.apiOrigin}/api/command`)
+    this.lastSeq = 0;
+    this._apiInterval = setInterval(() => {
+      fetch(`${this.apiOrigin}/api/command?t=${Date.now()}`)
         .then(res => res.json())
         .then(cmd => {
-          const cmdString = JSON.stringify(cmd);
-          if (cmd && cmd.type && cmdString !== this.lastCmdString) {
-            this.lastCmdString = cmdString;
-            this._handleCommand(cmd);
+          if (cmd && cmd.type) {
+            const { seq, ...comparisonCmd } = cmd;
+            const cmdString = JSON.stringify(comparisonCmd);
+            if (cmdString !== this.lastCmdString || (seq && seq !== this.lastSeq)) {
+              this.lastCmdString = cmdString;
+              this.lastSeq = seq;
+              this._handleCommand(cmd);
+            }
           }
         })
         .catch(() => {});
     }, 250);
+
+    // Unload listener to prevent memory leaks
+    window.addEventListener('unload', () => {
+      if (this._apiInterval) {
+        clearInterval(this._apiInterval);
+      }
+      if (this.channel) {
+        this.channel.close();
+      }
+    });
   }
 
   init() {
@@ -127,13 +163,7 @@ class LowerThirdController {
     this.locationEl = document.querySelector('.lt-location');
     this.dateEl     = document.querySelector('.lt-date');
     this.panelEl    = document.querySelector('.lt-panel');
-    this._applyText();
-    this._applyAlign();
-    this._applyMargins();
-    this._applyColors();
-    this._applyAnimStyle();
-    this._applyLogo();
-    this._applyOrnament();
+    this._applyAll();
 
     if (this.autostart) {
       setTimeout(() => this.enter(), 600);
@@ -262,9 +292,9 @@ class LowerThirdController {
   }
 
   _applyText() {
-    // Check if name (main title) is empty or just spaces
+    // Check if title (main title/lesson) is empty or just spaces
     if (this.wrapper) {
-      if (!this.name || this.name.trim() === '') {
+      if (!this.title || this.title.trim() === '') {
         this.wrapper.classList.add('lt-empty-title');
       } else {
         this.wrapper.classList.remove('lt-empty-title');
@@ -282,22 +312,24 @@ class LowerThirdController {
     };
 
     if (this.nameEl) {
-      this.nameEl.textContent = this.name;
+      // Swapped: Render Title/Lesson (this.title) in the primary big name element
+      this.nameEl.textContent = this.title && this.title.trim() !== '' ? this.title : '\u00A0';
       setFontFamily(this.nameEl);
-      this.nameEl.style.fontSize = this.nameSize === 100 ? '' : `${this.nameSize}%`;
+      this.nameEl.style.fontSize = this.titleSize === 100 ? '' : `${this.titleSize}%`;
     }
     if (this.titleEl) {
-      this.titleEl.textContent = this.title;
+      // Swapped: Render Lecturer Name (this.name) in the secondary title element
+      this.titleEl.textContent = this.name && this.name.trim() !== '' ? this.name : '\u00A0';
       setFontFamily(this.titleEl);
-      this.titleEl.style.fontSize = this.titleSize === 100 ? '' : `${this.titleSize}%`;
+      this.titleEl.style.fontSize = this.nameSize === 100 ? '' : `${this.nameSize}%`;
     }
     if (this.locationEl) {
-      this.locationEl.textContent = this.location;
+      this.locationEl.textContent = this.location && this.location.trim() !== '' ? this.location : '\u00A0';
       setFontFamily(this.locationEl);
       this.locationEl.style.fontSize = this.locationSize === 100 ? '' : `${this.locationSize}%`;
     }
     if (this.dateEl) {
-      this.dateEl.textContent = this.date;
+      this.dateEl.textContent = this.date && this.date.trim() !== '' ? this.date : '\u00A0';
       setFontFamily(this.dateEl);
       this.dateEl.style.fontSize = this.dateSize === 100 ? '' : `${this.dateSize}%`;
     }
@@ -318,33 +350,34 @@ class LowerThirdController {
     if (panelWidth <= 0) return;
     
     const threshold = 0.92; // 92% of panel width triggers scaling
-    const minScale = 0.6;   // Never scale below 60%
-    
-    [this.nameEl, this.titleEl].forEach(el => {
+    const maxW = panelWidth * threshold;
+
+    [
+      { el: this.nameEl, baseSize: this.titleSize },
+      { el: this.titleEl, baseSize: this.nameSize }
+    ].forEach(({ el, baseSize }) => {
       if (!el) return;
-      // Reset any previous scaling to get true measurement
-      el.style.transform = '';
-      el.style.transformOrigin = '';
-      el.style.whiteSpace = 'nowrap';
       
-      // Wait one frame for the layout to settle after reset
-      requestAnimationFrame(() => {
-        const scrollW = el.scrollWidth;
-        const maxW = panelWidth * threshold;
-        
-        if (scrollW > maxW && scrollW > 0) {
-          const ratio = Math.max(minScale, maxW / scrollW);
-          const origin = (this.layoutDir === 'ltr') ? 'left center' : 'right center';
-          el.style.transform = `scale(${ratio.toFixed(3)})`;
-          el.style.transformOrigin = origin;
-          el.style.willChange = 'transform';
-        } else {
-          el.style.transform = '';
-          el.style.willChange = '';
-        }
-        // Restore wrapping for short text
-        el.style.whiteSpace = '';
-      });
+      // Reset transform/willChange from old scale method
+      el.style.transform = '';
+      el.style.willChange = '';
+      el.style.whiteSpace = 'nowrap';
+      el.style.overflow = 'visible';
+
+      // Set base font size according to size slider
+      el.style.fontSize = baseSize === 100 ? '' : `${baseSize}%`;
+      
+      // Find computed font size in pixels
+      const computedStyle = window.getComputedStyle(el);
+      let fontSizePx = parseFloat(computedStyle.fontSize);
+      if (!fontSizePx || isNaN(fontSizePx)) fontSizePx = 24;
+
+      // Iteratively decrease font-size in pixels down to a floor of 14px
+      let currentSize = fontSizePx;
+      while (el.scrollWidth > maxW && currentSize > 14) {
+        currentSize -= 1;
+        el.style.fontSize = `${currentSize}px`;
+      }
     });
   }
 
@@ -436,7 +469,11 @@ class LowerThirdController {
   _applyLogo() {
     if (!this.panelEl) return;
     let logoEl = this.panelEl.querySelector('.lt-logo');
-    if (this.logo) {
+    
+    // Validate logo string to prevent broken "null" or "undefined" src paths
+    const isValidLogo = this.logo && this.logo !== "null" && this.logo !== "undefined" && this.logo.trim() !== '';
+
+    if (this.showLogo && isValidLogo) {
       if (!logoEl) {
         logoEl = document.createElement('img');
         logoEl.className = 'lt-logo';
@@ -487,7 +524,9 @@ class LowerThirdController {
   }
 
   _handleCommand(cmd) {
-    this.lastCmdString = JSON.stringify(cmd);
+    const { seq, ...comparisonCmd } = cmd;
+    this.lastCmdString = JSON.stringify(comparisonCmd);
+    if (seq) this.lastSeq = seq;
     switch (cmd.type) {
       case 'show':
         if (cmd.name  !== undefined) this.name  = cmd.name;
@@ -510,7 +549,10 @@ class LowerThirdController {
         if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
+        if (cmd.shapePreset !== undefined) this.shapePreset = cmd.shapePreset;
+        if (cmd.textStyle !== undefined) this.textStyle = cmd.textStyle;
         if (cmd.layoutDir !== undefined) this.layoutDir = cmd.layoutDir;
+        if (cmd.showLogo !== undefined) this.showLogo = cmd.showLogo;
         this._applyAll();
         this.enter();
         break;
@@ -541,7 +583,10 @@ class LowerThirdController {
         if (cmd.animSpeed !== undefined) this.animSpeed = cmd.animSpeed;
         if (cmd.logo !== undefined) this.logo = cmd.logo;
         if (cmd.ornament !== undefined) this.ornament = cmd.ornament;
+        if (cmd.shapePreset !== undefined) this.shapePreset = cmd.shapePreset;
+        if (cmd.textStyle !== undefined) this.textStyle = cmd.textStyle;
         if (cmd.layoutDir !== undefined) this.layoutDir = cmd.layoutDir;
+        if (cmd.showLogo !== undefined) this.showLogo = cmd.showLogo;
         this._applyAll();
         break;
     }
@@ -554,18 +599,77 @@ class LowerThirdController {
     this._applyColors();
     this._applyAnimStyle();
     this._applyLogo();
+    this._applyThemeLogos();
     this._applyOrnament();
+    this._applyShapePreset();
+    this._applyTextStyle();
     this._applyLayoutDir();
+  }
+
+  _applyShapePreset() {
+    if (!this.wrapper) return;
+    const targets = this.wrapper.querySelectorAll('.info-corner, .event-tag, .location-box');
+    
+    // First, remove any existing preset shape classes from these structural elements
+    targets.forEach(el => {
+      el.classList.remove('preset-mihrab', 'preset-mihrab-right', 'preset-arch', 'preset-star', 'preset-octagon');
+    });
+
+    const titleEl = this.wrapper.querySelector('.lt-title');
+    if (titleEl) {
+      titleEl.classList.remove('preset-mihrab', 'preset-mihrab-right', 'preset-arch', 'preset-star', 'preset-octagon');
+    }
+
+    // Apply the new shape preset if it's not 'none'
+    if (this.shapePreset && this.shapePreset !== 'none') {
+      targets.forEach(el => {
+        // Special rule: if it's the right-aligned info-corner, and preset is mihrab, use the right-oriented mihrab
+        if (this.shapePreset === 'mihrab' && el.classList.contains('info-corner')) {
+          el.classList.add('preset-mihrab-right');
+        } else {
+          el.classList.add(`preset-${this.shapePreset}`);
+        }
+      });
+    }
+  }
+
+  _applyThemeLogos() {
+    if (!this.wrapper) return;
+    const logoElements = this.wrapper.querySelectorAll('.emerald-arch, .chrome-liquid-blob, .neon-fluid-glow, .organic-arch-shape, .lt-icon-area, .lt-glow, .logo-container, .islamic-3d-star, .islamic-fluid-arch, .islamic-star-decor, .crescent-container, .radiant-star');
+    logoElements.forEach(el => {
+      el.style.display = this.showLogo ? '' : 'none';
+    });
   }
 
   _applyLayoutDir() {
     document.documentElement.dir = this.layoutDir || 'rtl';
   }
 
+  _applyTextStyle() {
+    if (!this.wrapper) return;
+    const targets = this.wrapper.querySelectorAll('.lt-name, .lt-title, .time, .location-box, .event-tag');
+    
+    // First, remove any existing text 3d classes
+    targets.forEach(el => {
+      el.classList.remove('text-3d-gold', 'text-3d-neon', 'text-3d-float');
+    });
+
+    // Apply the new text style if it's not 'none'
+    if (this.textStyle && this.textStyle !== 'none') {
+      targets.forEach(el => {
+        el.classList.add(`text-${this.textStyle}`);
+      });
+    }
+  }
+
   enter() {
     if (this.state === 'visible' || this.state === 'entering') return;
     this.state = 'entering';
     this.wrapper?.classList.remove('lt-hidden', 'lt-exiting', 'lt-visible');
+    
+    // Force reflow to ensure CSS animations trigger after display:none is removed
+    if (this.wrapper) void this.wrapper.offsetWidth;
+
     this.wrapper?.classList.add('lt-entering');
 
     setTimeout(() => {

@@ -3347,8 +3347,8 @@ const THEME_REGISTRY = {
 
       panel.classList.remove('lt-layout-stacked', 'lt-layout-vertical-sub', 'lt-layout-numbered');
 
-      // 1. Stacked Typographic: If the name contains multiple words, split and stack
-      const nameParts = nameVal.split(' ');
+      // 1. Stacked Typographic: If the name contains multiple words, split and stack (Disabled for Lesson Title hierarchy)
+      const nameParts = [];
       if (nameParts.length >= 2) {
         panel.classList.add('lt-layout-stacked');
         const first = nameParts[0];
@@ -3512,6 +3512,1351 @@ const THEME_REGISTRY = {
   </div>`,
     inlineScript: null,
   },
+
+  "islamic-3d": {
+    num: 17,
+    css: `/* ═══════════════════════════════════════
+       STYLE 17: الزمرد الإسلامي الذهبي
+       Premium Islamic Emerald & Gold
+       Pure CSS — No SVG Filters — OBS Stable
+    ═══════════════════════════════════════ */
+
+    :root {
+      --emerald-deep: #022c22;
+      --emerald-glass: rgba(2, 44, 34, 0.88);
+      --gold-gradient: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+      --gold-solid: #bf953f;
+      --gold-light: #fcf6ba;
+    }
+
+    body { background: transparent; }
+
+    /* حاوية العرض */
+    .emerald-wrapper {
+      display: flex;
+      align-items: center;
+      overflow: visible;
+    }
+
+    /* 🕌 القوس المحرابي الإسلامي — ذهبي مفرغ بقلب زمردي */
+    .emerald-arch {
+      width: 75px;
+      height: 95px;
+      background: var(--gold-gradient);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 4px 20px rgba(191, 149, 63, 0.35);
+      opacity: 0;
+      transform: scale(0) rotateX(-90deg);
+    }
+
+    /* القلب الزمردي المفرغ */
+    .emerald-arch::after {
+      content: '';
+      position: absolute;
+      top: 4px; left: 4px; right: 4px; bottom: 4px;
+      background: var(--emerald-deep);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
+    }
+
+    /* نجمة ذهبية صغيرة في مركز القوس */
+    .emerald-arch::before {
+      content: '✦';
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--gold-light);
+      font-size: 16px;
+      z-index: 1;
+      text-shadow: 0 0 8px rgba(252, 246, 186, 0.6);
+    }
+
+    /* 💎 بطاقة النصوص الزمردية الزجاجية */
+    .lt-panel {
+      position: relative;
+      background: var(--emerald-glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 2px solid var(--gold-solid);
+      border-right: none;
+      border-radius: 0 15px 15px 0;
+      padding: 18px 45px 18px 35px;
+      margin-right: -15px;
+      transform-origin: right center;
+      opacity: 0;
+      transform: translateX(50px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 0 rgba(252, 246, 186, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: visible;
+    }
+
+    /* إلغاء تأثير الشيمر الافتراضي */
+    .lt-panel::before {
+      display: none;
+    }
+
+    /* الخط الذهبي الفاصل أسفل البطاقة */
+    .gold-accent-line {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-light), var(--gold-solid), var(--gold-light), transparent);
+      border-radius: 0 0 15px 0;
+      opacity: 0;
+    }
+
+    .lt-name {
+      font-family: var(--font-arabic);
+      color: var(--gold-light);
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .lt-title {
+      font-family: var(--font-arabic);
+      color: #e2e8f0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .lt-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.95rem;
+      color: rgba(226, 232, 240, 0.7);
+    }
+
+    .lt-separator {
+      color: var(--gold-solid);
+    }
+
+    /* ═══ حالات الدخول (Entering) ═══ */
+    .lt-entering .emerald-arch {
+      animation: archEmeraldIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .lt-entering .lt-panel {
+      animation: cardEmeraldIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s forwards;
+    }
+    .lt-entering .gold-accent-line {
+      animation: lineReveal 0.5s ease 0.8s forwards;
+    }
+
+    /* ═══ حالات الثبات (Visible) ═══ */
+    .lt-visible .emerald-arch {
+      opacity: 1;
+      transform: scale(1) rotateX(0deg);
+      animation: archGentlePulse 3s ease-in-out infinite alternate;
+    }
+    .lt-visible .lt-panel {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .lt-visible .gold-accent-line {
+      opacity: 1;
+      animation: goldShimmer 4s ease-in-out infinite alternate;
+    }
+
+    /* ═══ حالات الخروج (Exiting) ═══ */
+    .lt-exiting .emerald-arch {
+      animation: archEmeraldOut 0.5s ease-in forwards;
+    }
+    .lt-exiting .lt-panel {
+      animation: cardEmeraldOut 0.5s ease-in 0.1s forwards;
+    }
+    .lt-exiting .gold-accent-line {
+      animation: lineHide 0.3s ease forwards;
+    }
+
+    /* ═══ الحركات (Keyframes) ═══ */
+    @keyframes archEmeraldIn {
+      0%   { transform: scale(0) rotateX(-90deg); opacity: 0; }
+      70%  { transform: scale(1.05) rotateX(3deg); opacity: 1; }
+      100% { transform: scale(1) rotateX(0deg); opacity: 1; }
+    }
+
+    @keyframes archGentlePulse {
+      0%   { box-shadow: 0 4px 20px rgba(191, 149, 63, 0.35); }
+      100% { box-shadow: 0 4px 25px rgba(191, 149, 63, 0.55), 0 0 10px rgba(252, 246, 186, 0.2); }
+    }
+
+    @keyframes cardEmeraldIn {
+      0%   { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes lineReveal {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes goldShimmer {
+      0%   { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes archEmeraldOut {
+      0%   { transform: scale(1) rotateX(0deg); opacity: 1; }
+      100% { transform: scale(0) rotateX(90deg); opacity: 0; }
+    }
+
+    @keyframes cardEmeraldOut {
+      0%   { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(60px); }
+    }
+
+    @keyframes lineHide {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    .islamic-3d-star {
+        width: 45px; height: 45px; position: absolute; right: 20px; top: calc(50% - 22.5px);
+        background: linear-gradient(135deg, #bf953f, #fcf6ba, #aa771c);
+        transform-style: preserve-3d; animation: rotateIslamicStar 8s linear infinite; z-index: 5;
+    }
+    .islamic-3d-star::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: inherit; transform: rotate(45deg);
+    }
+    .islamic-3d-star span {
+        position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
+        background: #022c22; transform-style: preserve-3d; z-index: 6;
+    }
+    .islamic-3d-star span::before {
+        content: '✦'; position: absolute; color: #fcf6ba; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; height: 100%; transform: rotate(-45deg);
+    }
+    @keyframes rotateIslamicStar {
+        0% { transform: rotate(0deg) rotateY(0deg); }
+        100% { transform: rotate(360deg) rotateY(360deg); }
+    }
+    }`,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="emerald-wrapper">
+      <!-- Islamic Emerald Arch -->
+      <div class="emerald-arch"></div>
+
+      <!-- Islamic 3D Star -->
+      <div class="islamic-3d-star"><span></span></div>
+
+      <!-- Emerald Glass Card -->
+      <div class="lt-panel">
+        <div class="lt-name">عبد الرحمن بن سالم</div>
+        <div class="lt-title">محاضر وباحث برمجيات</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">الرياض</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+        <div class="gold-accent-line"></div>
+      </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 1. النوع الأول: الزجاج الكرومي السائل
+  "liquid-chrome": {
+    num: 18,
+    css: `/* ═══════════════════════════════════════
+       STYLE 18: الزجاج الكرومي السائل
+       Liquid Chrome Glass
+    ═══════════════════════════════════════ */
+    .chrome-liquid-blob {
+        position: absolute;
+        left: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 80px; height: 80px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+        border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+        animation: morphFluid 6s ease-in-out infinite alternate;
+        box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        z-index: 2;
+    }
+    .lt-panel {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 15px 40px 15px 60px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 500px;
+        transform: translateX(110%);
+        opacity: 0;
+    }
+    .lt-entering .lt-panel { animation: slideFromRight 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideToRight 0.4s var(--ease-in-out) forwards; }
+    @keyframes morphFluid {
+        0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: translateY(-50%) rotate(0deg); }
+        100% { border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%; transform: translateY(-50%) rotate(180deg); }
+    }
+    /* Texts */
+    .lt-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; }
+    .lt-name { font-size: 2.2rem; font-weight: 700; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .lt-title { font-size: 1.15rem; color: #e2e8f0; margin-top: 4px; }
+    
+    .islamic-3d-star {
+        width: 45px; height: 45px; position: absolute; right: 20px; top: calc(50% - 22.5px);
+        background: linear-gradient(135deg, #bf953f, #fcf6ba, #aa771c);
+        transform-style: preserve-3d; animation: rotateIslamicStar 8s linear infinite; z-index: 5;
+    }
+    .islamic-3d-star::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: inherit; transform: rotate(45deg);
+    }
+    .islamic-3d-star span {
+        position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px;
+        background: #022c22; transform-style: preserve-3d; z-index: 6;
+    }
+    .islamic-3d-star span::before {
+        content: '✦'; position: absolute; color: #fcf6ba; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; height: 100%; transform: rotate(-45deg);
+    }
+    @keyframes rotateIslamicStar {
+        0% { transform: rotate(0deg) rotateY(0deg); }
+        100% { transform: rotate(360deg) rotateY(360deg); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel chrome-card">
+      <div class="chrome-liquid-blob"></div>
+      
+      <!-- Islamic 3D Star -->
+      <div class="islamic-3d-star"><span></span></div>
+
+      <div class="lt-content">
+        <div class="lt-name">الاسم الكريم</div>
+        <div class="lt-title">المسمى الوظيفي أو العنوان</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">جامع تريس - تريس - حضرموت</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 2. النوع الثاني: الزجاج السائل النيوني المشع
+  "liquid-neon": {
+    num: 19,
+    css: `/* ═══════════════════════════════════════
+       STYLE 19: الزجاج السائل النيوني المشع
+       Neon Fluid Glass
+    ═══════════════════════════════════════ */
+    .lt-panel {
+        background: rgba(10, 10, 18, 0.7);
+        backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(0, 242, 254, 0.3);
+        padding: 18px 40px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 500px;
+        transform: translateX(110%);
+        opacity: 0;
+    }
+    .lt-entering .lt-panel { animation: slideFromRight 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideToRight 0.4s var(--ease-in-out) forwards; }
+    .neon-fluid-glow {
+        position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(0,242,254,0.4) 0%, rgba(79,70,229,0.3) 50%, transparent 70%);
+        animation: fluidSpin 8s linear infinite;
+        z-index: 1;
+        pointer-events: none;
+    }
+    @keyframes fluidSpin {
+        0% { transform: rotate(0deg) translate(0, 0); }
+        50% { transform: rotate(180deg) translate(-10px, 10px); }
+        100% { transform: rotate(360deg) translate(0, 0); }
+    }
+    .lt-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; }
+    .lt-name { font-size: 2.2rem; font-weight: 700; color: #00f2fe !important; text-shadow: 0 0 10px rgba(0,242,254,0.5); }
+    .lt-title { font-size: 1.15rem; color: #e0e7ff; margin-top: 4px; }
+    
+    .islamic-fluid-arch {
+        width: 50px; height: 60px; position: absolute; right: 25px;
+        background: linear-gradient(45deg, #00f2fe, #4f46e9);
+        clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+        animation: fluidArchMove 5s ease-in-out infinite alternate;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.6); z-index: 5;
+    }
+    @keyframes fluidArchMove {
+        0% { transform: scale(1) rotate(-5deg); filter: hue-rotate(0deg); }
+        50% { transform: scale(1.1) rotate(5deg); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        100% { transform: scale(1) rotate(-5deg); filter: hue-rotate(45deg); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel neon-card">
+      <div class="neon-fluid-glow"></div>
+      
+      <!-- Islamic Fluid Arch -->
+      <div class="islamic-fluid-arch"></div>
+
+      <div class="lt-content">
+        <div class="lt-name">الاسم الكريم</div>
+        <div class="lt-title">المسمى الوظيفي أو العنوان</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">جامع تريس - تريس - حضرموت</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 3. النوع الثالث: الأشكال الإسلامية السائلة العضوية (Organic Islamic Glass)
+  "liquid-organic-islamic": {
+    num: 20,
+    css: `/* ═══════════════════════════════════════
+       STYLE 20: الأشكال الإسلامية السائلة العضوية
+       Organic Islamic Glass
+    ═══════════════════════════════════════ */
+    .organic-arch-shape {
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        margin-top: -50px;
+        width: 80px; height: 100px;
+        background: linear-gradient(135deg, #bf953f, #fbf5b7, #aa771c);
+        clip-path: polygon(50% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%);
+        animation: liquidWave 5s ease-in-out infinite alternate;
+        z-index: 2;
+    }
+    .lt-panel {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(191, 149, 63, 0.4);
+        padding: 16px 45px 16px 65px;
+        border-radius: 4px 24px 24px 4px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 500px;
+        transform: translateX(110%);
+        opacity: 0;
+    }
+    .lt-entering .lt-panel { animation: slideFromRight 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideToRight 0.4s var(--ease-in-out) forwards; }
+    @keyframes liquidWave {
+        0% { transform: scale(1) skewX(0deg); filter: brightness(1); }
+        50% { transform: scale(1.03) skewX(2deg); filter: brightness(1.2); }
+        100% { transform: scale(0.97) skewX(-2deg); filter: brightness(0.9); }
+    }
+    .lt-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; }
+    .lt-name { font-size: 2.2rem; font-weight: 700; color: #fcf6ba !important; }
+    .lt-title { font-size: 1.15rem; color: #e2e8f0; margin-top: 4px; }
+
+    .islamic-fluid-arch {
+        width: 50px; height: 60px; position: absolute; right: 25px;
+        background: linear-gradient(45deg, #00f2fe, #4f46e9);
+        clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+        animation: fluidArchMove 5s ease-in-out infinite alternate;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.6); z-index: 5;
+    }
+    @keyframes fluidArchMove {
+        0% { transform: scale(1) rotate(-5deg); filter: hue-rotate(0deg); }
+        50% { transform: scale(1.1) rotate(5deg); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        100% { transform: scale(1) rotate(-5deg); filter: hue-rotate(45deg); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel organic-card">
+      <div class="organic-arch-shape"></div>
+      
+      <!-- Islamic Fluid Arch -->
+      <div class="islamic-fluid-arch"></div>
+
+      <div class="lt-content">
+        <div class="lt-name">الاسم الكريم</div>
+        <div class="lt-title">المسمى الوظيفي أو العنوان</div>
+        <div class="lt-meta-row">
+          <span class="lt-location">جامع تريس - تريس - حضرموت</span>
+          <span class="lt-separator">✦</span>
+          <span class="lt-date">التاريخ الهجري</span>
+        </div>
+      </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 4. النوع الرابع: شريط الأخبار العاجلة (News Ticker)
+  "news-ticker": {
+    num: 21,
+    css: `/* ═══════════════════════════════════════
+       STYLE 21: شريط الأخبار العاجلة
+       News Ticker
+    ═══════════════════════════════════════ */
+    .lt-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        display: flex;
+        align-items: center;
+        direction: rtl;
+        border-top: 3px solid #dc2626; /* خط أحمر يعبر عن الهوية الإخبارية والعاجلة */
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+        overflow: hidden;
+        z-index: 9999;
+        transform: translateY(110%);
+        opacity: 0;
+    }
+    
+    .lt-entering .lt-panel { animation: slideUpBottom 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideDownBottom 0.4s var(--ease-in-out) forwards; }
+
+    @keyframes slideUpBottom {
+        0% { transform: translateY(110%); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideDownBottom {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(110%); opacity: 0; }
+    }
+
+    .ticker-header {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 30px;
+        position: relative;
+        z-index: 3;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.4);
+    }
+
+    .ticker-header-text {
+        color: #ffffff;
+        font-family: 'Thmanyah Serif Display - Bold', 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        animation: pulseUrgent 1.5s ease-in-out infinite alternate;
+    }
+
+    .ticker-content-box {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .lt-name {
+        white-space: nowrap;
+        padding-right: 100vw; /* نقطة البداية خارج الشاشة من اليمين */
+        display: inline-block;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 20px;
+        color: #f8fafc;
+        font-weight: 500;
+        animation: marqueeInfinite 25s linear infinite; /* تحريك مستمر لانهائي */
+    }
+
+    /* 🔄 محركات الأنيميشن الإخبارية */
+    @keyframes marqueeInfinite {
+        0% { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-100vw, 0, 0); } /* يتحرك بالكامل إلى اليسار */
+    }
+
+    @keyframes pulseUrgent {
+        0% { opacity: 0.8; filter: brightness(1); }
+        100% { opacity: 1; filter: brightness(1.3); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel news-ticker-wrapper">
+        <div class="ticker-header">
+            <span class="ticker-header-text">عاجل</span>
+        </div>
+        <div class="ticker-content-box">
+            <div class="ticker-movable-text lt-name">الاسم الكريم</div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 5. النوع الخامس: الملكي الأندلسي (The Royal Andalusian)
+  "andalusian-royal": {
+    num: 22,
+    css: `/* ═══════════════════════════════════════
+       STYLE 22: الملكي الأندلسي
+       The Royal Andalusian News Ticker
+    ═══════════════════════════════════════ */
+    .lt-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(90deg, #1a1a1a 0%, #2c3e50 100%);
+        border-top: 2px solid #d4af37;
+        display: flex;
+        align-items: center;
+        direction: rtl;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+        overflow: visible; /* للسماح للزخرفة بالخروج قليلاً عن الإطار */
+        z-index: 9999;
+        transform: translateY(110%);
+        opacity: 0;
+    }
+    
+    .lt-entering .lt-panel { animation: slideUpBottom 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideDownBottom 0.4s var(--ease-in-out) forwards; }
+
+    /* درع "عاجل" - القوس المزدوج */
+    .title-box {
+        position: relative;
+        background: #d4af37; /* لون ذهبي */
+        color: #000;
+        font-weight: bold;
+        height: 100%;
+        padding: 0 45px 0 45px;
+        display: flex;
+        align-items: center;
+        /* رسم شكل القوس المحرابي */
+        clip-path: polygon(0 40%, 20% 60%, 80% 60%, 100% 40%, 100% 0, 0 0); /* simpler robust version for responsive width */
+        z-index: 2;
+    }
+
+    /* الإطار المزدوج المفرغ */
+    .title-box::after {
+        content: '';
+        position: absolute;
+        top: 3px; left: 3px; right: 3px; bottom: 3px;
+        border: 1px solid rgba(255,255,255,0.5);
+        clip-path: inherit;
+        pointer-events: none;
+    }
+
+    /* تأثير النجمة الثمانية الدوارة خلف الدرع */
+    .islamic-star-decor {
+        position: absolute;
+        right: -25px;
+        top: 5px;
+        width: 50px; height: 50px;
+        animation: spinStar 10s linear infinite;
+        z-index: 1; /* خلف النص المكتوب ولكن أمام الخلفية */
+        opacity: 0.5;
+    }
+    .star-base {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #d4af37;
+    }
+    .star-base.rotated {
+        transform: rotate(45deg);
+    }
+
+    @keyframes spinStar {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .ticker-header-text {
+        font-family: 'Thmanyah Serif Display - Bold', 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        position: relative;
+        z-index: 3;
+    }
+
+    .ticker-content-box {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .lt-name {
+        white-space: nowrap;
+        padding-right: 100vw;
+        display: inline-block;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        color: #f1f1f1;
+        font-weight: 500;
+        animation: marqueeInfinite 25s linear infinite;
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel andalusian-royal-wrapper">
+        <div class="title-box">
+            <span class="ticker-header-text">عاجل</span>
+            <div class="islamic-star-decor">
+                <div class="star-base"></div>
+                <div class="star-base rotated"></div>
+            </div>
+        </div>
+        <div class="ticker-content-box">
+            <div class="ticker-movable-text lt-name">الاسم الكريم</div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 6. النوع السادس: رمضان والأعياد (الهلال الذهبي)
+  "ramadan-eid": {
+    num: 23,
+    css: `/* ═══════════════════════════════════════
+       STYLE 23: رمضان والأعياد
+       Ramadan & Eid News Ticker
+    ═══════════════════════════════════════ */
+    .lt-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: linear-gradient(90deg, #064e3b 0%, #0d9488 100%);
+        border-top: 2px solid #d4af37;
+        box-shadow: 0 -5px 15px rgba(212, 175, 55, 0.2);
+        display: flex;
+        align-items: center;
+        direction: rtl;
+        overflow: visible;
+        z-index: 9999;
+        transform: translateY(110%);
+        opacity: 0;
+    }
+    
+    .lt-entering .lt-panel { animation: slideUpBottom 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideDownBottom 0.4s var(--ease-in-out) forwards; }
+
+    .title-box {
+        background: #d4af37;
+        color: #064e3b;
+        padding: 0 45px 0 25px;
+        clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        z-index: 2;
+    }
+
+    .ticker-header-text {
+        font-family: 'Thmanyah Serif Display - Bold', 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        position: relative;
+        z-index: 3;
+    }
+
+    /* الهلال المتحرك بجانب النص */
+    .crescent-container {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+    }
+
+    .crescent-svg {
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+        animation: crescentFloat 3s ease-in-out infinite;
+    }
+
+    /* النجمة المشعة (Pulse Effect) */
+    .radiant-star {
+        position: absolute;
+        left: -10px;
+        top: calc(50% - 10px);
+        width: 20px;
+        height: 20px;
+        background: #d4af37;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        animation: starPulse 2s infinite;
+    }
+
+    @keyframes crescentFloat {
+        0%, 100% { transform: rotate(-10deg) scale(1); }
+        50% { transform: rotate(10deg) scale(1.1); }
+    }
+
+    @keyframes starPulse {
+        0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0px #d4af37; }
+        50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 15px #d4af37; }
+        100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0px #d4af37; }
+    }
+
+    .ticker-content-box {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .lt-name {
+        white-space: nowrap;
+        padding-right: 100vw;
+        display: inline-block;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        color: #f1f1f1;
+        font-weight: 500;
+        animation: marqueeInfinite 25s linear infinite;
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel ramadan-eid-wrapper">
+        <div class="title-box">
+            <!-- الهلال الذهبي المفرغ -->
+            <div class="crescent-container">
+                <svg viewBox="0 0 100 100" class="crescent-svg">
+                    <path d="M50,10 A40,40 0 1,0 90,50 A30,30 0 1,1 50,10" fill="#d4af37"/>
+                </svg>
+            </div>
+            <span class="ticker-header-text">عاجل</span>
+            <!-- النجمة المشعة الثمانية -->
+            <div class="radiant-star"></div>
+        </div>
+        <div class="ticker-content-box">
+            <div class="ticker-movable-text lt-name">الاسم الكريم</div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  // 7. النوع السابع: الإطار الخطي الذهبي
+  "golden-stroke": {
+    num: 24,
+    css: `/* ═══════════════════════════════════════
+       STYLE 24: الإطار الخطي الذهبي
+       The Neon Stroke Frame
+    ═══════════════════════════════════════ */
+    .lt-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: rgba(0, 0, 0, 0.9); /* خلفية سوداء ملكية لإبراز الخطوط */
+        border-top: 1px solid #444;
+        display: flex;
+        align-items: center;
+        direction: rtl;
+        overflow: visible;
+        z-index: 9999;
+        transform: translateY(110%);
+        opacity: 0;
+        backdrop-filter: blur(10px);
+    }
+    
+    .lt-entering .lt-panel { animation: slideUpBottom 0.5s var(--ease-out) forwards; }
+    .lt-exiting .lt-panel { animation: slideDownBottom 0.4s var(--ease-in-out) forwards; }
+
+    .title-box {
+        background: transparent; /* مفرغ تماماً */
+        color: #d4af37;
+        position: relative;
+        padding: 0 40px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+
+    .stroke-frame {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        fill: none;
+        stroke: #d4af37;
+        stroke-width: 1.5;
+        z-index: -1;
+    }
+
+    .frame-path {
+        stroke-dasharray: 300;
+        stroke-dashoffset: 300;
+        animation: drawFrame 4s linear infinite; /* الخط يرسم نفسه باستمرار */
+        filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.8));
+    }
+
+    .frame-inner {
+        stroke-width: 0.5;
+        opacity: 0.5;
+        stroke-dasharray: 10;
+        animation: drawFrameInner 8s linear infinite reverse;
+    }
+
+    @keyframes drawFrame {
+        0% { stroke-dashoffset: 300; }
+        50% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -300; }
+    }
+
+    @keyframes drawFrameInner {
+        0% { stroke-dashoffset: 100; }
+        100% { stroke-dashoffset: -100; }
+    }
+
+    .ticker-header-text {
+        font-family: 'Thmanyah Serif Display - Bold', 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        color: #d4af37;
+        text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        position: relative;
+        z-index: 3;
+    }
+
+    .ticker-content-box {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .lt-name {
+        white-space: nowrap;
+        padding-right: 100vw;
+        display: inline-block;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-size: 22px;
+        color: #f1f1f1;
+        font-weight: 500;
+        animation: marqueeInfinite 25s linear infinite;
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel golden-stroke-wrapper">
+        <div class="title-box">
+            <!-- إطار خطي متحرك -->
+            <svg class="stroke-frame" viewBox="0 0 100 60" preserveAspectRatio="none">
+                <path class="frame-path" d="M5,10 Q5,5 10,5 H90 Q95,5 95,10 V50 Q95,55 90,55 H10 Q5,55 5,50 Z" />
+                <path class="frame-inner" d="M10,15 Q10,10 15,10 H85 Q90,10 90,15 V45 Q90,50 85,50 H15 Q10,50 10,45 Z" />
+            </svg>
+            <span class="ticker-header-text">عاجل</span>
+        </div>
+        <div class="ticker-content-box">
+            <div class="ticker-movable-text lt-name">الاسم الكريم</div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: null,
+  },
+
+  "master-ticker": {
+    num: 25,
+    css: `
+    .master-ticker-wrapper {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        height: 70px;
+        display: flex;
+        direction: rtl; /* لغة عربية */
+        font-family: var(--font-arabic);
+        overflow: hidden;
+        background: rgba(20, 20, 20, 0.95);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 50px;
+        margin: 10px 20px;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    }
+
+    /* الركن الثابت */
+    .info-corner {
+        background: #d4af37;
+        color: #000;
+        width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        padding-right: 20px;
+        z-index: 10;
+        font-weight: bold;
+        border-radius: 0 50px 50px 0; /* تدوير الجزء الأيمن */
+    }
+
+    .time { font-size: 1.2rem; }
+    .date-row { font-size: 0.85rem; opacity: 0.85; }
+    .location-box { font-size: 0.95rem; margin-top: 2px; }
+
+    /* المنطقة المتحركة */
+    .ticker-main {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .event-tag {
+        background: #c0392b; /* لون أحمر للفعالية */
+        color: white;
+        padding: 0 20px;
+        height: calc(100% - 10px);
+        margin: 5px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        white-space: nowrap;
+        font-size: 1.1rem;
+    }
+
+    .scrolling-zone {
+        flex-grow: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+    }
+
+    .scrolling-text {
+        display: inline-block;
+        padding-right: 100vw;
+        color: #fff;
+        font-size: 1.4rem;
+        line-height: 70px;
+        font-weight: 500;
+        animation: ticker-move 20s linear infinite;
+    }
+
+    @keyframes ticker-move {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel master-ticker-wrapper theme-islamic-presets">
+        <!-- الركن الثابت للمعلومات -->
+        <div class="info-corner preset-mihrab-right">
+            <div class="time" id="live-clock">00:00:00</div>
+            <div class="date-row">
+                <span id="current-day">الأحد</span>
+                <span class="lt-date" id="current-date">2024/05/19</span>
+            </div>
+            <div class="location-box">📍 <span class="lt-location" id="location-name">الرياض</span></div>
+        </div>
+
+        <!-- مسار النصوص المتحركة -->
+        <div class="ticker-main">
+            <div class="event-tag preset-arch lt-title">اسم الفعالية</div>
+            <div class="scrolling-zone">
+                <div class="scrolling-text lt-name" id="ticker-data">
+                    هنا تظهر البيانات والأخبار التي تقوم بإضافتها وتتحرك باستمرار...
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: `
+      if (!window.masterClockInterval) {
+          window.updateMasterClock = function() {
+              const now = new Date();
+              
+              const clockEl = document.getElementById('live-clock');
+              if (clockEl) {
+                  clockEl.innerText = now.toLocaleTimeString('ar-SA');
+              }
+              
+              const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+              const dayEl = document.getElementById('current-day');
+              if (dayEl) {
+                  dayEl.innerText = days[now.getDay()];
+              }
+          };
+
+          // تشغيل الساعة كل ثانية
+          window.masterClockInterval = setInterval(window.updateMasterClock, 1000);
+      }
+      window.updateMasterClock(); // تشغيل فوري عند التحميل
+    `
+  },
+
+  "cyber-mosaic": {
+    num: 26,
+    css: `/* ═══════════════════════════════════════
+       STYLE 26: الموزاييك النيوني التراثي
+       Cyber-Mosaic Heritage
+       ═══════════════════════════════════════ */
+
+    /* 1. هيكل الشريط (Royal Black Base) */
+    .theme-cyber-mosaic .master-ticker-wrapper {
+        position: fixed;
+        bottom: 50px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: stretch;
+        direction: rtl;
+        font-family: var(--font-primary);
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        border-radius: 50px;
+        margin: 10px 30px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        overflow: hidden;
+        background: #090909; /* Royal Black */
+        /* إضاءة محيطية (Ambient Light) تتمدد خارج الكبسولة */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8),
+                    0 0 40px rgba(212, 175, 55, 0.3),
+                    inset 0 0 50px rgba(0,0,0,0.9);
+    }
+
+    /* 2. النمط الحركي للموزاييك (Kinetic Mosaic Background) */
+    .theme-cyber-mosaic .master-ticker-wrapper::before {
+        content: '';
+        position: absolute;
+        top: -100%; left: -100%; width: 300%; height: 300%;
+        background-image: 
+            radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 10px, 
+                rgba(212, 175, 55, 0.03) 10px, 
+                rgba(212, 175, 55, 0.03) 20px),
+            repeating-linear-gradient(-45deg, 
+                transparent, 
+                transparent 10px, 
+                rgba(212, 175, 55, 0.02) 10px, 
+                rgba(212, 175, 55, 0.02) 20px);
+        opacity: 0.8;
+        animation: kinetic-mosaic 60s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    @keyframes kinetic-mosaic {
+        0% { transform: rotate(0deg) translate(0, 0); }
+        50% { transform: rotate(5deg) translate(-2%, -2%); }
+        100% { transform: rotate(0deg) translate(0, 0); }
+    }
+
+    /* 3. حاوية المعلومات الثابتة (Info Corner) */
+    .theme-cyber-mosaic .info-corner {
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        color: var(--gold);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 180px;
+        border-left: 2px solid var(--gold);
+        box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1);
+        padding: 5px 15px 5px 25px;
+        border-top-right-radius: 50px;
+        border-bottom-right-radius: 50px;
+    }
+
+    /* تأثير النيون الذهبي على حواف المحراب أو القص (Neon Stroke) */
+    .theme-cyber-mosaic .info-corner::after,
+    .theme-cyber-mosaic .event-tag::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: inherit;
+        z-index: -1;
+        box-shadow: 0 0 10px var(--gold), inset 0 0 15px var(--gold);
+        opacity: 0.3;
+        animation: neon-pulse 3s infinite alternate ease-in-out;
+    }
+
+    @keyframes neon-pulse {
+        0% { opacity: 0.2; box-shadow: 0 0 5px var(--gold); }
+        100% { opacity: 0.6; box-shadow: 0 0 20px var(--gold), inset 0 0 15px var(--gold); }
+    }
+
+    .theme-cyber-mosaic .time {
+        font-size: 1.5em;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #fff;
+        position: relative;
+        padding: 5px 15px;
+        z-index: 1;
+    }
+
+    /* النجمة الثمانية الدائرية (Rounded Octagram) خلف الوقت */
+    .theme-cyber-mosaic .time::before,
+    .theme-cyber-mosaic .time::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 110%;
+        height: 150%;
+        background: rgba(212, 175, 55, 0.15);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-radius: 12px;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+    
+    .theme-cyber-mosaic .time::after {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    .theme-cyber-mosaic .date-row {
+        display: flex;
+        gap: 10px;
+        font-size: 0.9em;
+        opacity: 0.8;
+    }
+
+    .theme-cyber-mosaic .location-box {
+        margin-top: 2px;
+        font-size: 0.85em;
+        color: var(--gold);
+        background: rgba(212,175,55,0.1);
+        padding: 2px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(212,175,55,0.3);
+    }
+
+    /* 4. قسم الشريط المتحرك (Ticker Main) */
+    .theme-cyber-mosaic .ticker-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* وسم الفعالية (Event Tag) */
+    .theme-cyber-mosaic .event-tag {
+        background: linear-gradient(90deg, #d4af37, #b8860b);
+        color: #000;
+        padding: 5px 20px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-weight: 800;
+        font-size: 1.2em;
+        text-shadow: none;
+        z-index: 2;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    }
+
+    /* منطقة النص المتحرك */
+    .theme-cyber-mosaic .scrolling-zone {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    .theme-cyber-mosaic .scrolling-zone::before {
+        content: '';
+        position: absolute;
+        right: 0; top: 0; bottom: 0; width: 50px;
+        background: linear-gradient(to left, #090909, transparent);
+        z-index: 2;
+    }
+
+    .theme-cyber-mosaic .scrolling-text {
+        white-space: nowrap;
+        color: #ffffff;
+        font-size: 1.4em;
+        display: inline-block;
+        animation: cyber-ticker-move 20s linear infinite;
+        padding-left: 100%;
+    }
+
+    @keyframes cyber-ticker-move {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    `,
+    bodyHTML: `<div class="lower-third-wrapper lt-hidden" id="ltWrapper">
+    <div class="lt-panel master-ticker-wrapper theme-cyber-mosaic">
+        <!-- الركن الثابت للمعلومات -->
+        <div class="info-corner preset-mihrab-right">
+            <div class="time text-3d-neon" id="live-clock">00:00:00</div>
+            <div class="date-row">
+                <span id="current-day">الأحد</span>
+                <span class="lt-date" id="current-date">2024/05/19</span>
+            </div>
+            <div class="location-box">📍 <span class="lt-location" id="location-name">الرياض</span></div>
+        </div>
+
+        <!-- مسار النصوص المتحركة -->
+        <div class="ticker-main">
+            <div class="event-tag preset-arch lt-title text-3d-gold">اسم الفعالية</div>
+            <div class="scrolling-zone">
+                <div class="scrolling-text lt-name" id="ticker-data">
+                    هنا تظهر البيانات والأخبار العاجلة تتلألأ بتأثير النيون الذهبي والموزاييك التراثي...
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>`,
+    inlineScript: `
+      if (!window.masterClockInterval) {
+          window.updateMasterClock = function() {
+              const now = new Date();
+              
+              const clockEl = document.getElementById('live-clock');
+              if (clockEl) {
+                  clockEl.innerText = now.toLocaleTimeString('ar-SA');
+              }
+              
+              const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+              const dayEl = document.getElementById('current-day');
+              if (dayEl) {
+                  dayEl.innerText = days[now.getDay()];
+              }
+          };
+
+          window.masterClockInterval = setInterval(window.updateMasterClock, 1000);
+      }
+      window.updateMasterClock();
+    `
+  }
 
 };
 

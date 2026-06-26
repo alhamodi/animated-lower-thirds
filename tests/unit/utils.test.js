@@ -61,7 +61,7 @@ describe('Control Panel Utilities', () => {
       
       // Assert
       expect(result).toBeDefined();
-      expect(result).toContain('هـ'); // Should end or contain the Hijri indicator
+      expect(result).toContain('هجري'); // Should end or contain the Hijri indicator
       // Ensure digits are western, not arabic
       expect(result).not.toMatch(/[٠-٩]/);
     });

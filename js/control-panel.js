@@ -24,21 +24,50 @@ function convertArabicDigitsToWestern(str) {
 
 /** Auto-generate Hijri date using the Umm al-Qura calendar */
 function getHijriDate() {
+  const hijriMonths = [
+    "محرّم", "صفر", "ربيع الأول", "ربيع الآخر", 
+    "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", 
+    "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+  ];
+  const arabicDays = [
+    "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
+  ];
+
   try {
-    const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+    const today = new Date();
+    const dayName = arabicDays[today.getDay()];
+
+    const formatter = new Intl.DateTimeFormat('ar-TN-u-ca-islamic-umalqura', {
       day: 'numeric',
-      month: 'long',
+      month: 'numeric',
       year: 'numeric'
     });
-    let formatted = formatter.format(new Date());
-    formatted = convertArabicDigitsToWestern(formatted);
-    const parts = formatted.split(' ');
-    if (parts.length >= 3) {
-      return `${parts[0]} / ${parts[1]} / ${parts[2]} هـ`;
+
+    const parts = formatter.formatToParts(today);
+    let day = '', monthNum = 1, monthStr = '', year = '';
+
+    for (const part of parts) {
+      const cleanVal = convertArabicDigitsToWestern(part.value);
+      if (part.type === 'day') day = cleanVal;
+      if (part.type === 'month') {
+        const parsed = parseInt(cleanVal, 10);
+        if (!isNaN(parsed)) {
+          monthNum = parsed;
+        } else {
+          monthStr = part.value; // It's already a month string
+        }
+      }
+      if (part.type === 'year') year = cleanVal.replace(/ هـ/g, '');
     }
-    return formatted + ' هـ';
+
+    let finalMonth = monthStr;
+    if (!finalMonth) {
+      finalMonth = hijriMonths[Math.max(0, Math.min(11, monthNum - 1))];
+    }
+    
+    return `${dayName}، ${day} ${finalMonth} ${year} هجري`;
   } catch (e) {
-    return '٢٨ / ذو الحجة / ١٤٤٧ هـ';
+    return 'الأحد، ٢٨ ذو الحجة ١٤٤٧ هجري';
   }
 }
 
@@ -100,6 +129,16 @@ class ControlPanel {
       { file: 'templates/render.html', theme: 'ramadan-plum',   name: 'رمضان الأرجواني والذهبي', gradient: 'linear-gradient(135deg,#31064f,#c9a84c)' },
       { file: 'templates/render.html', theme: 'dynamic',        name: 'الجرافيك العصري الديناميكي', gradient: 'linear-gradient(135deg,#7a1a9e,#ffffff)' },
       { file: 'templates/render.html', theme: 'minimalist',     name: 'بسيط (Minimalist)',       gradient: '#ffffff' },
+      { file: 'templates/render.html', theme: 'islamic-3d',      name: 'الزمرد الإسلامي الذهبي',   gradient: 'linear-gradient(135deg,#022c22,#bf953f)' },
+      { file: 'templates/render.html', theme: 'liquid-chrome',   name: 'الزجاج الكرومي السائل',     gradient: 'linear-gradient(135deg,#94a3b8,#e2e8f0)' },
+      { file: 'templates/render.html', theme: 'liquid-neon',     name: 'الزجاج السائل النيوني',     gradient: 'linear-gradient(135deg,#00f2fe,#4f46e5)' },
+      { file: 'templates/render.html', theme: 'liquid-organic-islamic', name: 'الزجاج الإسلامي العضوي', gradient: 'linear-gradient(135deg,#bf953f,#fbf5b7)' },
+      { file: 'templates/render.html', theme: 'news-ticker',     name: 'شريط الأخبار العاجلة',      gradient: '#dc2626' },
+      { file: 'templates/render.html', theme: 'andalusian-royal', name: 'الملكي الأندلسي', gradient: 'linear-gradient(90deg, #1a1a1a 0%, #d4af37 100%)' },
+      { file: 'templates/render.html', theme: 'ramadan-eid',     name: 'رمضان والأعياد 🌙',      gradient: 'linear-gradient(135deg, #064e3b, #d4af37)' },
+      { file: 'templates/render.html', theme: 'golden-stroke',   name: 'الإطار الخطي ✨',      gradient: 'linear-gradient(135deg, #000, #444)' },
+      { file: 'templates/render.html', theme: 'master-ticker',   name: 'الشريط الشامل 📰',      gradient: 'linear-gradient(135deg, #141414, #c0392b)' },
+      { file: 'templates/render.html', theme: 'cyber-mosaic',   name: 'الموزاييك النيوني 🕌✨', gradient: 'linear-gradient(135deg, #090909, #d4af37)' },
     ];
 
     // BroadcastChannel
@@ -107,7 +146,7 @@ class ControlPanel {
     this.channel = new BroadcastChannel(this.LT_CHANNEL);
 
     // State
-    this.currentStyle = 1;
+    this.currentStyle = 17;
     this.isVisible = false;
     this.currentAlign = 'right';
     this.currentDuration = 0;
@@ -123,9 +162,10 @@ class ControlPanel {
     this.locationSize = 100;
     this.dateSize = 100;
     this.currentColorAccent = '#ffffff';
-    this.currentAnimStyle = '1';
-    this.currentAnimSpeed = 'normal';
-    this.currentLogo = null;
+    this.currentAnimSpeed = 1;
+    this.currentShapePreset = 'mihrab';
+    this.currentTextStyle = 'none';
+    this.currentShowLogo = true;
     this.countdownInterval = null;
     this.activeTab = 'text';
     this.shortcutsVisible = false;
@@ -147,6 +187,9 @@ class ControlPanel {
     this._bindInputs();
     this._bindKeyboard();
     this._initDate();
+
+    // Load saved settings from localStorage
+    this._loadSettingsFromStorage();
 
     // Listen for drag updates from iframe
     window.addEventListener('message', (e) => {
@@ -182,6 +225,16 @@ class ControlPanel {
     
     // Load system fonts async
     this._loadSystemFonts();
+
+    // Cleanup on unload to prevent memory leaks
+    window.addEventListener('unload', () => {
+      this._stopCountdown();
+      this._stopLiveClock();
+      this._stopQueueAutoPlay();
+      if (this.channel) {
+        this.channel.close();
+      }
+    });
   }
 
   // ─── Navigation ───────────────────────────
@@ -259,6 +312,12 @@ class ControlPanel {
     this.isVisible = true;
     this._setStatus(true);
 
+    // Sync button states
+    const btnShow = document.getElementById('btnShow');
+    const btnShowMobile = document.getElementById('btnShowMobile');
+    if (btnShow) btnShow.classList.add('active');
+    if (btnShowMobile) btnShowMobile.classList.add('active');
+
     if (this.currentDuration > 0) {
       this._startCountdown(this.currentDuration);
     }
@@ -273,6 +332,12 @@ class ControlPanel {
     this.isVisible = false;
     this._stopCountdown();
     this._setStatus(false);
+
+    // Sync button states
+    const btnShow = document.getElementById('btnShow');
+    const btnShowMobile = document.getElementById('btnShowMobile');
+    if (btnShow) btnShow.classList.remove('active');
+    if (btnShowMobile) btnShowMobile.classList.remove('active');
   }
 
   updateLT(fromSequencer = false) {
@@ -286,9 +351,11 @@ class ControlPanel {
     if (lt) this._applyToPreview(lt);
 
     this._updateUrlDisplay();
+    this._saveSettingsToStorage();
   }
 
   _broadcastCommand(cmd) {
+    cmd.seq = Date.now();
     // 1. BroadcastChannel
     if (this.channel) {
       this.channel.postMessage(cmd);
@@ -300,10 +367,17 @@ class ControlPanel {
     } catch (e) {}
     // 3. API Server (100% bulletproof for OBS)
     try {
+      // Use Content-Type: 'text/plain' to avoid triggering CORS preflight OPTIONS requests on file:/// protocol
       fetch(`${this.apiOrigin}/api/command`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(cmd)
+      }).catch(() => {});
+
+      // Fallback: Send command via GET request as a backup to bypass strict file:/// CORS/preflight blocks
+      fetch(`${this.apiOrigin}/api/command?cmd=${encodeURIComponent(JSON.stringify(cmd))}&t=${Date.now()}`, {
+        method: 'GET',
+        mode: 'no-cors'
       }).catch(() => {});
     } catch (e) {}
   }
@@ -387,6 +461,12 @@ class ControlPanel {
       this._debouncedUpdate();
     });
 
+    // Toggle Logo/Icon
+    document.getElementById('toggle-logo')?.addEventListener('change', (e) => {
+      this.currentShowLogo = e.target.checked;
+      this._debouncedUpdate();
+    });
+
     // Animation select
     document.getElementById('animSelect')?.addEventListener('change', (e) => {
       this.currentAnimStyle = e.target.value;
@@ -397,6 +477,20 @@ class ControlPanel {
     // Ornament select
     document.getElementById('ornamentSelect')?.addEventListener('change', (e) => {
       this.currentOrnament = e.target.value;
+      this.updateLT();
+      this._getFrame().src = this._buildUrl(this.currentStyle);
+    });
+
+    // Shape Preset select
+    document.getElementById('shapeSelect')?.addEventListener('change', (e) => {
+      this.currentShapePreset = e.target.value;
+      this.updateLT();
+      this._getFrame().src = this._buildUrl(this.currentStyle);
+    });
+
+    // 3D Text Style select
+    document.getElementById('textStyleSelect')?.addEventListener('change', (e) => {
+      this.currentTextStyle = e.target.value;
       this.updateLT();
       this._getFrame().src = this._buildUrl(this.currentStyle);
     });
@@ -507,20 +601,21 @@ class ControlPanel {
     }
   }
 
-  _getName()     { return document.getElementById('nameInput')?.value     || ''; }
-  _getTitle()    { return document.getElementById('titleInput')?.value    || ''; }
+  _getName()     { return document.getElementById('titleInput')?.value    || ''; } // Swapped: returns speaker name
+  _getTitle()    { return document.getElementById('nameInput')?.value     || ''; } // Swapped: returns lesson title
   _getLocation() { return document.getElementById('locationInput')?.value || ''; }
   _getDate()     { return document.getElementById('dateInput')?.value     || ''; }
   _getFont()     { return document.getElementById('fontInput')?.value     || ''; }
   
-  _getNameSize()     { return this.nameSize; }
-  _getTitleSize()    { return this.titleSize; }
+  _getNameSize()     { return this.titleSize; } // Swapped: speaker name size
+  _getTitleSize()    { return this.nameSize; }  // Swapped: lesson title size
   _getLocationSize() { return this.locationSize; }
   _getDateSize()     { return this.dateSize; }
 
   _getAllSettings() {
     const activeStyle = this.STYLES[this.currentStyle];
     return {
+      styleId: this.currentStyle,
       styleFile: activeStyle ? activeStyle.file : '',
       name: this._getName(),
       title: this._getTitle(),
@@ -542,7 +637,10 @@ class ControlPanel {
       animSpeed: this.currentAnimSpeed,
       logo: this.currentLogo,
       ornament: this.currentOrnament,
+      shapePreset: this.currentShapePreset,
+      textStyle: this.currentTextStyle,
       layoutDir: this.currentLayoutDir,
+      showLogo: !!this.currentShowLogo,
     };
   }
 
@@ -551,13 +649,15 @@ class ControlPanel {
     if (!style) return '';
     const s = this._getAllSettings();
     const params = new URLSearchParams({
+      styleId: styleIdx,
       style: style.theme,
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
       nameSize: s.nameSize, titleSize: s.titleSize,
       locationSize: s.locationSize, dateSize: s.dateSize,
       duration: s.duration, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
-      anim: s.animStyle, ornament: s.ornament, layoutDir: s.layoutDir, autostart: 'false'
+      anim: s.animStyle, ornament: s.ornament, shapePreset: s.shapePreset, textStyle: s.textStyle, layoutDir: s.layoutDir, autostart: 'false',
+      showLogo: s.showLogo ? 'true' : 'false'
     });
     if (s.colorBg) params.set('colorBg', s.colorBg);
     if (s.colorText) params.set('colorText', s.colorText);
@@ -570,6 +670,7 @@ class ControlPanel {
     if (!lt) return;
     const s = this._getAllSettings();
     Object.assign(lt, {
+      styleId: s.styleId,
       name: s.name, title: s.title, location: s.location,
       date: s.date, font: s.font, align: s.align,
       nameSize: s.nameSize, titleSize: s.titleSize,
@@ -577,7 +678,8 @@ class ControlPanel {
       duration: 0, bottomMargin: s.bottomMargin, sideMargin: s.sideMargin,
       colorBg: s.colorBg, colorText: s.colorText,
       colorAccent: s.colorAccent, animStyle: s.animStyle,
-      logo: s.logo, ornament: s.ornament, layoutDir: s.layoutDir,
+      logo: s.logo, ornament: s.ornament, shapePreset: s.shapePreset, textStyle: s.textStyle, layoutDir: s.layoutDir,
+      showLogo: s.showLogo
     });
     lt._applyAll();
   }
@@ -604,6 +706,7 @@ class ControlPanel {
     const wasVisible = this.isVisible;
     const prevStyle = this.currentStyle;
     this.currentStyle = num;
+    this._saveSettingsToStorage();
     document.querySelectorAll('[data-style]').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
     
@@ -614,7 +717,7 @@ class ControlPanel {
     // Only reload iframe if it hasn't been initialized yet (first load)
     if (frame && frame.contentWindow && prevStyle > 0) {
       try {
-        frame.contentWindow.postMessage({ type: 'change-style', style: style.theme }, '*');
+        frame.contentWindow.postMessage({ type: 'change-style', styleId: num, style: style.theme }, '*');
       } catch (e) {
         // Fallback: reload iframe if postMessage fails (cross-origin)
         frame.src = this._buildUrl(num);
@@ -624,7 +727,7 @@ class ControlPanel {
     }
     
     // Also broadcast for OBS browser sources
-    this._broadcastCommand({ type: 'change-style', style: style.theme });
+    this._broadcastCommand({ type: 'change-style', styleId: num, style: style.theme });
     
     this._updateUrlDisplay();
     this._updateStyleBadge();
@@ -667,14 +770,10 @@ class ControlPanel {
       } catch(e) {}
     }
     
-    if (fontList.length === 0) {
-      fontList = [
-        'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri', 'Arial', 'Times New Roman', 'Helvetica', 'Courier New', 'Verdana', 'Tahoma'
-      ];
-    }
+    fontList = ["AlSharkTitle - Black", "Arabic UI Text - SemiBold", "BaksoSapi", "IBMPlexSans-Italic - VariableFont", "IBMPlexSans - VariableFont", "Masmak", "Montserrat-Italic - VariableFont", "Montserrat - VariableFont", "Symbols1_Ver02", "The Year of Handicrafts - Black", "The Year of Handicrafts - Bold", "The Year of Handicrafts - Medium", "The Year of Handicrafts - Regular", "The Year of Handicrafts - SemiBold", "The Year of The Camel - Bold", "The Year of The Camel - ExtraBold", "The Year of The Camel - ExtraLight", "The Year of The Camel - Light", "The Year of The Camel - Medium", "The Year of The Camel - Regular", "The Year of The Camel - Thin", "Thmanyah Sans - Black", "Thmanyah Sans - Bold", "Thmanyah Sans - Light", "Thmanyah Sans - Medium", "Thmanyah Sans - Regular", "Thmanyah Serif Display - Black", "Thmanyah Serif Display - Bold", "Thmanyah Serif Display - Light", "Thmanyah Serif Display - Medium", "Thmanyah Serif Display - Regular", "Thmanyah Serif Text - Black", "Thmanyah Serif Text - Bold", "Thmanyah Serif Text - Light", "Thmanyah Serif Text - Medium", "Thmanyah Serif Text - Regular"];
     
     // Ensure Thmanyah and premium fonts are at the top and Thmanyah is absolute first
-    const preferredFonts = ['Thmanyah', 'Cairo', 'Tajawal', 'Almarai', 'Changa', 'Amiri'];
+    const preferredFonts = [];
     fontList = preferredFonts.concat(fontList.filter(f => !preferredFonts.includes(f)));
     
     const renderOptions = (list) => {
@@ -871,10 +970,10 @@ class ControlPanel {
   _loadPreset(id) {
     const preset = this._getPresets().find(p => p.id === id);
     if (!preset) return;
-    document.getElementById('nameInput').value = preset.name;
-    document.getElementById('titleInput').value = preset.title;
-    document.getElementById('locationInput').value = preset.location;
-    document.getElementById('dateInput').value = preset.date;
+    document.getElementById('nameInput').value = preset.title || '';  // Lesson title
+    document.getElementById('titleInput').value = preset.name || ''; // Speaker name
+    document.getElementById('locationInput').value = preset.location || '';
+    document.getElementById('dateInput').value = preset.date || '';
     if (preset.font) document.getElementById('fontInput').value = preset.font;
     this.updateLT();
   }
@@ -1002,10 +1101,10 @@ class ControlPanel {
     if (!item) return;
     
     // Load data into inputs
-    document.getElementById('nameInput').value = item.name;
-    document.getElementById('titleInput').value = item.title;
-    document.getElementById('locationInput').value = item.location;
-    document.getElementById('dateInput').value = item.date;
+    document.getElementById('nameInput').value = item.title || '';  // Lesson title
+    document.getElementById('titleInput').value = item.name || ''; // Speaker name
+    document.getElementById('locationInput').value = item.location || '';
+    document.getElementById('dateInput').value = item.date || '';
     if (item.font) document.getElementById('fontInput').value = item.font;
     
     // If currently visible, exit first, then re-enter with new data
@@ -1069,10 +1168,10 @@ class ControlPanel {
   _playQueueItem(index) {
     const item = this.queue[index];
     if (!item) return;
-    document.getElementById('nameInput').value = item.name;
-    document.getElementById('titleInput').value = item.title;
-    document.getElementById('locationInput').value = item.location;
-    document.getElementById('dateInput').value = item.date;
+    document.getElementById('nameInput').value = item.title || '';  // Lesson title
+    document.getElementById('titleInput').value = item.name || ''; // Speaker name
+    document.getElementById('locationInput').value = item.location || '';
+    document.getElementById('dateInput').value = item.date || '';
     if (item.font) document.getElementById('fontInput').value = item.font;
     this.hideLT();
     const transitionGap = parseInt(document.getElementById('seqGapInput')?.value) || 800;
@@ -1237,6 +1336,149 @@ class ControlPanel {
     }
     const btn = document.getElementById('btnLiveClock');
     if (btn) btn.classList.remove('active');
+  }
+
+  _saveSettingsToStorage() {
+    try {
+      const s = this._getAllSettings();
+      localStorage.setItem('lt-last-settings', JSON.stringify(s));
+    } catch (e) {}
+  }
+
+  _loadSettingsFromStorage() {
+    try {
+      const saved = localStorage.getItem('lt-last-settings');
+      if (saved) {
+        const s = JSON.parse(saved);
+        
+        // Restore state properties
+        if (s.styleId !== undefined) this.currentStyle = s.styleId;
+        if (s.align !== undefined) this.currentAlign = s.align;
+        if (s.duration !== undefined) this.currentDuration = s.duration;
+        if (s.bottomMargin !== undefined) this.currentBottom = s.bottomMargin;
+        if (s.sideMargin !== undefined) this.currentSideMargin = s.sideMargin;
+        if (s.colorBg !== undefined) this.currentColorBg = s.colorBg;
+        if (s.colorText !== undefined) this.currentColorText = s.colorText;
+        if (s.colorAccent !== undefined) this.currentColorAccent = s.colorAccent;
+        if (s.animStyle !== undefined) this.currentAnimStyle = s.animStyle;
+        if (s.animSpeed !== undefined) this.currentAnimSpeed = s.animSpeed;
+        if (s.logo !== undefined) this.currentLogo = s.logo;
+        if (s.ornament !== undefined) this.currentOrnament = s.ornament;
+        if (s.shapePreset !== undefined) this.currentShapePreset = s.shapePreset;
+        if (s.textStyle !== undefined) this.currentTextStyle = s.textStyle;
+        if (s.layoutDir !== undefined) this.currentLayoutDir = s.layoutDir;
+        if (s.showLogo !== undefined) this.currentShowLogo = s.showLogo;
+        
+        if (s.nameSize !== undefined) this.nameSize = s.nameSize;
+        if (s.titleSize !== undefined) this.titleSize = s.titleSize;
+        if (s.locationSize !== undefined) this.locationSize = s.locationSize;
+        if (s.dateSize !== undefined) this.dateSize = s.dateSize;
+
+        // Restore HTML input field values
+        const nameInput = document.getElementById('nameInput'); // Lesson Title input
+        const titleInput = document.getElementById('titleInput'); // Speaker Name input
+        const locationInput = document.getElementById('locationInput');
+        const dateInput = document.getElementById('dateInput');
+        const fontInput = document.getElementById('fontInput');
+
+        if (nameInput && s.title !== undefined) nameInput.value = s.title;
+        if (titleInput && s.name !== undefined) titleInput.value = s.name;
+        if (locationInput && s.location !== undefined) locationInput.value = s.location;
+        if (dateInput && s.date !== undefined) dateInput.value = s.date;
+        if (fontInput && s.font !== undefined) fontInput.value = s.font;
+
+        // Update UI controls to match restored state
+        
+        // 1. Style Cards
+        document.querySelectorAll('[data-style]').forEach(c => {
+          c.classList.toggle('active', parseInt(c.dataset.style, 10) === this.currentStyle);
+        });
+
+        // 2. Alignment Buttons
+        document.querySelectorAll('[data-align]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.align === this.currentAlign);
+        });
+
+        // 3. Duration Slider
+        const durationSlider = document.getElementById('durationSlider');
+        const durationVal = document.getElementById('durationVal');
+        if (durationSlider) {
+          durationSlider.value = this.currentDuration;
+          if (durationVal) {
+            durationVal.textContent = this.currentDuration === 0 ? '0 (مستمر)' : `${this.currentDuration}ث`;
+          }
+        }
+
+        // 4. Margins
+        const marginSlider = document.getElementById('marginSlider');
+        const marginVal = document.getElementById('marginVal');
+        if (marginSlider) {
+          marginSlider.value = this.currentBottom;
+          if (marginVal) marginVal.textContent = `${this.currentBottom}%`;
+        }
+
+        const sideMarginSlider = document.getElementById('sideMarginSlider');
+        const sideMarginVal = document.getElementById('sideMarginVal');
+        if (sideMarginSlider) {
+          sideMarginSlider.value = this.currentSideMargin;
+          if (sideMarginVal) sideMarginVal.textContent = `${this.currentSideMargin}%`;
+        }
+
+        // 5. Layout Direction
+        const layoutSelect = document.getElementById('layoutDirSelect');
+        if (layoutSelect) layoutSelect.value = this.currentLayoutDir;
+
+        // 6. Colors
+        const colorBg = document.getElementById('colorBg');
+        if (colorBg && this.currentColorBg) colorBg.value = this.currentColorBg;
+
+        const colorText = document.getElementById('colorText');
+        if (colorText && this.currentColorText) colorText.value = this.currentColorText;
+
+        const colorAccent = document.getElementById('colorAccent');
+        if (colorAccent && this.currentColorAccent) colorAccent.value = this.currentColorAccent;
+
+        // 7. Ornament Selector
+        const ornamentSelect = document.getElementById('ornamentSelect');
+        if (ornamentSelect) ornamentSelect.value = this.currentOrnament;
+
+        // 8. Shape Preset Selector
+        const shapeSelect = document.getElementById('shapeSelect');
+        if (shapeSelect) shapeSelect.value = this.currentShapePreset;
+
+        // 9. Animation Style Selector
+        const animSelect = document.getElementById('animSelect');
+        if (animSelect) animSelect.value = this.currentAnimStyle;
+
+        // 10. Animation Speed Selector
+        const animationSpeed = document.getElementById('animationSpeed');
+        if (animationSpeed) animationSpeed.value = this.currentAnimSpeed;
+
+        // 11. Text Style Selector
+        const textStyleSelect = document.getElementById('textStyleSelect');
+        if (textStyleSelect) textStyleSelect.value = this.currentTextStyle;
+
+        // 12. Show Logo checkbox
+        const toggleLogo = document.getElementById('toggle-logo');
+        if (toggleLogo) toggleLogo.checked = this.currentShowLogo;
+
+        // 13. Font Sizes Displays
+        ['nameSize', 'titleSize', 'locationSize', 'dateSize'].forEach(target => {
+          const display = document.getElementById(`${target}Display`);
+          if (display && this[target] !== undefined) {
+            display.textContent = `${this[target]}%`;
+          }
+        });
+
+        // Set restored style URL to the iframe
+        const frame = this._getFrame();
+        if (frame) {
+          frame.src = this._buildUrl(this.currentStyle);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load saved settings:', e);
+    }
   }
 
   _escapeHtml(str) {

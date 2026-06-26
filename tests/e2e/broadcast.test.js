@@ -43,13 +43,13 @@ test.describe('BroadcastChannel Integration', () => {
     await displayPage.waitForSelector('.lt-name', { state: 'attached' });
 
     // Change value in control panel
-    await controlPanelPage.fill('#nameInput', 'تجربة بثเพลย์ไรท์');
+    await controlPanelPage.fill('#titleInput', 'تجربة بثเพลย์ไรท์');
     
     // Trigger update if it requires a button click, or wait if debounced
     await controlPanelPage.waitForTimeout(1000); // Wait for debounce and animation
  
     // The display page should receive the BroadcastChannel message and update
-    const displayNameEl = displayPage.locator('.lt-name');
+    const displayNameEl = displayPage.locator('.lt-title');
     await expect(displayNameEl).toBeVisible();
     await expect(displayNameEl).toHaveText('تجربة بثเพลย์ไรท์');
   });
